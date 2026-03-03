@@ -5,6 +5,8 @@ const auth = new AuthService;
 export async function signUp(req,res){
     const { username, email, password  } = req.body;
 
+    email = email?.trim().toLowerCase();   
+
     if(!username || !email || !password){
        return res.status(400).json({
         success: false,
@@ -20,8 +22,21 @@ export async function signUp(req,res){
                 error: `Account with email ${email} already exists`
             })
         }
-        const user = await auth.signUp(email, password, username);
+        const { session, user } = await auth.signUp(email, password, username);
         
+        res.cookie('access_token', session.access_token,{
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000
+        });
+        res.cookie('refresh_token', session.refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 90 * 24 * 60 * 60 * 1000
+        })
+
         res.status(201).json({
             success: true,
             user
@@ -36,6 +51,9 @@ export async function signUp(req,res){
 
 export async function login(req,res){
     const { email, password } = req.body;
+
+    email = email?.trim().toLowerCase(); 
+
     if(!email || !password){
 
         return res.status(400).json({
@@ -45,6 +63,20 @@ export async function login(req,res){
     }
     try{
         const user = await auth.login(email, password);
+
+         res.cookie('access_token', session.access_token,{
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000
+        });
+        res.cookie('refresh_token', session.refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 90 * 24 * 60 * 60 * 1000
+        })
+
         return res.status(200).json({
             success: true,
             user
@@ -60,6 +92,9 @@ export async function login(req,res){
 export async function logOut(req,res){
     try{
         await auth.logout()
+
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
 
         return res.status(200).json({
             success: true,
