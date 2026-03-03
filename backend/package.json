@@ -1,7 +1,22 @@
 {
-  "dependencies": {
+ 
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "devDependencies": {},
+   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "prisma": "^7.4.2"
-  }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
 }
