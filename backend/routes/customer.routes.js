@@ -6,4 +6,4 @@ const customerRouter = express.Router();
 
 customerRouter.get('/customer-info', requireAuth, getCustomerInfo)
 customerRouter.get('/customer-status', requireAuth, getCustomerStatus)
-customerRouter.get('/customer-quote', requireAuth, getCustomerInfo)
+customerRouter.get('/customer-quote', requireAuth, getCustomerQuoteInfo)

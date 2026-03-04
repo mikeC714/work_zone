@@ -1,5 +1,6 @@
 import { getQuoteInfo, getJobInfo } from '../utils/getQuote.js'
 import { supabase } from '../config/supabase.config.js';
+import { signUp } from '../controllers/auth.controllers.js';
 
 export async function customerInfo(customerId){
     const { data: customerInfo, error } = await supabase
@@ -66,4 +67,71 @@ export async function customerStatus(customer, user){
         completedStatus,
         declinedStatus
     }
+}
+
+export async function createQuote(id, user, customer, labor, materials, quote, jobId, createdAt){
+    const [
+        { data: customerData, error: customerError },
+        { data: laborData, error: laborError },
+        { data: materialsData, error: materialsError },
+    ] = await Promise.all([
+
+        supabase.from('customers').insert({
+            id, user_id: user.id,
+            name: customer.name, phone: customer.phone,
+            email: customer.email, address: customer.address,
+            created_at: createdAt
+        }),
+
+        supabase.from('labor').insert(
+            labor.map(labor => ({
+                id,
+                user_id: user.id,
+                quote_id: quote.id, 
+                description: labor.description,
+                hours: labor.hours,
+                hourly_rate: labor.hourly,
+                created_at: createdAt
+            }))
+        ),
+
+        supabase.from('materials').insert(
+            materials.map(materials => ({
+                id,
+                user_id: user.id,
+                quote_id: quote.id,
+                description: materials.description,
+                quantity: materials.quantity,
+                unit_cost: materials.unitCost,
+                created_at: createdAt
+            }))
+        ),
+    ]);
+
+    const firstError = customerError || laborError || materialsError
+    if(firstError){
+        console.error(`Failed to insert data ${firstError}`);
+        return { error: firstError }
+    }
+
+    const { data: quoteData, error: quoteError } = await supabase
+        .from('quotes')
+        .insert({
+            id,
+            user_id: user.id,
+            customer_id: customerData[0].id,
+            job_id: jobId,
+            status: quote.status,
+            markup: quote.markup,   
+            total: quote.total,
+            created_at: createdAt
+        })
+    
+    if(quoteError){
+        console.error('Failed to insert Quote Data');
+        return { error: quoteError }
+    }
+
+    return { customerData, laborData, materialData, quoteData };
+
 }
