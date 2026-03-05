@@ -5,6 +5,11 @@ dotenv.config();
 
 const resend = new Resend(process.env.RESEND_KEY)
 
+
+// NEEDS TO IMPORT EMAIL TEMPLATE FROM JSX COMPONENT
+// HANDLE QUOTE RESPONSE FUNCTION NEEDS TO BE CREATED FOR CUSTOMER ACCEPTING OR DECLINING QUOTE< WHICH WOULD EFFECT THE QUOTE.STATUS
+
+
 export async function sendQuoteEmail(req,res){
     user = req.user;
     const { quoteId } = req.params;
@@ -31,7 +36,6 @@ export async function sendQuoteEmail(req,res){
                 error: error.message
             })
         }
-
 
         return res.status(200).json({
             success: true,
