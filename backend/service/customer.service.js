@@ -1,6 +1,6 @@
-import { getQuoteInfo, getJobInfo } from '../utils/getQuote.js'
+import crypto from 'node:crypto';
+import { getQuoteInfo, getJobInfo } from '../utils/getQuote.js';
 import { supabase } from '../config/supabase.config.js';
-import { signUp } from '../controllers/auth.controllers.js';
 
 export async function customerInfo(customerId){
     const { data: customerInfo, error } = await supabase
@@ -69,58 +69,67 @@ export async function customerStatus(customer, user){
     }
 }
 
-export async function createQuote(id, user, customer, labor, materials, quote, jobId, createdAt){
+export async function createQuote(user, customer, labor, materials, quote, createdAt){
+    
+    const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .insert({
+            id:crypto.randomUUID(),
+            user_id: user.id,
+            name: customer.name, phone: customer.phone,
+            email: customer.email, address: customer.address,
+            created_at: createdAt
+        })
+        .single()
+
+        if(customerError){
+            console.error('Failed to insert Customer Data')
+            return { error: customerError }
+        }
+
     const [
-        { data: customerData, error: customerError },
         { data: laborData, error: laborError },
         { data: materialsData, error: materialsError },
     ] = await Promise.all([
 
-        supabase.from('customers').insert({
-            id, user_id: user.id,
-            name: customer.name, phone: customer.phone,
-            email: customer.email, address: customer.address,
-            created_at: createdAt
-        }),
-
         supabase.from('labor').insert(
-            labor.map(labor => ({
-                id,
+            labor.map(work => ({
+                id: crypto.randomUUID(),
                 user_id: user.id,
                 quote_id: quote.id, 
-                description: labor.description,
-                hours: labor.hours,
-                hourly_rate: labor.hourly,
+                description: work.description,
+                hours: work.hours,
+                hourly_rate: work.hourly,
                 created_at: createdAt
             }))
         ),
 
         supabase.from('materials').insert(
-            materials.map(materials => ({
-                id,
+            materials.map(material => ({
+                id: crypto.randomUUID(),
                 user_id: user.id,
                 quote_id: quote.id,
-                description: materials.description,
-                quantity: materials.quantity,
-                unit_cost: materials.unitCost,
+                description: material.description,
+                quantity: material.quantity,
+                unit_metric: material.metric,
+                unit_cost: material.unitCost,
                 created_at: createdAt
             }))
         ),
     ]);
 
-    const firstError = customerError || laborError || materialsError
-    if(firstError){
-        console.error(`Failed to insert data ${firstError}`);
-        return { error: firstError }
+    if(laborError || materialsError) {
+        const error = laborError || materialsError;
+        console.error(`Failed to insert labor/materials: ${error.message}`);
+        return { error };
     }
 
     const { data: quoteData, error: quoteError } = await supabase
         .from('quotes')
         .insert({
-            id,
+            id: crypto.randomUUID(),
             user_id: user.id,
             customer_id: customerData[0].id,
-            job_id: jobId,
             status: quote.status,
             markup: quote.markup,   
             total: quote.total,
@@ -132,6 +141,21 @@ export async function createQuote(id, user, customer, labor, materials, quote, j
         return { error: quoteError }
     }
 
-    return { customerData, laborData, materialData, quoteData };
+    return { customerData, laborData, materialsData, quoteData };
+}
 
+
+export async function deleteQuote(quoteId, userId){
+    const { error } = await supabase
+        .from('quotes')
+        .delete()
+        .eq('quote_id', quoteId)
+        .eq('user_id', userId)
+
+    if(error){
+        console.error(`Failed to Delete Quote ${quoteId}`);
+        return; 
+    }
+
+    return { success: true };
 }
