@@ -2,7 +2,7 @@ import express from 'express';
 import { getCustomerInfo, getCustomerStatus, getCustomerQuoteInfo, createCustomerQuote, deleteCustomerQuote } from '../controllers/customer.controllers.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 
-const customerRouter = express.Router();
+export const customerRouter = express.Router();
 
 customerRouter.get('/customer-info', requireAuth, getCustomerInfo)
 customerRouter.get('/customer-status', requireAuth, getCustomerStatus)

@@ -7,7 +7,7 @@ dotenv.config();
 const resend = new Resend(process.env.RESEND_KEY)
 
 export async function sendQuoteEmail(req,res){
-    user = req.user;
+    const user = req.user;
     const { customer, labor, materials, quote } = req.body;
    
     if(!user){
