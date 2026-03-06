@@ -129,12 +129,15 @@ export async function createQuote(user, customer, labor, materials, quote, creat
         .insert({
             id: crypto.randomUUID(),
             user_id: user.id,
-            customer_id: customerData[0].id,
+            customer_id: customerData.id,
+            token: crypto.randomUUID(),
             status: quote.status,
             markup: quote.markup,   
             total: quote.total,
             created_at: createdAt
         })
+        .select()
+        .single()
     
     if(quoteError){
         console.error('Failed to insert Quote Data');
