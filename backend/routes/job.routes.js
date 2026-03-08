@@ -7,4 +7,4 @@ export const jobRouter = express.Router();
 jobRouter.get('/completed-jobs', requireAuth, getAllCompletedJobs)
 jobRouter.get('/unpaid-jobs', requireAuth, getUnpaidJobs)
 jobRouter.get('/active-jobs', requireAuth, getActiveJobs)
-jobRouter.get('/monthly-total', requireAuth, getMonthlyTotal)
+jobRouter.get('/monthly-revenue', requireAuth, getMonthlyTotal)

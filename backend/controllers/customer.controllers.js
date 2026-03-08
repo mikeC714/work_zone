@@ -1,5 +1,6 @@
 import { customerInfo, customerQuoteInfo, customerStatus, createQuote, deleteQuote } from "../service/customer.service.js";
 import { getCustomerId } from '../utils/getCustomer.js';
+import { getQuoteInfo, getJobInfo } from "../utils/getQuote.js";
 
 
 export async function getCustomerInfo(req,res){
@@ -20,6 +21,30 @@ export async function getCustomerInfo(req,res){
         })
     }
 }
+
+export async function getAllUserCustomers(req,res){
+    try{
+            const customerId = await getCustomer(req.user);
+            const quoteDetails = await getQuoteInfo(customerId, req.user)
+            const jobDetails = await getJobInfo(quoteDetails.id) 
+            const customerDetails = await customerInfo(customerId) 
+
+         res.status(200).json({
+                success: true,
+                quoteDetails,
+                customerDetails,
+                jobDetails
+            })
+
+    }catch(error){
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+
+
 
 export async function getCustomerQuoteInfo(req,res){
     try{
@@ -90,7 +115,7 @@ export async function deleteCustomerQuote(req,res){
     try{
         const deletedQuote = await deleteQuote(quoteId, user.id);
 
-        if(deleteQuote.error){
+        if(deletedQuote.error){
             console.error(`Failed to Delete Customer Quote ${quoteId}`);
             return res.status(500).json({
                 success: false,

@@ -12,7 +12,7 @@ export async function customerInfo(customerId){
         throw new Error(`Failed to query Customer Info ${error.message}`);
     }
 
-    console.log(data);
+    console.log(customerInfo);
 
     return customerInfo;
 }
