@@ -9,4 +9,3 @@ export const supabase = createClient(
     process.env.SUPA_KEY
 )
 
-console.log(supabase)

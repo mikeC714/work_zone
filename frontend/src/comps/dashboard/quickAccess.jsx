@@ -1,10 +1,11 @@
 import { quickAccessQueries } from "../../hooks/quickAccess.hooks.jsx";
 import { useQueries } from "@tanstack/react-query";
 
-export async function QuickAccess(){
-    const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessQueries.map(data => data.data)
-    const isLoading = quickAccessQueries.some(data => data.isLoading)
-    const isError = quickAccessQueries.some(data => data.isError);
+export function QuickAccess(){
+    const quickAccessData = useQueries({ queries: quickAccessQueries }) 
+    const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
+    const isLoading = quickAccessData.some(data => data.isLoading)
+    const isError = quickAccessData.some(data => data.isError);
 
     return (
         <div>

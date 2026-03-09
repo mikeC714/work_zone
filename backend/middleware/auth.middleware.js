@@ -1,6 +1,6 @@
 import { getUser } from '../utils/getUser.js';
 
-export async function requireAuth(req,res){
+export async function requireAuth(req,res,next){
     const token = req.cookies.access_token;
 
     if(!token){
@@ -12,6 +12,7 @@ export async function requireAuth(req,res){
     try {
         const user = await getUser(token);
         req.user = user;
+        next();
     }catch(error) {
         console.error(error.message);
         return res.status(401).json({

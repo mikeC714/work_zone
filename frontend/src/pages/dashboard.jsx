@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
-import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
+// import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
 
 export function Dashboard(){
     return(
@@ -28,7 +28,7 @@ export function Dashboard(){
             </div>
 
             <div className='customerTableContainer' >
-                <CustomerTable />
+                {/* <CustomerTable /> */}
             </div>
 
         </div>
