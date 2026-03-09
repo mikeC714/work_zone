@@ -3,10 +3,13 @@ import { getQuoteInfo, getJobInfo } from '../utils/getQuote.js';
 import { supabase } from '../config/supabase.config.js';
 
 export async function customerInfo(customerId){
+
+    const customerIds = customerId.map(customer => customer.id)
+
     const { data: customerInfo, error } = await supabase
         .from('customers')
-        .select('name, phone, email, address, created_at')
-        .eq('id', customerId.id)
+        .select('id, name, phone, email, address, created_at')
+        .in('id', customerIds)
     
     if(error){
         throw new Error(`Failed to query Customer Info ${error.message}`);
@@ -17,8 +20,8 @@ export async function customerInfo(customerId){
     return customerInfo;
 }
 
-export async function customerQuoteInfo(customerId, user){
-    const quotes = await getQuoteInfo(customerId, user);
+export async function customerQuoteInfo(customerIds, user){
+    const quotes = await getQuoteInfo([customerIds], user);
 
     if(!quotes || quotes.length === 0){
         return {
@@ -28,7 +31,7 @@ export async function customerQuoteInfo(customerId, user){
 
     const quotedJobs = await Promise.all(
         quotes.map(async quote => {
-            const jobInfo = await getJobInfo(quote);
+            const jobInfo = await getJobInfo([quote]);
             return {
                 ...quote,
                 job: jobInfo
@@ -41,7 +44,7 @@ export async function customerQuoteInfo(customerId, user){
 }
 
 export async function customerStatus(customer, user){
-    const quotes = await getQuoteInfo(customer, user);
+    const quotes = await getQuoteInfo([customer], user);
 
     if(!quotes || quotes.length === 0){
         return {
@@ -87,6 +90,26 @@ export async function createQuote(user, customer, labor, materials, quote, creat
             return { error: customerError }
         }
 
+         const { data: quoteData, error: quoteError } = await supabase
+        .from('quotes')
+        .insert({
+            id: crypto.randomUUID(),
+            user_id: user.id,
+            customer_id: customerData.id,
+            token: crypto.randomUUID(),
+            status: quote.status,
+            markup: quote.markup,   
+            total: quote.total,
+            created_at: createdAt
+        })
+        .select()
+        .single()
+    
+    if(quoteError){
+        console.error('Failed to insert Quote Data');
+        return { error: quoteError }
+    }
+
     const [
         { data: laborData, error: laborError },
         { data: materialsData, error: materialsError },
@@ -122,26 +145,6 @@ export async function createQuote(user, customer, labor, materials, quote, creat
         const error = laborError || materialsError;
         console.error(`Failed to insert labor/materials: ${error.message}`);
         return { error };
-    }
-
-    const { data: quoteData, error: quoteError } = await supabase
-        .from('quotes')
-        .insert({
-            id: crypto.randomUUID(),
-            user_id: user.id,
-            customer_id: customerData.id,
-            token: crypto.randomUUID(),
-            status: quote.status,
-            markup: quote.markup,   
-            total: quote.total,
-            created_at: createdAt
-        })
-        .select()
-        .single()
-    
-    if(quoteError){
-        console.error('Failed to insert Quote Data');
-        return { error: quoteError }
     }
 
     return { customerData, laborData, materialsData, quoteData };

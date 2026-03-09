@@ -1,5 +1,5 @@
 import { customerInfo, customerQuoteInfo, customerStatus, createQuote, deleteQuote } from "../service/customer.service.js";
-import { getCustomerId } from '../utils/getCustomer.js';
+import { getCustomerId, getAllCustomerIds } from '../utils/getCustomer.js';
 import { getQuoteInfo, getJobInfo } from "../utils/getQuote.js";
 
 
@@ -24,16 +24,31 @@ export async function getCustomerInfo(req,res){
 
 export async function getAllUserCustomers(req,res){
     try{
-            const customerId = await getCustomer(req.user);
-            const quoteDetails = await getQuoteInfo(customerId, req.user)
-            const jobDetails = await getJobInfo(quoteDetails.id) 
-            const customerDetails = await customerInfo(customerId) 
+            const customerIds = await getAllCustomerIds(req.user);
+            const quoteDetails = await getQuoteInfo(customerIds, req.user)
+            const jobDetails = await getJobInfo(quoteDetails) 
+            const customerDetails = await customerInfo(customerIds) 
+            
+            console.log(req.user.id)
+            console.log('customerIds:', customerIds)
+            console.log('customerDetails:', customerDetails)
 
+            const customers = customerDetails.map(customer => {
+                return{
+                    ...customer,
+                    quote: quoteDetails.filter(quote => quote.customer_id === customer.id).map(quotes => {
+                       return {
+                        ...quotes,
+                        job: jobDetails.filter(job => job.quote_id === quotes.id)
+                       }
+                    })
+                }
+            })
+
+            console.log(customers)
          res.status(200).json({
                 success: true,
-                quoteDetails,
-                customerDetails,
-                jobDetails
+                customers
             })
 
     }catch(error){

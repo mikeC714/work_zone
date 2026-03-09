@@ -3,7 +3,7 @@ import { AuthService } from '../service/auth.service.js';
 const auth = new AuthService;
 
 export async function signUp(req,res){
-    const { username, email, password  } = req.body;
+    let { username, email, password  } = req.body;
 
     email = email?.trim().toLowerCase();   
 
@@ -62,7 +62,7 @@ export async function login(req,res){
         })
     }
     try{
-        const user = await auth.login(email, password);
+        const { session, user } = await auth.login(email, password);
 
          res.cookie('access_token', session.access_token,{
             httpOnly: true,

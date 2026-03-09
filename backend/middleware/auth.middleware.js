@@ -9,6 +9,9 @@ export async function requireAuth(req,res,next){
             error: 'Invalid Session Token'
         })
     }
+
+    console.log(token);
+
     try {
         const user = await getUser(token);
         req.user = user;
