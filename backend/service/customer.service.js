@@ -2,13 +2,14 @@ import crypto from 'node:crypto';
 import { getQuoteInfo, getJobInfo } from '../utils/getQuote.js';
 import { supabase } from '../config/supabase.config.js';
 
-export async function customerInfo(customerId){
+export async function customerInfo(customerId, user){
 
     const customerIds = customerId.map(customer => customer.id)
 
     const { data: customerInfo, error } = await supabase
         .from('customers')
         .select('id, name, phone, email, address, created_at')
+        .eq('user_id', user.id)
         .in('id', customerIds)
     
     if(error){

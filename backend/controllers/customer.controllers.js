@@ -27,12 +27,8 @@ export async function getAllUserCustomers(req,res){
             const customerIds = await getAllCustomerIds(req.user);
             const quoteDetails = await getQuoteInfo(customerIds, req.user)
             const jobDetails = await getJobInfo(quoteDetails) 
-            const customerDetails = await customerInfo(customerIds) 
+            const customerDetails = await customerInfo(customerIds, req.user) 
             
-            console.log(req.user.id)
-            console.log('customerIds:', customerIds)
-            console.log('customerDetails:', customerDetails)
-
             const customers = customerDetails.map(customer => {
                 return{
                     ...customer,
@@ -45,8 +41,7 @@ export async function getAllUserCustomers(req,res){
                 }
             })
 
-            console.log(customers)
-         res.status(200).json({
+         return res.status(200).json({
                 success: true,
                 customers
             })

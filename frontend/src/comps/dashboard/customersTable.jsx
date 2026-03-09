@@ -14,6 +14,7 @@ export function CustomerTable() {
         };
     return(
         <div>
+            {isLoading ? <h2>Loading...</h2> :
             <table>
                 <thead>
                     <tr>
@@ -25,21 +26,25 @@ export function CustomerTable() {
                         <th>UPDATED</th>
                     </tr>
                 </thead>
-                {/* <tbody>
-                    {data.customers.map(customer => (
-                        <tr key={'tableData'}>
-                            <td className="cusomterJobId" >{customer.quoteDetails.job_id}</td>
-                            <td className="customerNameTxt" >{customer.customerDetails.name}
-                                <span className="customerAddressTxt" >{customer.customerDetails.address}</span>
-                            </td>
-                            <td className="quoteJobDescriptionTxt" >{customer.jobDetails.description}</td>
-                            <td className="quoteTotalTxt" >{customer.quoteDetails.total}</td>
-                            <td className={`quoteStatus ${statusClass[customer.quoteDetails.status] ?? ''}`}>{customer.quoteDetails.status }</td>
-                            <td className="quoteCreatedAtTxt" >{customer.quoteDetails.created_at}</td>
-                        </tr>
+                <tbody>
+                    {data.customers.map(customer =>
+                        customer.quote.map(quote => 
+                            quote.job.map(job => (
+                            <tr key={'tableData'}>
+                                <td className="cusomterJobId" >{job.id}</td>
+                                <td className="customerNameTxt" >{customer.name}
+                                    <span className="customerAddressTxt" >{customer.address}</span>
+                                </td>
+                                <td className="quoteJobDescriptionTxt" >{job.description}</td>
+                                <td className="quoteTotalTxt" >{quote.total}</td>
+                                <td className={`quoteStatus ${statusClass[quote.status] ?? ''}`}>{quoteDetails.status }</td>
+                                <td className="quoteCreatedAtTxt" >{quote.created_at}</td>
+                            </tr>
+                         ))
                     ))}
-                </tbody> */}
-            </table>
+                </tbody>
+            </table> 
+            }
         </div>
     )
 }

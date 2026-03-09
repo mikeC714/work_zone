@@ -6,6 +6,6 @@ dotenv.config();
 
 export const supabase = createClient(
     process.env.SUPA_URL,   
-    process.env.SUPA_KEY
+    process.env.SUPA_SERVICE
 )
 

@@ -5,7 +5,7 @@ export async function getQuoteInfo(customerIds, user){
 
     const { data: quoteInfo, error } = await supabase
         .from('quotes')
-        .select('status, id, total, markup, job_id, created_at')
+        .select('status, id, total, markup, job_id, created_at, customer_id')
         .eq('user_id', user.id)
         .in('customer_id', cusIds)
 
@@ -22,8 +22,8 @@ export async function getJobInfo(quote){
     const { data: jobInfo, error } = await supabase
         .from('labor')
         .select('description, hours, hourly_rate, quote_id')
-        .in('quote_id', quoteIds)
-    
+        .in('quote_id', quoteIds)   
+        
     if(error){
         throw new Error(`Failed to query Job Info ${error.message}`);
     }
