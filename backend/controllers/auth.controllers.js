@@ -1,6 +1,7 @@
 import { AuthService } from '../service/auth.service.js';
+import { supabase } from '../config/supabase.config.js';
 
-const auth = new AuthService;
+const auth = new AuthService(supabase);
 
 export async function signUp(req,res){
     let { username, email, password  } = req.body;
@@ -28,7 +29,8 @@ export async function signUp(req,res){
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 60 * 60 * 1000
+            maxAge: 90 * 24 * 60 * 60 * 1000
+        //    60 * 60 * 1000 
         });
         res.cookie('refresh_token', session.refresh_token, {
             httpOnly: true,
@@ -52,8 +54,6 @@ export async function signUp(req,res){
 export async function login(req,res){
     const { email, password } = req.body;
 
-    email = email?.trim().toLowerCase(); 
-
     if(!email || !password){
 
         return res.status(400).json({
@@ -68,7 +68,8 @@ export async function login(req,res){
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 60 * 60 * 1000
+            maxAge: 90 * 24 * 60 * 60 * 1000
+            // 60 * 60 * 1000
         });
         res.cookie('refresh_token', session.refresh_token, {
             httpOnly: true,
@@ -77,10 +78,11 @@ export async function login(req,res){
             maxAge: 90 * 24 * 60 * 60 * 1000
         })
 
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
             user
         })
+
     }catch(error){
         return res.status(500).json({
             success: false,

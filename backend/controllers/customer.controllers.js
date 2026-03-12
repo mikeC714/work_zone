@@ -1,12 +1,14 @@
-import { customerInfo, customerQuoteInfo, customerStatus, createQuote, deleteQuote } from "../service/customer.service.js";
+import { CustomerService} from "../service/customer.service.js";
 import { getCustomerId, getAllCustomerIds } from '../utils/getCustomer.js';
 import { getQuoteInfo, getJobInfo } from "../utils/getQuote.js";
+import { supabase } from '../config/supabase.config.js'
 
+const customerService = new CustomerService(supabase)
 
 export async function getCustomerInfo(req,res){
     try{
         const customerId = await getCustomerId(req.user);
-        const customerDetails = await customerInfo(customerId)
+        const customerDetails = await customerService.customerInfo(customerId)
 
         return res.status(200).json({
             success: true,
@@ -27,7 +29,7 @@ export async function getAllUserCustomers(req,res){
             const customerIds = await getAllCustomerIds(req.user);
             const quoteDetails = await getQuoteInfo(customerIds, req.user)
             const jobDetails = await getJobInfo(quoteDetails) 
-            const customerDetails = await customerInfo(customerIds, req.user) 
+            const customerDetails = await customerService.customerInfo(customerIds, req.user) 
             
             const customers = customerDetails.map(customer => {
                 return{
@@ -59,7 +61,7 @@ export async function getAllUserCustomers(req,res){
 export async function getCustomerQuoteInfo(req,res){
     try{
         const customerId = await getCustomerId(req.user);
-        const customerQuoteDetails = await customerQuoteInfo(customerId, req.user)
+        const customerQuoteDetails = await customerService.customerQuoteInfo(customerId, req.user)
 
         return res.status(200).json({
             success: true,
@@ -77,7 +79,7 @@ export async function getCustomerQuoteInfo(req,res){
 export async function getCustomerStatus(req,res){
     try {
         const customerId = await getCustomerId(req.user);
-        const customerStatusDetails = await customerStatus(customerId, req.user);
+        const customerStatusDetails = await customerService.customerStatus(customerId, req.user);
 
         return res.status(200).json({
             success: true,
@@ -123,7 +125,7 @@ export async function deleteCustomerQuote(req,res){
     const { quoteId } = req.parms;
     const user = req.user;
     try{
-        const deletedQuote = await deleteQuote(quoteId, user.id);
+        const deletedQuote = await customerService.deleteQuote(quoteId, user.id);
 
         if(deletedQuote.error){
             console.error(`Failed to Delete Customer Quote ${quoteId}`);

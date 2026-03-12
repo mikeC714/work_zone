@@ -4,33 +4,41 @@ import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
 
 export function Dashboard(){
     return(
-        <div>
-            <header>
-                <div className='leftHeader'>
-
+        <div className='dashboardPage'>
+            <nav className='dashboardNav'>
+                <div className='navLeft'>
+                    <div className='navLogo'>
+                        <span className='navLogoIcon'>⚡</span>
+                        VOLT
+                    </div>
                 </div>
-                <div className='rightHeader'>
-                    <button className='createQuoteBtn'>New Quote</button>
-                    <div className='profileContainer'></div>
+                <div className='navRight'>
+                    <button className='createQuoteBtn'>+ New Quote</button>
+                    <div className='profileContainer'>JD</div>
                 </div>
-            </header>
+            </nav>
 
-            <div className='quickAccessContainer' >
-                <QuickAccess />
+            <div className='dashboardBody'>
+                <div className='quickAccessContainer'>
+                    <QuickAccess />
+                </div>
+
+                <div className='filterRow'>
+                    <div className='statusBtnsContainer'>
+                        <button className='statusBtns active'>All</button>
+                        <button className='statusBtns'>Draft</button>
+                        <button className='statusBtns'>Sent</button>
+                        <button className='statusBtns'>Approved</button>
+                        <button className='statusBtns'>In Progress</button>
+                        <button className='statusBtns'>Completed</button>
+                    </div>
+                    <input className='searchInput' placeholder='Search jobs...' />
+                </div>
+
+                <div className='customerTableContainer'>
+                    <CustomerTable />
+                </div>
             </div>
-
-            <div className='statusBtnsContainer'>
-                <button className='statusBtns'>All</button>
-                <button className='statusBtns'>Sent</button>
-                <button className='statusBtns'>Approved</button>
-                <button className='statusBtns'>In Progress</button>
-                <button className='statusBtns'>Completed</button>
-            </div>
-
-            <div className='customerTableContainer' >
-                <CustomerTable />
-            </div>
-
         </div>
     )
 }

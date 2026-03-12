@@ -12,38 +12,45 @@ export function CustomerTable() {
         'in progress': 'status-in-progress',
         'completed': 'status-completed',
         };
+
     return(
         <div>
             {isLoading ? <h2>Loading...</h2> :
-            <table>
-                <thead>
-                    <tr>
-                        <th>JOB ID</th>
-                        <th>CUSTOMER</th>
-                        <th>JOB TYPE</th>
-                        <th>TOTAL</th>
-                        <th>STATUS</th>
-                        <th>UPDATED</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.customers.map(customer =>
-                        customer.quote.map(quote => 
+            <div className="customerTable">
+                <div className="tableHead">
+                    <div className="trLeft">
+                        <p>JOB ID</p>
+                        <p>CUSTOMER</p>
+                    </div>
+                    <div className="trRight">
+                        <p>JOB TYPE</p>
+                        <p>TOTAL</p>
+                        <p>STATUS</p>
+                        <p>UPDATED</p>
+                    </div>
+                </div>
+                <div className="tableBody">
+                    {data?.customers.map(customer =>
+                        customer.quote.map(quote =>
                             quote.job.map(job => (
-                            <tr key={'tableData'}>
-                                <td className="cusomterJobId" >{job.id}</td>
-                                <td className="customerNameTxt" >{customer.name}
-                                    <span className="customerAddressTxt" >{customer.address}</span>
-                                </td>
-                                <td className="quoteJobDescriptionTxt" >{job.description}</td>
-                                <td className="quoteTotalTxt" >{quote.total}</td>
-                                <td className={`quoteStatus ${statusClass[quote.status] ?? ''}`}>{quoteDetails.status }</td>
-                                <td className="quoteCreatedAtTxt" >{quote.created_at}</td>
-                            </tr>
+                            <div key={job.id} className="customerDataRow">
+                                <div className="trLeft">
+                                    <div className="cusomterJobId">{job.id}</div>
+                                    <div className="customerNameTxt">{customer.name}
+                                        <span className="customerAddressTxt">{customer.address}</span>
+                                    </div>
+                                </div>
+                                <div className="trRight">
+                                    <div className="quoteJobDescriptionTxt">{job.description}</div>
+                                    <div className="quoteTotalTxt">{quote.total}</div>
+                                    <div className={`quoteStatus ${statusClass[quote.status] ?? ''}`}>{quote.status}</div>
+                                    <div className="quoteCreatedAtTxt">{quote.created_at}</div>
+                                </div>
+                            </div>
                          ))
                     ))}
-                </tbody>
-            </table> 
+                </div>
+            </div>
             }
         </div>
     )

@@ -1,8 +1,10 @@
 import { Resend } from 'resend';
-import { createQuote } from '../service/customer.service.js';
-import dotenv from 'dotenv';
+import { CustomerService } from '../service/customer.service.js';
 import { supabase } from '../config/supabase.config.js';
+import dotenv from 'dotenv';
 dotenv.config();
+
+const customerService = new CustomerService(supabase)
 
 const resend = new Resend(process.env.RESEND_KEY)
 
@@ -17,7 +19,7 @@ export async function sendQuoteEmail(req,res){
         })
     }
     
-    const { quoteData } = await createQuote(user, customer, labor, materials, quote);
+    const { quoteData } = await customerService.createQuote(user, customer, labor, materials, quote);
 
     const acceptQuote = `http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=accepted`
     const declineQuote = `http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=declined` 
