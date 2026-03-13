@@ -30,7 +30,7 @@ export function CustomerTable() {
                     </div>
                 </div>
                 <div className="tableBody">
-                    {data?.customers.map(customer =>
+                    { data?.cusomter?.length === 0 ? data?.customers.map(customer =>
                         customer.quote.map(quote =>
                             quote.job.map(job => (
                             <div key={job.id} className="customerDataRow">
@@ -48,7 +48,7 @@ export function CustomerTable() {
                                 </div>
                             </div>
                          ))
-                    ))}
+                    )) : <p> No Customers.</p> }
                 </div>
             </div>
             }

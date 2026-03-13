@@ -62,6 +62,15 @@ body {
 }
 
 /* Tabs */
+.authTopSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+    width: 100%;
+    max-width: 360px;
+    align-self: center;
+}
+
 .authTabs {
     display: flex;
     gap: 0;
@@ -110,6 +119,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    max-width: 360px;
+    align-self: center;
+    width: 100%;
 }
 
 .authInputGroup {
@@ -488,7 +500,7 @@ body {
 
 .dashboardPage {
     min-height: 100vh;
-    background-color: #1a1919;
+    background-color: var(--bg-right);
 }
 
 /* Nav */
@@ -598,7 +610,7 @@ body {
 .dashboardBody {
     height: 80em;
     padding: 40px 32px;
-    background-color: var(--bg-left);
+    background: var(--bg-right);
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -746,6 +758,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 3em;
     padding: 12px 20px;
     border-bottom: 1px solid var(--border);
 }
@@ -764,12 +777,14 @@ body {
     display: flex;
     align-items: center;
     gap:100px;
+    margin-left: 2em;
     width: 38%;
 }
 
 .trRight {
     display: flex;
     align-items: center;
+    justify-content: space-evenly;
     width: 62%;
 }
 
@@ -777,15 +792,28 @@ body {
 .tableHead .trLeft p:first-child  { width: 90px; flex-shrink: 0; }
 .tableHead .trLeft p:last-child   { flex: 1; }
 
-.tableHead .trRight p:nth-child(1) { flex: 1; }
-.tableHead .trRight p:nth-child(2) { width: 110px; flex-shrink: 0; }
-.tableHead .trRight p:nth-child(3) { width: 130px; flex-shrink: 0; }
-.tableHead .trRight p:nth-child(4) { width: 100px; flex-shrink: 0; text-align: right; }
+.tableHead .trRight p:nth-child(1) { flex: .32; }
+.tableHead .trRight p:nth-child(2) { width: 110px; flex-wrap: 0;  }
+.tableHead .trRight p:nth-child(3) { width: 110px; flex-wrap: 0;  }
+.tableHead .trRight p:nth-child(4) { width: 92px;  flex-wrap: 0; text-align: right; }
 
 /* Body */
 .tableBody {
     display: flex;
+    height: 100%;
     flex-direction: column;
+    position: relative;
+}
+
+.tableBody > p {
+    font: var(--font);
+    color: var(--text-muted);
+    font-weight: 540;
+    font-size: 1em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .customerDataRow {

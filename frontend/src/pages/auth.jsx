@@ -23,18 +23,20 @@ export function Authentication() {
                     <span>VOLT</span>
                 </div>
 
-                <div className="authTabs">
-                    <button className={`authTab ${isAuth ? 'active' : ''}`} onClick={() => setAuth(true)}>
-                        Sign In
-                    </button>
-                    <button className={`authTab ${!isAuth ? 'active' : ''}`} onClick={() => setAuth(false)}>
-                        Sign Up
-                    </button>
-                </div>
+                <div className="authTopSection">
+                    <div className="authTabs">
+                        <button className={`authTab ${isAuth ? 'active' : ''}`} onClick={() => setAuth(true)}>
+                            Sign In
+                        </button>
+                        <button className={`authTab ${!isAuth ? 'active' : ''}`} onClick={() => setAuth(false)}>
+                            Sign Up
+                        </button>
+                    </div>
 
-                <div className="authHeader">
-                    <h1>{isAuth ? 'Welcome Back' : 'Create Account'}</h1>
-                    <p>{isAuth ? 'Sign in to manage your jobs and quotes' : 'Sign up to start managing your business'}</p>
+                    <div className="authHeader">
+                        <h1>{isAuth ? 'Welcome Back' : 'Create Account'}</h1>
+                        <p>{isAuth ? 'Sign in to manage your jobs and quotes' : 'Sign up to start managing your business'}</p>
+                    </div>
                 </div>
 
                 <AuthForm

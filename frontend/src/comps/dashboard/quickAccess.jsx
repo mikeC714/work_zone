@@ -22,7 +22,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="MONTHLY REVENUE"
-                    value={monthlyRevenue}
+                    value={`$ ${monthlyRevenue}`}
                     isLoading={isLoading}
                     isError={isError}
                      subtitle="THIS MONTH"

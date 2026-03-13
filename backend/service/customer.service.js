@@ -123,13 +123,14 @@ export class CustomerService{
             this.supabase
             .from('labor')
             .insert(
-                labor.map(work => ({
+                laborData.map(labor => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
                     quote_id: quote.id, 
-                    description: work.description,
-                    hours: work.hours,
-                    hourly_rate: work.hourly,
+                    description: labor.description,
+                    hours: labor.hours,
+                    hourly_rate: labor.hourlyRate,
+                    total: labor.total,
                     created_at: createdAt
                 }))
             ),
@@ -137,7 +138,7 @@ export class CustomerService{
             this.supabase
             .from('materials')
             .insert(
-                materials.map(material => ({
+                materialsData.map(material => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
                     quote_id: quote.id,
