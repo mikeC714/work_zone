@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
-import { CreateQuote } from './createQuote.jsx';
+import { Link } from 'react-router-dom';
 
 export function Dashboard(){
     return(
@@ -14,7 +14,9 @@ export function Dashboard(){
                     </div>
                 </div>
                 <div className='navRight'>
-                    <button className='createQuoteBtn'>+ New Quote</button>
+                    <Link to="/createQuote">
+                        <button className='createQuoteBtn'>+ New Quote</button>
+                    </Link>
                     <div className='profileContainer'>JD</div>
                 </div>
             </nav>

@@ -77,7 +77,7 @@ export class CustomerService{
         }
     }
 
-    async createQuote(user, customer, labor, materials, quote, createdAt){
+    async createQuote(user, customer, quote, labor, materials, createdAt){
         
         const { data: customerData, error: customerError } = await this.supabase
             .from('customers')
@@ -123,7 +123,7 @@ export class CustomerService{
             this.supabase
             .from('labor')
             .insert(
-                laborData.map(labor => ({
+                labor.map(labor => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
                     quote_id: quote.id, 
@@ -138,7 +138,7 @@ export class CustomerService{
             this.supabase
             .from('materials')
             .insert(
-                materialsData.map(material => ({
+                materials.map(material => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
                     quote_id: quote.id,

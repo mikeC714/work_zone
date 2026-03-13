@@ -1,30 +1,63 @@
 import { useMutation } from '@tanstack/react-query';
+import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
 import { Send } from 'lucide-react';
 
 
 export function CreateQuote(){
-    
+
     const [userMarkup, setUserMarkup] = useState(0);
-    const [materials, setMaterials] = useState([]);
-    const [labor, setLabor] = useState([]);
-    const [customerInfo, setCustomerInfo] = useState({});
+    const [materials, setMaterials] = useState([
+        {
+            description: "",
+            quantity: 0,
+            unitCost: 0,
+            metrics: 0,
+            total: 0
+        }
+    ]);
+    const [labor, setLabor] = useState([
+        {
+            description: "",
+            hours: 0,
+            hourlyRate: 0,
+            total: 0
+        }
+    ]);
+    const [customerInfo, setCustomerInfo] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+    });
+
+    const { mutate, isPending, isError, error, isSuccess } = useMutation({
+        mutationFn: async() => await apiFetch('http://localhost:3000/api/create-quote', POST, newQuote),
+    })
+
+
+    function handleSaveQuote(){
+        e.preventDefault();
+
+        mutate({
+            customer: customerInfo,
+            quote: userMarkup, total,
+            labor,
+            materials
+        })
+    }
+
 
   function handleCustomerForm(e) {
-    e.preventDefault();
-    const customer = Object.fromEntries(new FormData(e.target));
-    setCustomerInfo({
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      address: customer.address
-    });
+    const { customer, value } = e.target
+    setCustomerInfo(prev => ({
+        ...prev,
+        [customer]: value
+    }))
   }
 
-  function handleMaterialForm(e) {
-    e.preventDefault();
-    const mats = Object.fromEntries(new FormData(e.target));
+  function handleMaterialForm(mats) {
     setMaterials(prev => [...prev,
         {
             description: mats.description,
@@ -32,23 +65,26 @@ export function CreateQuote(){
             unitCost: Number(mats.unitCost),
             metrics: mats.metrics,
             total: mats.unitCost * mats.quantity
-        }])
-    e.target.reset();
+        }
+    ])
   }
 
-  function handleLaborForm(e) {
-    e.preventDefault();
-    const labor = Object.fromEntries(new FormData(e.target));
+  function handleLaborForm(lab) {
     setLabor(prev =>[...prev,
         {
-            description: labor.description,
-            hours: Number(labor.hours),
-            hourlyRate: Number(labor.hourlyRate),
-            total: labor.hours * labor.hourlyRate
-        }])
-
-    e.target.reset();
+            description: lab.description,
+            hours: Number(lab.hours),
+            hourlyRate: Number(lab.hourlyRate),
+            total: lab.hours * lab.hourlyRate
+        }
+    ])
   }
+
+  const materialTotal = [...materials].map(mats => mats.total)
+  const laborTotal = [...labor].map(lab => lab.total)
+
+  console.log(materialTotal, laborTotal)
+
     const subTotal = [
         ...materials.map(mats => mats.total),
         ...labor.map(lab => lab.total),
@@ -60,46 +96,75 @@ export function CreateQuote(){
 
     return (
         <div className='createQuotePage'>
-            <nav>
-                <div className="navRight">
-                    <select name="selectedQuoteStatus" className='quoteStatusSelection'>
+
+            <nav className='createQuoteNav'>
+                <div className='cqNavLeft'>
+                    <span className='cqNavBrand'>VOLT</span>
+                    <span className='cqNavSep'>/</span>
+                    <span className='cqNavCrumb'>Quotes</span>
+                </div>
+                <div className='cqNavRight'>
+                    <select name="selectedQuoteStatus" className='quoteStatusSelect'>
                         <option value="draft">Draft</option>
                         <option value="inProgress">In Progress</option>
                         <option value="approved">Approved</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <button className="saveQuoteBtn">Save Quote</button>
+                    <button className='cqChangeOrderBtn'>+ Change Order</button>
+                    <button className='cqSendQuoteBtn' type='submit' onClick={handleSaveQuote}>
+                        Save Quote
+                    </button>
                 </div>
             </nav>
-            <div>
-                <CreateQuoteForm 
-                    handleCustomerForm={handleCustomerForm}
-                    handleLaborForm={handleLaborForm}
-                    handleMaterialForm={handleMaterialForm}
-                />
-            </div>
-              <div className='summaryContainer'>
-                <div className='subTotalContainer'>
-                    <label htmlFor="subTotal">Subtotal</label>
-                    <p id='subTotal'>{subTotal}</p>
+
+            <div className='createQuoteContent'>
+
+                <div className='cqLeft'>
+                    <CreateQuoteForm
+                        handleCustomerForm={handleCustomerForm}
+                        handleLaborForm={handleLaborForm}
+                        handleMaterialForm={handleMaterialForm}
+                        customerInfo={customerInfo}
+                        labor={labor}
+                        laborTotal={laborTotal}
+                        materials={materials}
+                        materialTotal={materialTotal}
+
+                    />
                 </div>
 
-                <div className='markupContainer'>
-                    <label htmlFor="markup">Markup</label>
-                    <div className='markup'>
-                        <input 
-                        type='number'
-                        value={userMarkup}
-                        onChange={(e) => setUserMarkup(Number(e.target.value))}/>
-                        <p id="markup">{userMarkup / 100 * subTotal}</p>
+                <div className='cqRight'>
+                    <p className='cqSummaryTitle'>SUMMARY</p>
+
+                    <div className='cqSummaryRow'>
+                        <span className='cqSummaryLabel'>Subtotal</span>
+                        <span className='cqSummaryValue'>${subTotal}</span>
                     </div>
+
+                    <div className='cqSummaryRow'>
+                        <span className='cqSummaryLabel'>Markup</span>
+                        <div className='cqMarkupRow'>
+                            <input
+                                className='cqMarkupInput'
+                                type='number'
+                                value={userMarkup}
+                                onChange={(e) => setUserMarkup(Number(e.target.value))}
+                            />
+                            <span className='cqMarkupPct'>%</span>
+                            <span className='cqSummaryValue'>${(userMarkup / 100 * subTotal)}</span>
+                        </div>
+                    </div>
+
+                    <div className='cqTotalRow'>
+                        <span className='cqTotalLabel'>Total</span>
+                        <span className='cqTotalValue'>${total}</span>
+                    </div>
+
+                    <button className='cqSendToCustomerBtn'>
+                        SEND TO CUSTOMER <Send size={14} />
+                    </button>
                 </div>
 
-                <div className='totalConatainer'>
-                    <label htmlFor="total">Total</label>
-                    <h3 id='total'>${total}</h3>
-                </div>
-                <button>SEND TO CUSTOMER <Send /></button>
             </div>
         </div>
     )

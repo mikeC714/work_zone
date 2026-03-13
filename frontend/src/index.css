@@ -508,7 +508,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
+    padding: 0 max(32px, calc((100% - 1440px) / 2 + 32px));
     height: 4.2em;
     border-bottom: 1px solid var(--border);
     background: var(--bg-left);
@@ -609,11 +609,15 @@ body {
 /* Body */
 .dashboardBody {
     height: 80em;
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
     padding: 40px 32px;
     background: var(--bg-right);
     display: flex;
     flex-direction: column;
     gap: 24px;
+    box-sizing: border-box;
 }
 
 /* Stat cards */
@@ -624,16 +628,14 @@ body {
 
 .statCardsGrid {
     display: flex;
-    justify-content: space-evenly;
     width: 100%;
     gap: 8px;
-    
 }
 
 .statCardWrapper {
-    width: 24em;
+    flex: 1;
+    min-width: 160px;
     height: 11.1em;
-    flex-shrink: 0;
 }
 
 .statCard {
@@ -927,4 +929,527 @@ body {
     font-size: 13px;
     color: var(--text-muted);
     border-top: 1px solid var(--border);
+}
+
+/* ── DASHBOARD RESPONSIVE ── */
+
+/* Tablet (≤ 1024px) */
+@media (max-width: 1024px) {
+    .dashboardNav {
+        padding: 0 20px;
+    }
+
+    .dashboardBody {
+        padding: 24px 20px;
+    }
+
+    .statCardWrapper {
+        width: 20em;
+    }
+
+    .trLeft {
+        gap: 60px;
+    }
+}
+
+/* Mobile (≤ 768px) */
+@media (max-width: 768px) {
+    .dashboardNav {
+        padding: 0 16px;
+        height: 3.6em;
+    }
+
+    .createQuoteBtn {
+        font-size: 12px;
+        padding: 6px 12px;
+        height: 2.8em;
+    }
+
+    .dashboardBody {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .quickAccessContainer {
+        margin-bottom: 8px;
+    }
+
+    .statCardsGrid {
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .filterRow {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .searchInput {
+        width: 100%;
+    }
+
+    .customerTableContainer {
+        overflow-x: auto;
+    }
+
+    .customerTable {
+        min-width: 640px;
+    }
+}
+
+/* ── CREATE QUOTE PAGE ── */
+
+.createQuotePage {
+    min-height: 100vh;
+    background: var(--bg-right);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Nav */
+.createQuoteNav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 max(32px, calc((100% - 1440px) / 2 + 32px));
+    height: 4.2em;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-left);
+    background-color: #8080801a;
+    flex-shrink: 0;
+}
+
+.cqNavLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cqNavBrand {
+    color: var(--orange);
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.cqNavSep {
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+.cqNavCrumb {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.cqNavRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quoteStatusSelect {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 7px 28px 7px 12px;
+    height: 36px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.quoteStatusSelect:focus {
+    outline: none;
+    border-color: var(--orange);
+}
+
+.cqChangeOrderBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 16px;
+    height: 36px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.cqChangeOrderBtn:hover {
+    border-color: var(--text-muted);
+}
+
+.cqSendQuoteBtn {
+    background: var(--orange);
+    border: none;
+    border-radius: 6px;
+    color: #111;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 18px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s;
+}
+
+.cqSendQuoteBtn:hover {
+    opacity: 0.88;
+}
+
+/* Content layout */
+.createQuoteContent {
+    display: flex;
+    gap: 24px;
+    padding: 32px max(32px, calc((100% - 1440px) / 2 + 32px));
+    align-items: flex-start;
+}
+
+.cqLeft {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.cqRight {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg-left);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Form wrapper */
+.cqFormWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Customer card */
+.cqCustomerCard {
+    background: var(--bg-left);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cqCardLabel {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.cqCustomerFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.cqInputWide {
+    grid-column: 1 / -1;
+}
+
+.cqCustomerAddBtn {
+    align-self: flex-end;
+    background: var(--orange);
+    border: none;
+    border-radius: 6px;
+    color: #111;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 20px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.cqCustomerAddBtn:hover {
+    opacity: 0.88;
+}
+
+/* Shared input */
+.cqInput {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 100%;
+    transition: border-color 0.15s;
+}
+
+.cqInput:focus {
+    outline: none;
+    border-color: var(--orange);
+}
+
+.cqInput::placeholder {
+    color: var(--text-muted);
+}
+
+/* Material / Labor sections */
+.cqSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cqSectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cqSectionLabel {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.cqAddBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.cqAddBtn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+/* Table */
+.cqTable {
+    background: var(--bg-left);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.cqTableHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.cqTableHeader span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.cqTableRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.cqTableRow:last-child {
+    border-bottom: none;
+}
+
+.cqColDesc {
+    flex: 1;
+    min-width: 0;
+}
+
+.cqColSmall {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.cqTableRow .cqColSmall {
+    text-align: left;
+}
+
+.cqRowAddBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.cqRowAddBtn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+/* Summary panel */
+.cqSummaryTitle {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.cqSummaryRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cqSummaryLabel {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.cqSummaryValue {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.cqMarkupRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cqMarkupInput {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 5px 8px;
+    width: 52px;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+.cqMarkupInput::-webkit-outer-spin-button,
+.cqMarkupInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.cqMarkupInput:focus {
+    outline: none;
+    border-color: var(--orange);
+}
+
+.cqMarkupPct {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.cqTotalRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.cqTotalLabel {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.cqTotalValue {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--orange);
+}
+
+.cqSendToCustomerBtn {
+    background: var(--orange);
+    border: none;
+    border-radius: 8px;
+    color: #111;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 14px;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+    margin-top: 4px;
+}
+
+.cqSendToCustomerBtn:hover {
+    opacity: 0.88;
+}
+
+/* Small mobile (≤ 480px) */
+@media (max-width: 480px) {
+    .navLogo {
+        font-size: 15px;
+    }
+
+    .profileContainer {
+        width: 34px;
+        height: 34px;
+        font-size: 11px;
+    }
+
+    .statCardValue {
+        font-size: 2.4em;
+    }
+
+    .statusBtns {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
 }

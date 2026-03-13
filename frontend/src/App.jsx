@@ -1,5 +1,5 @@
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Dashboard } from './pages/dashboard.jsx';
+import { AppRouter } from '../router/app.router.jsx'
 import { Authentication } from './pages/auth.jsx';
 import { apiFetch } from '../utils/apiFetch.jsx';
 
@@ -15,7 +15,7 @@ function Root() {
     if (isLoading) return null;
 
     return data?.success
-        ? <Dashboard />
+        ? <AppRouter />
         : <Authentication />;
 }
 

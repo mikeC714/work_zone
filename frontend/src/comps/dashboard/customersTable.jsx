@@ -1,4 +1,4 @@
-import { useCustomerTableHook } from "../../hooks/customerTableHook.jsx"
+import { useCustomerTableHook } from '../../hooks/customerTable.hooks.jsx'
 
 
 export function CustomerTable() {
