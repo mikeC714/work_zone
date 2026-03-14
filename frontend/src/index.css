@@ -1114,20 +1114,20 @@ body {
 /* Content layout */
 .createQuoteContent {
     display: flex;
-    gap: 24px;
+    justify-content: space-evenly;
     padding: 32px max(32px, calc((100% - 1440px) / 2 + 32px));
     align-items: flex-start;
 }
 
 .cqLeft {
-    flex: 1;
+    flex: .8;
     min-width: 0;
     display: flex;
     flex-direction: column;
 }
 
 .cqRight {
-    width: 280px;
+    width: 300px;
     flex-shrink: 0;
     background: var(--bg-left);
     border: 1px solid var(--border);
@@ -1290,7 +1290,7 @@ body {
 }
 
 .cqColDesc {
-    flex: 1;
+    flex: .8;
     min-width: 0;
 }
 
@@ -1369,7 +1369,6 @@ body {
     padding: 5px 8px;
     width: 52px;
     text-align: center;
-    -moz-appearance: textfield;
 }
 
 .cqMarkupInput::-webkit-outer-spin-button,

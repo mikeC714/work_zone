@@ -57,41 +57,51 @@ export function CreateQuote(){
     }))
   }
 
-  function handleMaterialForm(mats) {
-    setMaterials(prev => [...prev,
-        {
-            description: mats.description,
-            quantity: Number(mats.quantity),
-            unitCost: Number(mats.unitCost),
-            metrics: mats.metrics,
-            total: mats.unitCost * mats.quantity
-        }
-    ])
-  }
+    function handleMaterialForm(e, index) {
+        const { name, value} = e.target
+            setMaterials((prevMaterials) => 
+                prevMaterials.map((mats, i) => {
+                    if(i === index){
+                    const updated = { ...mats, [name]: value }
+                        return { ...updated, total: Number(updated.unitCost) * Number(updated.quantity) }
+                    }
+                    return mats
+                }
+            )
+        )
+    }
 
-  function handleLaborForm(lab) {
-    setLabor(prev =>[...prev,
-        {
-            description: lab.description,
-            hours: Number(lab.hours),
-            hourlyRate: Number(lab.hourlyRate),
-            total: lab.hours * lab.hourlyRate
-        }
-    ])
-  }
-
-  const materialTotal = [...materials].map(mats => mats.total)
-  const laborTotal = [...labor].map(lab => lab.total)
-
-  console.log(materialTotal, laborTotal)
+  function handleLaborForm(e, index) {
+        const { name, value } = e.target
+            setLabor((prevLabor) =>
+                prevLabor.map((lab, i) =>{
+                    if(i === index){
+                        const updated = { ...lab, [name]: value }
+                        return { ...updated, total: Number(updated.hours) * Number(updated.hourlyRate) }
+                    }
+                    return lab
+                }
+            )
+        )
+    }
 
     const subTotal = [
         ...materials.map(mats => mats.total),
         ...labor.map(lab => lab.total),
     ].reduce((sum, val) => sum += val, 0);
 
+    console.log(subTotal);
+
     const total = subTotal * ( 1 + userMarkup / 100)
 
+
+    function handleAddMaterialInputs() {
+        setMaterials(prev => [...prev, { description: "", quantity: 0, unitCost: 0, total: 0 }])
+    }
+
+    function handleAddLaborInputs() {
+        setLabor(prev => [...prev, { description: "", hours: 0, hourlyRate: 0, total: 0 }])
+    }
 
 
     return (
@@ -126,9 +136,9 @@ export function CreateQuote(){
                         handleMaterialForm={handleMaterialForm}
                         customerInfo={customerInfo}
                         labor={labor}
-                        laborTotal={laborTotal}
                         materials={materials}
-                        materialTotal={materialTotal}
+                        materialInputs={handleAddMaterialInputs}
+                        laborInputs={handleAddLaborInputs}
 
                     />
                 </div>
@@ -148,16 +158,16 @@ export function CreateQuote(){
                                 className='cqMarkupInput'
                                 type='number'
                                 value={userMarkup}
-                                onChange={(e) => setUserMarkup(Number(e.target.value))}
+                                onChange={(e) => setUserMarkup(e.target.value)}
                             />
                             <span className='cqMarkupPct'>%</span>
-                            <span className='cqSummaryValue'>${(userMarkup / 100 * subTotal)}</span>
+                            <span className='cqSummaryValue'>${(userMarkup / 100 * subTotal).toFixed(2)}</span>
                         </div>
                     </div>
 
                     <div className='cqTotalRow'>
                         <span className='cqTotalLabel'>Total</span>
-                        <span className='cqTotalValue'>${total}</span>
+                        <span className='cqTotalValue'>${total.toFixed(2)}</span>
                     </div>
 
                     <button className='cqSendToCustomerBtn'>
