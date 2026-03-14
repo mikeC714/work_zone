@@ -1262,11 +1262,12 @@ body {
 }
 
 .cqTableHeader {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px;
     gap: 10px;
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
+    align-items: center;
 }
 
 .cqTableHeader span {
@@ -1278,11 +1279,12 @@ body {
 }
 
 .cqTableRow {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px;
     gap: 10px;
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
+    align-items: center;
 }
 
 .cqTableRow:last-child {
@@ -1290,7 +1292,7 @@ body {
 }
 
 .cqColDesc {
-    flex: .8;
+    flex: 1;
     min-width: 0;
 }
 
@@ -1303,6 +1305,32 @@ body {
 .cqTableRow .cqColSmall {
     text-align: left;
 }
+
+.cqTableRow input {
+    min-width: 0;
+    width: 100%;
+}
+
+.cqDescInput {
+    flex: 1;
+    min-width: 0;
+}
+
+.cqDescInput .cqInput {
+    width: 100%;
+}
+
+.cqNumInputs,
+.cqNumInput {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+
+
+
 
 .cqRowAddBtn {
     background: transparent;

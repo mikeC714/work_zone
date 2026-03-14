@@ -34,11 +34,11 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                             value={mats.description} onChange={(e) => handleMaterialForm(e, index)} />
                             <input className='cqInput cqColSmall'
                             name='quantity' type="number" placeholder='0'
-                            value={mats.quantity} onChange={(e) => handleMaterialForm(e, index)}  />
+                            value={mats.quantity} onChange={(e) => handleMaterialForm(e, index)} />
                             <input className='cqInput cqColSmall'
                             name='unitCost' type="number" placeholder='0'
-                            value={mats.unitCost} onChange={(e) => handleMaterialForm(e, index)}  />
-                            <p className='cqColSmall'>{mats.total}</p>
+                            value={mats.unitCost} onChange={(e) => handleMaterialForm(e, index)} />
+                            <p className='cqColSmall'>${mats.total}</p>
                         </form>
                     )}
                 </div>
@@ -58,10 +58,19 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                     </div>
                     {labor.map((lab,index) =>
                         <form key={index} className='cqTableRow'>
-                            <input className='cqInput cqColDesc' value={lab.description} onChange={(e) => handleLaborForm(e, index)} name='description' type="text" placeholder='Description' />
-                            <input className='cqInput cqColSmall' value={lab.hours} onChange={(e) => handleLaborForm(e, index)} name='hours' type="number" />
-                            <input className='cqInput cqColSmall' value={lab.hourlyRate} onChange={(e) => handleLaborForm(e, index)} name='hourlyRate' type="number"/>
-                            <p className='cqColSmall'>{lab.total}</p>
+                            <input className='cqInput cqColDesc'
+                                name='description' type="text" placeholder='Description'
+                                value={lab.description} onChange={(e) => handleLaborForm(e, index)} 
+                            />
+                            <input className='cqInput cqColSmall'
+                                name='hours' type="number"
+                                value={lab.hours} onChange={(e) => handleLaborForm(e, index)} 
+                            />
+                            <input className='cqInput cqColSmall'
+                                name='hourlyRate' type="number"
+                                value={lab.hourlyRate} onChange={(e) => handleLaborForm(e, index)} 
+                            />
+                            <p className='cqColSmall'>${lab.total}</p>
                         </form>
                     )}
                 </div>
