@@ -123,14 +123,14 @@ export class CustomerService{
             this.supabase
             .from('labor')
             .insert(
-                labor.map(labor => ({
+                labor.map(work => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
-                    quote_id: quote.id, 
-                    description: labor.description,
-                    hours: labor.hours,
-                    hourly_rate: labor.hourlyRate,
-                    total: labor.total,
+                    quote_id: quoteData.id, 
+                    description: work.description,
+                    hours: work.hours,
+                    hourly_rate: work.hourlyRate,
+                    total: work.total,
                     created_at: createdAt
                 }))
             ),
@@ -138,14 +138,14 @@ export class CustomerService{
             this.supabase
             .from('materials')
             .insert(
-                materials.map(material => ({
+                materials.map(mats => ({
                     id: crypto.randomUUID(),
                     user_id: user.id,
-                    quote_id: quote.id,
-                    description: material.description,
-                    quantity: material.quantity,
-                    unit_metric: material.metric,
-                    unit_cost: material.unitCost,
+                    quote_id: quoteData.id,
+                    description: mats.description,
+                    quantity: mats.quantity,
+                    unit_metric: mats.metric,
+                    unit_cost: mats.unitCost,
                     created_at: createdAt
                 }))
             ),
@@ -157,7 +157,7 @@ export class CustomerService{
             return { error };
         }
 
-        return { customerData, laborData, materialsData, quoteData };
+        return { customerData, quoteData, laborData, materialsData };
     }
 
 

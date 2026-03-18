@@ -863,7 +863,7 @@ body {
 }
 
 .quoteJobDescriptionTxt {
-    flex: 1;
+    flex: .32;
     font-family: 'Courier New', monospace;
     font-size: 13px;
     color: var(--text-muted);
@@ -878,7 +878,7 @@ body {
 }
 
 .quoteStatus {
-    width: 130px;
+    width: 110px;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
@@ -915,7 +915,7 @@ body {
 }
 
 .quoteCreatedAtTxt {
-    width: 100px;
+    width: 92px;
     flex-shrink: 0;
     font-size: 13px;
     color: var(--text-muted);

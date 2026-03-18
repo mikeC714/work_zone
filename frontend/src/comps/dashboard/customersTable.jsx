@@ -1,10 +1,11 @@
-import { useCustomerTableHook } from '../../hooks/customerTable.hooks.jsx'
+import { customerTableData, useCustomerTableHook} from '../../hooks/customerTable.hooks.jsx'
+
 
 
 export function CustomerTable() {
-    const { data, isLoading, isError, error } = useCustomerTableHook();
+    const {  isLoading, isError, error } = useCustomerTableHook();
 
-    console.log(data);
+    console.log(customerTableData);
 
     const statusClass = {
         'sent': 'status-sent',
@@ -15,7 +16,6 @@ export function CustomerTable() {
 
     return(
         <div>
-            {isLoading ? <h2>Loading...</h2> :
             <div className="customerTable">
                 <div className="tableHead">
                     <div className="trLeft">
@@ -30,14 +30,14 @@ export function CustomerTable() {
                     </div>
                 </div>
                 <div className="tableBody">
-                    { data?.cusomter?.length === 0 ? data?.customers.map(customer =>
-                        customer.quote.map(quote =>
-                            quote.job.map(job => (
+                    { customerTableData?.length > 0 ? customerTableData.map((customer, customerIndex )=>
+                        customer.quote.map(quote=>
+                            quote.job.map(job=> (
                             <div key={job.id} className="customerDataRow">
                                 <div className="trLeft">
-                                    <div className="cusomterJobId">{job.id}</div>
-                                    <div className="customerNameTxt">{customer.name}
-                                        <span className="customerAddressTxt">{customer.address}</span>
+                                    <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
+                                    <div className="customerNameTxt">{customer.customer.name}
+                                        <span className="customerAddressTxt">{customer.customer.address}</span>
                                     </div>
                                 </div>
                                 <div className="trRight">
@@ -51,7 +51,6 @@ export function CustomerTable() {
                     )) : <p> No Customers.</p> }
                 </div>
             </div>
-            }
         </div>
     )
 }

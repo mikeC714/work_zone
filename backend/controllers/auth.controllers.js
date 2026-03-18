@@ -29,8 +29,7 @@ export async function signUp(req,res){
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 90 * 24 * 60 * 60 * 1000
-        //    60 * 60 * 1000 
+            maxAge: 60 * 60 * 1000 
         });
         res.cookie('refresh_token', session.refresh_token, {
             httpOnly: true,
@@ -68,8 +67,7 @@ export async function login(req,res){
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-            maxAge: 90 * 24 * 60 * 60 * 1000
-            // 60 * 60 * 1000
+            maxAge: 60 * 60 * 1000 
         });
         res.cookie('refresh_token', session.refresh_token, {
             httpOnly: true,
