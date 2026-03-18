@@ -18,7 +18,7 @@ export const customerTableData = [
                     hourly_rate: 20,
                 }
             ],
-            status: 'pending',
+            status: 'sent',
             total: 2000,
             markup: 20,
             created_at: Date.now(),
@@ -40,7 +40,7 @@ export const customerTableData = [
                     hourly_rate: 20,
                 }
             ],
-            status: 'pending',
+            status: 'completed',
             total: 2000,
             markup: 20,
             created_at: Date.now(),
@@ -62,7 +62,7 @@ export const customerTableData = [
                     hourly_rate: 20,
                 }
             ],
-            status: 'pending',
+            status: 'approved',
             total: 2000,
             markup: 20,
             created_at: Date.now(),

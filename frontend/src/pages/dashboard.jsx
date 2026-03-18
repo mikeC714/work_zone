@@ -1,9 +1,21 @@
 import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
+import { customerTableData } from '../hooks/customerTable.hooks.jsx'
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
 import { Link } from 'react-router-dom';
 
 export function Dashboard(){
+    const [activeFilter, setActiveFilter] = useState('ALL');
+    const filters = ['ALL','DRAFT','SENT', 'IN PROGRESS', 'APPROVED', 'COMPLETED']
+
+    const filteredData = activeFilter === 'ALL' 
+    ? customerTableData :
+    customerTableData.map(cus => ({ 
+        ...cus,
+        quote: cus.quote.filter(qt => qt.status === activeFilter.toLowerCase().replace(' ', '_'))
+    }))
+    .filter(cus => cus.quote.length > 0)
+
     return(
         <div className='dashboardPage'>
             <nav className='dashboardNav'>
@@ -28,18 +40,22 @@ export function Dashboard(){
 
                 <div className='filterRow'>
                     <div className='statusBtnsContainer'>
-                        <button className='statusBtns active'>All</button>
-                        <button className='statusBtns'>Draft</button>
-                        <button className='statusBtns'>Sent</button>
-                        <button className='statusBtns'>Approved</button>
-                        <button className='statusBtns'>In Progress</button>
-                        <button className='statusBtns'>Completed</button>
+                        {filters.map(btns => (
+                            <button 
+                            className={`statusBtns ${activeFilter === btns ? 'active' : ''}`}
+                            key={btns} 
+                            onClick={() => (setActiveFilter(btns))}>
+                                {btns}
+                            </button>
+                        ))}
                     </div>
                     <input className='searchInput' placeholder='Search jobs...' />
                 </div>
 
                 <div className='customerTableContainer'>
-                    <CustomerTable />
+                    <CustomerTable 
+                        filteredData={filteredData}
+                    />
                 </div>
             </div>
         </div>

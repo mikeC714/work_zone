@@ -1,18 +1,32 @@
-import { customerTableData, useCustomerTableHook} from '../../hooks/customerTable.hooks.jsx'
+import { useCustomerTableHook} from '../../hooks/customerTable.hooks.jsx';
+import { calendarConfig } from '../../../config/calender.config.js';
+import calendar from 'dayjs/plugin/calendar';
+import dayjs from 'dayjs';
 
-
-
-export function CustomerTable() {
+export function CustomerTable({ filteredData }) {
     const {  isLoading, isError, error } = useCustomerTableHook();
 
-    console.log(customerTableData);
+    dayjs.extend(calendar);
 
-    const statusClass = {
-        'sent': 'status-sent',
-        'approved': 'status-approved',
-        'in progress': 'status-in-progress',
-        'completed': 'status-completed',
-        };
+    console.log(filteredData);
+
+    function QuoteStatus({status}){
+        switch(status){
+            case 'sent' :
+                return <div className='quoteStatus sentStatusStyle'>SENT</div>
+            case 'pending' :
+                return <div className='quoteStatus pendingStatusStyle'>PENDING</div> 
+            case 'approved' :
+                return <div className='quoteStatus approvedStatusStyle'>APPROVED</div>
+            case 'in_progress' :
+                return <div className='quoteStatus inProgressStatusStyle'>IN PROGRESS</div>
+            case 'completed' :
+                return <div className='quoteStatus completedStatusStyle'>COMPLETED</div>
+            default:
+                return <div className='quoteStatus draftStatusStyle'>DRAFT</div>
+        
+        }
+    }
 
     return(
         <div>
@@ -30,7 +44,7 @@ export function CustomerTable() {
                     </div>
                 </div>
                 <div className="tableBody">
-                    { customerTableData?.length > 0 ? customerTableData.map((customer, customerIndex )=>
+                    { filteredData?.length > 0 ? filteredData.map((customer, customerIndex )=>
                         customer.quote.map(quote=>
                             quote.job.map(job=> (
                             <div key={job.id} className="customerDataRow">
@@ -42,9 +56,9 @@ export function CustomerTable() {
                                 </div>
                                 <div className="trRight">
                                     <div className="quoteJobDescriptionTxt">{job.description}</div>
-                                    <div className="quoteTotalTxt">{quote.total}</div>
-                                    <div className={`quoteStatus ${statusClass[quote.status] ?? ''}`}>{quote.status}</div>
-                                    <div className="quoteCreatedAtTxt">{quote.created_at}</div>
+                                    <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
+                                    <div className="quoteStatusCell"><QuoteStatus status={quote.status} /></div>
+                                    <div className="quoteCreatedAtTxt">{dayjs(quote.created_at).calendar(null, calendarConfig)}</div>
                                 </div>
                             </div>
                          ))
