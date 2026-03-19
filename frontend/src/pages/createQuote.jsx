@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
+import { Link } from 'react-router-dom';
 import { Send } from 'lucide-react';
 
 
@@ -109,9 +110,9 @@ export function CreateQuote(){
 
             <nav className='createQuoteNav'>
                 <div className='cqNavLeft'>
-                    <span className='cqNavBrand'>VOLT</span>
-                    <span className='cqNavSep'>/</span>
-                    <span className='cqNavCrumb'>Quotes</span>
+                    <Link to="/">
+                        <span className='cqNavBrand'>VOLT</span>
+                    </Link>
                 </div>
                 <div className='cqNavRight'>
                     <select name="selectedQuoteStatus" className='quoteStatusSelect'>

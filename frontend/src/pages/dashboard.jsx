@@ -29,7 +29,9 @@ export function Dashboard(){
                     <Link to="/createQuote">
                         <button className='createQuoteBtn'>+ New Quote</button>
                     </Link>
-                    <div className='profileContainer'>JD</div>
+                    <Link to="/profile">
+                        <div className='profileContainer'>JD</div>
+                    </Link>
                 </div>
             </nav>
 
