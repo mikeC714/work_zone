@@ -4,14 +4,15 @@ import { supabase } from '../config/supabase.config.js';
 const auth = new AuthService(supabase);
 
 export async function signUp(req,res){
-    let { username, email, password  } = req.body;
+    let { firstName, lastName, email, password  } = req.body;
 
     email = email?.trim().toLowerCase();   
 
-    if(!username || !email || !password){
-       return res.status(400).json({
+    if(!firstName || !lastName || !email || !password){
+        console.error('Invalid field')
+        return res.status(400).json({
         success: false,
-        error: `Invalid feilds. Please try again`
+        error: `Invalid fields. Please try again`
        })
     }
     try{
@@ -23,7 +24,7 @@ export async function signUp(req,res){
                 error: `Account with email ${email} already exists`
             })
         }
-        const { session, user } = await auth.signUp(email, password, username);
+        const { session, user } = await auth.signUp(firstName, lastName, email, password);
         
         res.cookie('access_token', session.access_token,{
             httpOnly: true,
@@ -38,7 +39,11 @@ export async function signUp(req,res){
             maxAge: 90 * 24 * 60 * 60 * 1000
         })
 
-        res.status(201).json({
+        console.log({
+            success: true,
+            user
+         })
+        return res.status(201).json({
             success: true,
             user
         })

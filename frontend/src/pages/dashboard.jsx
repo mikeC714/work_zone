@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
 import { customerTableData } from '../hooks/customerTable.hooks.jsx'
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
-import { Link } from 'react-router-dom';
+import { NavBar } from '../comps/navBar.jsx';
+import { useAuth } from '../hooks/auth.hooks.jsx';
 
 export function Dashboard(){
     const [activeFilter, setActiveFilter] = useState('ALL');
     const filters = ['ALL','DRAFT','SENT', 'IN PROGRESS', 'APPROVED', 'COMPLETED']
+    const { logoutMutation } = useAuth();
 
     const filteredData = activeFilter === 'ALL' 
     ? customerTableData :
@@ -18,23 +20,9 @@ export function Dashboard(){
 
     return(
         <div className='dashboardPage'>
-            <nav className='dashboardNav'>
-                <div className='navLeft'>
-                    <div className='navLogo'>
-                        <span className='navLogoIcon'>⚡</span>
-                        VOLT
-                    </div>
-                </div>
-                <div className='navRight'>
-                    <Link to="/createQuote">
-                        <button className='createQuoteBtn'>+ New Quote</button>
-                    </Link>
-                    <Link to="/profile">
-                        <div className='profileContainer'>JD</div>
-                    </Link>
-                </div>
-            </nav>
-
+            <NavBar  
+            logoutMutation={logoutMutation}
+            />
             <div className='dashboardBody'>
                 <div className='quickAccessContainer'>
                     <QuickAccess />

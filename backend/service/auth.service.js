@@ -3,16 +3,19 @@ export class AuthService {
         this.supabase = supabase
     }
 
-    async signUp(email, password, username){
-        if(!email || !password || !username){
+    async signUp(firstName, lastName, email, password){
+        if(!email || !password || !firstName || !lastName){
             throw new Error('Invaild feilds. Please fill feilds')
         }
         const { data, error } = await this.supabase.auth.signUp({
             email,
             password,
-            options: [
-                username
-            ]
+            options: {
+                data:{
+                    first_name: firstName,
+                    last_name: lastName
+                }
+            }
         })
 
         if(error){

@@ -1,4 +1,5 @@
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { UserProvider } from './context/userContext.jsx'; 
 import { AppRouter } from '../router/app.router.jsx'
 import { Authentication } from './pages/auth.jsx';
 import { apiFetch } from '../utils/apiFetch.jsx';
@@ -22,7 +23,9 @@ function Root() {
 export function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <Root />
+            <UserProvider>
+                <Root />
+            </UserProvider>
         </QueryClientProvider>
     );
 }

@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
+import { NavBar } from '../comps/navBar.jsx';
+import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
+import { useUserContext } from '../context/userContext.jsx';
+import { HandCoins, Briefcase, BookCheck, Star } from 'lucide-react';
 
 const user = {
-    initials: 'JM',
     name: 'Jordan Mitchell',
     title: 'Warehouse Manager',
     department: 'Operations',
@@ -22,6 +25,9 @@ const user = {
 };
 
 function Overview() {
+    const { firstName, lastName } = useUserContext();
+    const fullName = firstName + " " + lastName
+
     return (
         <div className='profileOverviewCard'>
             <section className='profileInfoSection'>
@@ -29,7 +35,7 @@ function Overview() {
                 <div className='profileInfoGrid'>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Full Name</span>
-                        <span className='profileFieldValue'>{user.name}</span>
+                        <span className='profileFieldValue'>{fullName}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Email Address</span>
@@ -98,33 +104,25 @@ const viewMap = {
 
 export function ProfilePage() {
     const [currView, setCurrView] = useState('overview');
+    const { firstName, lastName, nameInitials } = useUserContext()
+    const fullName = firstName + " " + lastName
+
+    const quickAccessData = useQueries({ queries: quickAccessQueries })
+    const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
+    const isLoading = quickAccessData.some(data => data.isLoading)
+    const isError = quickAccessData.some(data => data.isError);
+    
 
     return (
         <div className='profilePage'>
-            <nav className='dashboardNav'>
-                <div className='navLeft'>
-                    <Link to="/">
-                        <div className='navLogo'>
-                            <span className='navLogoIcon'>⚡</span>
-                            VOLT
-                        </div>
-                    </Link>
-                </div>
-                <div className='navRight'>
-                    <Link to="/createQuote">
-                        <button className='createQuoteBtn'>+ New Quote</button>
-                    </Link>
-                    <div className='profileContainer'>{user.initials}</div>
-                </div>
-            </nav>
-
+            <NavBar />
             <div className='profileBody'>
                 <div className='profileHeaderCard'>
                     <div className='profileHeaderLeft'>
-                        <div className='profileAvatar'>{user.initials}</div>
+                        <div className='profileAvatar'>{nameInitials}</div>
                         <div className='profileHeaderInfo'>
                             <div className='profileNameRow'>
-                                <h2 className='profileName'>{user.name}</h2>
+                                <h2 className='profileName'>{fullName}</h2>
                                 <span className='profileActiveBadge'>● ACTIVE</span>
                             </div>
                             <p className='profileSubtitle'>
@@ -142,26 +140,34 @@ export function ProfilePage() {
                     <button className='editProfileBtn'>✏ Edit Profile</button>
                 </div>
                 <div className='profileStatsRow'>
-                    <div className='profileStatCard'>
-                        <span className='profileStatIcon'>📦</span>
-                        <span className='profileStatValue'>{user.stats.activeJobs}</span>
-                        <span className='profileStatLabel'>ACTIVE JOBS</span>
-                    </div>
-                    <div className='profileStatCard'>
-                        <span className='profileStatIcon'>📋</span>
-                        <span className='profileStatValue'>{user.stats.completedJobs}</span>
-                        <span className='profileStatLabel'>COMPLETED JOBS</span>
-                    </div>
-                    <div className='profileStatCard'>
-                        <span className='profileStatIcon'>🏭</span>
-                        <span className='profileStatValue'>{user.stats.monthlyRevenue}</span>
-                        <span className='profileStatLabel'>MONTHLY REVENUE</span>
-                    </div>
-                    <div className='profileStatCard'>
-                        <span className='profileStatIcon'>⭐</span>
-                        <span className='profileStatValue'>{user.stats.memberSince}</span>
-                        <span className='profileStatLabel'>MEMBER SINCE</span>
-                    </div>
+                    <ProfileCard
+                        icon={<Briefcase />}
+                        value={activeJobs}
+                        isLoading={isLoading}
+                        isError={isError}
+                        label='ACTIVE JOBS'
+                    /> 
+                    <ProfileCard
+                        icon={<BookCheck />}
+                        value={completedJobs}
+                        isLoading={isLoading}
+                        isError={isError}
+                        label='COMPLETED JOBS'
+                     />
+                    <ProfileCard
+                        icon={<HandCoins />}
+                        value={monthlyRevenue}
+                        isLoading={isLoading}
+                        isError={isError}
+                        label='MONTHLY REVENUE'
+                     />
+                    <ProfileCard
+                        icon={<Star />}
+                        value={null}
+                        isLoading={isLoading}
+                        isError={isError}
+                        label='MEMBER SINCE'
+                     />
                 </div>
                 <div className='profileTabSection'>
                     <div className='profileTabs'>
@@ -182,4 +188,20 @@ export function ProfilePage() {
             </div>
         </div>
     );
+}
+
+function ProfileCard({ icon, value, label, isLoading, isError }){
+    return(
+        <div className='profileStatCard'>
+            <span className='profileStatIcon'>{icon}</span>
+            {isLoading ? (
+                <span className="profileStatValue">—</span>
+            ): isError ? (
+                <span className="profileStatValue">—</span>
+            ): (
+                <span className="profileStatValue">{value ?? 0}</span>
+            )}
+            {label && <span className='profileStatLabel'>{label}</span>}
+        </div>
+    )
 }

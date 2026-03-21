@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
+import { CqNavBar } from '../comps/navBar.jsx'
 import { Link } from 'react-router-dom';
 import { Send } from 'lucide-react';
 
@@ -107,27 +108,9 @@ export function CreateQuote(){
 
     return (
         <div className='createQuotePage'>
-
-            <nav className='createQuoteNav'>
-                <div className='cqNavLeft'>
-                    <Link to="/">
-                        <span className='cqNavBrand'>VOLT</span>
-                    </Link>
-                </div>
-                <div className='cqNavRight'>
-                    <select name="selectedQuoteStatus" className='quoteStatusSelect'>
-                        <option value="draft">Draft</option>
-                        <option value="inProgress">In Progress</option>
-                        <option value="approved">Approved</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                    <button className='cqChangeOrderBtn'>+ Change Order</button>
-                    <button className='cqSendQuoteBtn' type='submit' onClick={handleSaveQuote}>
-                        Save Quote
-                    </button>
-                </div>
-            </nav>
-
+            <CqNavBar 
+                handleSaveQuote={handleSaveQuote}
+            />
             <div className='createQuoteContent'>
 
                 <div className='cqLeft'>

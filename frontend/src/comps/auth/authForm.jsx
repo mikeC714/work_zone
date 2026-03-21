@@ -9,10 +9,11 @@ export function AuthForm({ isAuth, onSubmit, isPending, onSwitch }) {
 
             {!isAuth && (
                 <div className="authInputGroup">
-                    <label>Username</label>
+                    <label>Name</label>
                     <div className="authInputWrapper">
                         <User size={15} className="authInputIcon" />
-                        <input type="text" name="username" placeholder="johndoe" required />
+                        <input type="text" name="firstName" placeholder="First Name" required />
+                        <input type="text" name='lastName' placeholder='Last Name' required/>
                     </div>
                 </div>
             )}

@@ -1,12 +1,13 @@
 import { quickAccessQueries } from "../../hooks/quickAccess.hooks.jsx";
 import { useQueries } from "@tanstack/react-query";
+import { useSession } from '../../hooks/auth.hooks.jsx'
 
 export function QuickAccess(){
     const quickAccessData = useQueries({ queries: quickAccessQueries })
     const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
     const isLoading = quickAccessData.some(data => data.isLoading)
     const isError = quickAccessData.some(data => data.isError);
-
+    
     return (
         <div className='statCardsGrid'>
             <div className='statCardWrapper'>

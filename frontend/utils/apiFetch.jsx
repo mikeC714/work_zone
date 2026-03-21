@@ -1,30 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 
 
-export const apiFetch = async(url, method = 'GET', body = null) => {
-  
+export async function apiFetch(url, method = 'GET', body = null){  
 const options = {
     method,
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    ...(body && {body: JSON.stringify(body)})
   };
   
-  if(body){ 
-        options.body = JSON.stringify(body)
-    };
+    const res = await fetch(url, options);
 
-  const res = await fetch(url, options);
+    if (!res.ok) {
+        const errorData = await res.json();
+        console.log(errorData)
+        throw new Error(errorData.message || "Failed to Fetch");
+    }
 
-  if (!res.ok) throw new Error('Failed to Fetch');
-
-  return res.json();
+  return res.json()
 };
-
-export function useApiFetch(queryKey, url, options= {}){
-    return useQuery({
-        queryKey,
-        queryFn: apiFetch(url),
-        staleTime:  1000 * 60 * 5,
-        ...options
-    })
-} 

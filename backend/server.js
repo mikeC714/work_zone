@@ -17,6 +17,7 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json())
+
 app.use('/api', authRouter)
 app.use('/api', customerRouter)
 app.use('/api', emailRouter)
