@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
-import { NavBar } from '../comps/navBar.jsx';
+import { NavBar } from '../comps/navBar/navBar.jsx';
 import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
 import { HandCoins, Briefcase, BookCheck, Star } from 'lucide-react';

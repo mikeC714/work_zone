@@ -1,6 +1,5 @@
 import { quickAccessQueries } from "../../hooks/quickAccess.hooks.jsx";
 import { useQueries } from "@tanstack/react-query";
-import { useSession } from '../../hooks/auth.hooks.jsx'
 
 export function QuickAccess(){
     const quickAccessData = useQueries({ queries: quickAccessQueries })
@@ -16,9 +15,8 @@ export function QuickAccess(){
                     value={activeJobs}
                     isLoading={isLoading}
                     isError={isError}
-                     subtitle="THIS MONTH"
+                    subtitle="THIS MONTH"
                 />
-                <span></span>
             </div>
             <div className='statCardWrapper'>
                 <StatCard
@@ -26,7 +24,7 @@ export function QuickAccess(){
                     value={`$ ${monthlyRevenue}`}
                     isLoading={isLoading}
                     isError={isError}
-                     subtitle="THIS MONTH"
+                    subtitle="THIS MONTH"
                 />
             </div>
             <div className='statCardWrapper'>
@@ -35,7 +33,7 @@ export function QuickAccess(){
                     value={unpaidJobs}
                     isLoading={isLoading}
                     isError={isError}
-                     subtitle="THIS MONTH"
+                    subtitle="THIS MONTH"
                 />
             </div>
             <div className='statCardWrapper'>

@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
-import { CqNavBar } from '../comps/navBar.jsx'
+import { CqNavBar } from '../comps/navBar/navBar.jsx'
 import { Link } from 'react-router-dom';
 import { Send } from 'lucide-react';
 

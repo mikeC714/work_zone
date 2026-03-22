@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
 import { customerTableData } from '../hooks/customerTable.hooks.jsx'
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
-import { NavBar } from '../comps/navBar.jsx';
+import { NavBar } from '../comps/navBar/navBar.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx';
 
 export function Dashboard(){
