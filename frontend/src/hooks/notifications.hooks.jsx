@@ -9,5 +9,8 @@ export function useNotiHook(){
         refetchInterval: 1800000,
     })
     console.log(data)
-    return { data, isLoading, isError, error }
+
+    const notifications = data?.notifications ?? [];
+
+    return { notifications, isLoading, isError, error }
 }

@@ -1,47 +1,53 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../../context/userContext.jsx';
-import { useNotiHook } from "../../hooks/notifications.hooks.jsx";
 
 export function NavBar({ logoutMutation }){
     const { nameInitials } = useUserContext();
-    const { data, isLoading, isError, error } = useNotiHook();
-
-    console.log(data);
-    
+    const navigate = useNavigate()
     return(
         <nav className='dashboardNav'>
             <div className='navLeft'>
-                <div className='navLogo'>
-                    <Link to='/'>
-                        <span className='navLogoIcon'>⚡</span> VOLT
-                    </Link>
+                <div 
+                    className='navLogo' 
+                    onClick={() => navigate('/')}
+                >
+                    <span className='navLogoIcon'>⚡</span> VOLT
                 </div>
-                {/* <button 
-                >Logoout</button> */}
             </div>
             <div className='navRight'>
-                <Link to="/createQuote">
-                    <button className='createQuoteBtn'>+ New Quote</button>
-                </Link>
+                <button 
+                    className='createQuoteBtn'
+                    onClick={() => navigate('/createQuote')}    
+                >
+                    + New Quote
+                </button>
                 <NavHoverPopUp content={
                     <div className='navPopUpActions'>
+                            <button 
+                                className='navPopBtns' 
+                                onClick={() => navigate('/notifications')}
+                            >
+                                NOTIFICATIONS
+                            </button>
+                        <button className='navPopBtns'>SETTINGS</button>
                         <button
                             onClick={() => logoutMutation.mutate()}
-                            disabled={logoutMutation.isPending}>
-                            NOTIFICATIONS
+                            // disabled={logoutMutation.isPending}
+                            className='navPopBtns'   
+                        >
+                            LOGOUT
                         </button>
-                        <button>SETTINGS</button>
-                        <button>LOGOUT</button>
                     </div>
                 }>
-                    <Link to="/profile">
-                        <div className='profileContainer'>
-                            <h3>
-                                {nameInitials}
-                            </h3>
-                        </div>
-                    </Link>
+                    <div 
+                        className='profileContainer'
+                        onClick={() => navigate('/profile')}    
+                    >
+                        <h3>
+                            {nameInitials}
+                        </h3>
+                    </div>
                 </NavHoverPopUp>
             </div>
         </nav>
@@ -49,12 +55,16 @@ export function NavBar({ logoutMutation }){
 }
 
 export function CqNavBar({ handleSaveQuote }){
+    const navigate = useNavigate()
     return(
         <nav className='createQuoteNav'>
             <div className='cqNavLeft'>
-                <Link to="/">
-                    <span className='cqNavBrand'>VOLT</span>
-                </Link>
+                <span 
+                    className='cqNavBrand'
+                    onClick={() => navigate('/')}
+                >
+                    VOLT
+                </span>
             </div>
             <div className='cqNavRight'>
                 <select name="selectedQuoteStatus" className='quoteStatusSelect'>
@@ -103,15 +113,6 @@ export function SettingsPage(){
     return(
         <div>
 
-        </div>
-    )
-}
-export function NotificationsPage(){
-    return(
-        <div className='notiPage'>
-            <div className='noti'>
-
-            </div>
         </div>
     )
 }

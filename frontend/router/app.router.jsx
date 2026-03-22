@@ -2,7 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Dashboard } from '../src/pages/dashboard.jsx';
 import { CreateQuote } from '../src/pages/createQuote.jsx';
 import { ProfilePage } from '../src/pages/profile.jsx'
-import { NotificationsPage, SettingsPage } from '../src/comps/navBar/navBar.jsx'
+import { NotificationsPage } from '../src/comps/navBar/notification.jsx'
+import { SettingsPage } from '../src/comps/navBar/navBar.jsx'
 
 export function AppRouter(){
    return( 

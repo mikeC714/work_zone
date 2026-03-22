@@ -5,7 +5,7 @@ export class Notis {
     async getNotis(user){
         const { data: quotes, error } = await this.supabase
             .from('quotes')
-            .select('id, customer_id, status, createdAt')
+            .select('id, customer_id, status, created_at')
             .eq('user_id', user.id)
 
         if (error) {
@@ -19,8 +19,10 @@ export class Notis {
             if (qt.status == 'approved') {
                 notifications.push({
                     type: 'Approved',
+                    message: `Quote for ${qt.customers.first_name} ${qt.customers.last_name} has been approved`,
                     customerId: qt.customer_id,
-                    quoteId: qt.id
+                    quoteId: qt.id,
+                    read: false
                 })
             }
 
@@ -29,16 +31,20 @@ export class Notis {
             if ((qt.status == 'pending' || qt.status == 'sent') && daysSinceSent > 7) {
                 notifications.push({
                     type: 'Follow up',
+                    message: `Quote for ${qt.customers.first_name} ${qt.customers.last_name} hasn't been accepted in ${Math.floor(daysSinceSent)} days`,
                     customerId: qt.customer_id,
-                    quoteId: qt.id
+                    quoteId: qt.id,
+                    read: false
                 })
             }
 
             if (qt.status == 'approved' && quotes.status == 'unpaid') {
                 notifications.push({
                     type: 'Unpaid',
+                    message: `Quote for ${qt.customers.first_name} ${qt.customers.last_name} is unpaid`,
                     customerId: qt.customer_id,
-                    quoteId: qt.id
+                    quoteId: qt.id,
+                    read: false
                 })
             }
         })
