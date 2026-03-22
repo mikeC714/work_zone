@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { useUserContext } from '../../context/userContext.jsx';
+import { useUserContext } from '../context/userContext.jsx';
 
 export function NavBar({ logoutMutation }){
     const { nameInitials } = useUserContext();

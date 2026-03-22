@@ -758,14 +758,14 @@ Link{
     gap: 16px;
 }
 
-.BtnsContainer {
+.statusBtnsContainer {
     display: flex;
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
 }
 
-.Btns {
+.statusBtns {
     background: transparent;
     border: 1px solid var(--border);
     border-radius: 20px;
@@ -778,12 +778,12 @@ Link{
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.Btns:hover {
+.statusBtns:hover {
     color: var(--text);
     border-color: #555;
 }
 
-.Btns.active {
+.statusBtns.active {
     background: var(--orange);
     border-color: var(--orange);
     color: #fff;
@@ -1808,6 +1808,41 @@ Link{
     color: var(--text-muted);
 }
 
+.notiHead{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10em;
+}
+
+.notiHeadContent{
+    width: 40%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.notiHeadContent > h2{
+    font: var(--font);
+    font-size: 22px;
+    font-weight: 480;
+}
+
+.notiActionBtns{
+    width: 14em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;   
+}
+
+.notiActionBtns > button{
+    background: none;
+    color: var(--orange);
+    font: var(--font);
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+}
+
 .notiContent{
     height: 100vh;
     display: flex;
@@ -1821,7 +1856,7 @@ Link{
     align-items: center;
     justify-content: center;
     gap: 10px;
-    height: 10em;
+    height: 6em;
     flex-wrap: wrap;
     position: relative;
 }
@@ -1845,12 +1880,74 @@ Link{
 .notiList{
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding-top: 4em;
     flex-direction: column;
     height: 82vh;
     min-width: 80%;
-    gap: 1em;
+    gap: 1.2em;
 }
+
+.notiContent{
+    display: flex;
+    height: 8em;
+    width:40em;
+    border: 1px solid rgba(77, 75, 75, 0.315);
+    border-radius: 18px;
+    position: relative;
+    gap: .8em;
+    cursor: pointer;
+    transition: border-color .15s ease;
+}
+
+.notiContent:hover{
+    border-color: rgb(77, 75, 75);
+}
+
+.notiIcon{
+    position: absolute;
+    top:10px;
+    left:14px;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 26px;
+}
+
+.notiConTop, 
+.notiConCen, 
+.notiConBtm{
+    width: 73%;
+    text-align: left;
+}
+
+.notiConTop > p{
+    font-size: 16px;
+}
+
+.notiConCen{
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 300;
+}
+
+.notiConBtm{
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.notiTypeContainer{
+    width: 6em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+}
+
 
 /* Small mobile (≤ 480px) */
 @media (max-width: 480px) {
