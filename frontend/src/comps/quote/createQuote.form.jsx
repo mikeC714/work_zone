@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handleLaborForm, customerInfo, labor, materials, laborInputs, materialInputs}) {
+export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handleLaborForm, customerInfo, labor, materials, laborInputs, materialInputs, handleNumBlur}) {
 
     return(
         <div className='cqFormWrapper'>
@@ -29,15 +29,28 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                     </div>
                     {materials.map((mats, index) =>
                         <form key={index} className='cqTableRow'>
-                            <input className='cqInput cqColDesc'
-                            name='description' type="text" placeholder='Description'
-                            value={mats.description} onChange={(e) => handleMaterialForm(e, index)} />
-                            <input className='cqInput cqColSmall'
-                            name='quantity' type="number" placeholder='0'
-                            value={mats.quantity} onChange={(e) => handleMaterialForm(e, index)} />
-                            <input className='cqInput cqColSmall'
-                            name='unitCost' type="number" placeholder='0'
-                            value={mats.unitCost} onChange={(e) => handleMaterialForm(e, index)} />
+                            <input 
+                                className='cqInput cqColDesc'
+                                name='description' 
+                                type="text" 
+                                placeholder='Description'
+                                value={mats.description} 
+                                onChange={(e) => handleMaterialForm(e, index)}
+                            />
+                            <input 
+                                className='cqInput cqColSmall'
+                                name='quantity' 
+                                type="number" placeholder='0'
+                                value={mats.quantity} 
+                                onChange={(e) => handleMaterialForm(e, index)} 
+                            />
+                            <input 
+                                className='cqInput cqColSmall'
+                                name='unitCost' 
+                                type='number'
+                                value={mats.unitCost} 
+                                onChange={(e) => handleMaterialForm(e, index)} 
+                            />
                             <p className='cqColSmall'>${mats.total}</p>
                         </form>
                     )}
@@ -58,17 +71,24 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                     </div>
                     {labor.map((lab,index) =>
                         <form key={index} className='cqTableRow'>
-                            <input className='cqInput cqColDesc'
-                                name='description' type="text" placeholder='Description'
-                                value={lab.description} onChange={(e) => handleLaborForm(e, index)} 
+                            <input 
+                                className='cqInput cqColDesc'
+                                name='description' 
+                                type="text" placeholder='Description'
+                                value={lab.description} 
+                                onChange={(e) => handleLaborForm(e, index)} 
                             />
                             <input className='cqInput cqColSmall'
-                                name='hours' type="number"
-                                value={lab.hours} onChange={(e) => handleLaborForm(e, index)} 
+                                name='hours' 
+                                type="number"
+                                value={lab.hours} 
+                                onChange={(e) => handleLaborForm(e, index)} 
                             />
                             <input className='cqInput cqColSmall'
-                                name='hourlyRate' type="number"
-                                value={lab.hourlyRate} onChange={(e) => handleLaborForm(e, index)} 
+                                name='hourlyRate' 
+                                type="number"
+                                value={lab.hourlyRate} 
+                                onChange={(e) => handleLaborForm(e, index)} 
                             />
                             <p className='cqColSmall'>${lab.total}</p>
                         </form>

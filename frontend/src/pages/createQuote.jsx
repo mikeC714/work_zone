@@ -37,7 +37,6 @@ export function CreateQuote(){
         mutationFn: async() => await apiFetch('http://localhost:3000/api/create-quote', POST, newQuote),
     })
 
-
     function handleSaveQuote(){
         e.preventDefault();
 
@@ -48,7 +47,6 @@ export function CreateQuote(){
             materials
         })
     }
-
 
   function handleCustomerForm(e) {
     const { customer, value } = e.target
@@ -104,6 +102,16 @@ export function CreateQuote(){
         setLabor(prev => [...prev, { description: "", hours: 0, hourlyRate: 0, total: 0 }])
     }
 
+    function limitNum(val, limit){
+        if(val.length > limit){
+            return  val.substring(0, limit-3) + '...';
+        }
+        return val;
+    }
+    
+    const markUpPerc = (userMarkup / 100 * subTotal).toLocaleString();
+
+    const markUpDiff = limitNum(markUpPerc, 20)
 
     return (
         <div className='createQuotePage'>
@@ -122,7 +130,6 @@ export function CreateQuote(){
                         materials={materials}
                         materialInputs={handleAddMaterialInputs}
                         laborInputs={handleAddLaborInputs}
-
                     />
                 </div>
 
@@ -131,7 +138,7 @@ export function CreateQuote(){
 
                     <div className='cqSummaryRow'>
                         <span className='cqSummaryLabel'>Subtotal</span>
-                        <span className='cqSummaryValue'>${subTotal}</span>
+                        <span className='cqSummaryValue'>${subTotal.toLocaleString()}</span>
                     </div>
 
                     <div className='cqSummaryRow'>
@@ -144,7 +151,7 @@ export function CreateQuote(){
                                 onChange={(e) => setUserMarkup(e.target.value)}
                             />
                             <span className='cqMarkupPct'>%</span>
-                            <span className='cqSummaryValue'>${(userMarkup / 100 * subTotal).toFixed(2)}</span>
+                            <span className='cqMarkupDifference'>${markUpDiff}</span>
                         </div>
                     </div>
 

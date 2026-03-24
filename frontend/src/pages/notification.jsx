@@ -9,6 +9,12 @@ const notiConfig = {
         style: 'notiApproved',
         color: '#abf7b1'
     },
+    // 'Complete': {
+    //     icon,
+    //     style,
+    //     color
+    // }
+    // ,
     'Follow Up': {
         icon: <Clock />,
         style: 'notiFollowup',
@@ -24,7 +30,8 @@ const notiConfig = {
 const filterMap = {
     'APPROVED': 'Approved',
     'FOLLOW UP': 'Follow Up',
-    'UNPAID': 'Unpaid'
+    'UNPAID': 'Unpaid',
+    'COMPLETE': 'Complete'
 }
 
 export function NotificationsPage(){
@@ -59,6 +66,33 @@ export function NotificationsPage(){
             title: `Quote # QT-1234 Approved`,
             price: '$1,200',
             read: false
+        },
+        {   
+            type: 'Follow Up', 
+            message: `John Jones has been approved Quote QT-123`,
+            customerId: 1234,
+            quoteId: 'QT-124',
+            title: `Quote # QT-1234 Approved`,
+            price: '$1,200',
+            read: false
+        },
+        {   
+            type: 'Follow Up', 
+            message: `John Jones has been approved Quote QT-123`,
+            customerId: 1234,
+            quoteId: 'QT-125',
+            title: `Quote # QT-1234 Approved`,
+            price: '$1,200',
+            read: false
+        },
+        {   
+            type: 'Approved', 
+            message: `John Jones has been approved Quote QT-123`,
+            customerId: 1234,
+            quoteId: 'QT-126',
+            title: `Quote # QT-1234 Approved`,
+            price: '$1,200',
+            read: false
         }
     ]
 
@@ -78,18 +112,18 @@ export function NotificationsPage(){
                             <button>Clear</button>
                         </div>
                     </div>
+                    <div className="notiFilterContainer">
+                        {notiFilter.map(btns => (
+                            <button
+                                key={btns}
+                                className={`notiFilterBtn ${activeFilter === btns ? 'active' : ''}`}
+                                onClick={() => setActiveFilter(btns)}
+                            >
+                                {btns}
+                            </button>
+                        ))}
+                    </div>
                 </header>
-                <div className="notiFilterContainer">
-                    {notiFilter.map(btns => (
-                        <button
-                            key={btns}
-                            className={`notiFilterBtn ${activeFilter === btns ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(btns)}
-                        >
-                            {btns}
-                        </button>
-                    ))}
-                </div>
                 <div className='notiList'>
                     {notifications.length === 0 ?
                         <p>No Notifications</p> :

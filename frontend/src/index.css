@@ -1338,6 +1338,12 @@ Link{
 }
 
 /* Table */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .cqTable {
     background: var(--bg-left);
     border: 1px solid var(--border);
@@ -1365,8 +1371,10 @@ Link{
 .cqTableRow {
     display: grid;
     grid-template-columns: 1fr 80px 80px 80px;
-    gap: 10px;
-    padding: 10px 16px;
+    padding-top:16px;
+    padding-bottom: 16px;
+    padding-left: 12px;
+    gap: 16px;
     border-bottom: 1px solid var(--border);
     align-items: center;
 }
@@ -1383,7 +1391,11 @@ Link{
 .cqColSmall {
     width: 80px;
     flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;    
+    text-overflow: ellipsis;
     text-align: center;
+     -moz-appearance: textfield;
 }
 
 .cqTableRow .cqColSmall {
@@ -1810,15 +1822,17 @@ Link{
 
 .notiHead{
     display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 1em;
+    flex-direction: column;
     height: 10em;
 }
 
 .notiHeadContent{
     width: 40%;
     display: flex;
-    justify-content: space-between;
+    padding: 2em;
+    align-items: center;
+    gap: 5em; 
 }
 
 .notiHeadContent > h2{
@@ -1830,7 +1844,7 @@ Link{
 .notiActionBtns{
     width: 14em;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;   
 }
 
@@ -1854,8 +1868,8 @@ Link{
 .notiFilterContainer{
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    padding: 52px;
+    gap: 18px;
     height: 6em;
     flex-wrap: wrap;
     position: relative;
@@ -1878,13 +1892,16 @@ Link{
 }
 
 .notiList{
-    display: flex;
+    align-self: center;
+    justify-self:center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, minmax(100px, auto));
     align-items: center;
-    padding-top: 4em;
-    flex-direction: column;
     height: 82vh;
     min-width: 80%;
-    gap: 1.2em;
+    padding-top: 2em;
+    gap: 1.7em;
 }
 
 .notiContent{
