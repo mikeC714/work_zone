@@ -1,9 +1,9 @@
 import { CustomerService} from "../service/customer.service.js";
 import { getCustomerId, getAllCustomerIds } from '../utils/getCustomer.js';
 import { getQuoteInfo, getJobInfo } from "../utils/getQuote.js";
-import { supabase } from '../config/supabase.config.js'
+import { db } from '../config/supabase.config.js'
 
-const customerService = new CustomerService(supabase)
+const customerService = new CustomerService(db)
 
 export async function getCustomerInfo(req,res){
     try{
@@ -35,9 +35,9 @@ export async function getAllUserCustomers(req,res){
                 return{
                     ...customer,
                     quote: quoteDetails.filter(quote => quote.customer_id === customer.id).map(quotes => {
-                       return {
-                        ...quotes,
-                        job: jobDetails.filter(job => job.quote_id === quotes.id)
+                        return{
+                            ...quotes,
+                            job: jobDetails.filter(job => job.quote_id === quotes.id)
                        }
                     })
                 }
@@ -100,7 +100,7 @@ export async function createCustomerQuote(req,res){
         const user = req.user;
         const createdAt = new Date().toISOString();
 
-        const newQuote = await createQuote(user, customer, labor, materials, quote, createdAt);
+        const newQuote = await customerService.createQuote(user, customer, quote, labor, materials, createdAt);
 
         if(newQuote.error){
             return res.status(500).json({
@@ -108,6 +108,8 @@ export async function createCustomerQuote(req,res){
                 error: newQuote.error.message
             })
         }
+
+        console.log(newQuote)
 
         return {
             ...newQuote
@@ -131,7 +133,7 @@ export async function deleteCustomerQuote(req,res){
             console.error(`Failed to Delete Customer Quote ${quoteId}`);
             return res.status(500).json({
                 success: false,
-                error: deleteQuote.error.message
+                error: deletedQuote.error.message
             })
         }
         

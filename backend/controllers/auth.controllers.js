@@ -1,7 +1,7 @@
 import { AuthService } from '../service/auth.service.js';
-import { supabase } from '../config/supabase.config.js';
+import { supAuth } from '../config/supabase.config.js';
 
-const auth = new AuthService(supabase);
+const auth = new AuthService(supAuth);
 
 export async function signUp(req,res){
     let { firstName, lastName, email, password  } = req.body;

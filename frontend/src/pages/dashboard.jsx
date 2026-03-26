@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
-import { customerTableData } from '../hooks/customerTable.hooks.jsx'
-import { CustomerTable } from '../comps/dashboard/customersTable.jsx';
+import { useCustomerTableHook} from '../hooks/customerTable.hooks.jsx';
+import { CustomerTable } from '../comps/dashboard/customersTable.jsx'
 import { NavBar } from '../comps/navBar.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx';
 
 export function Dashboard(){
     const [activeFilter, setActiveFilter] = useState('ALL');
-    const filters = ['ALL','DRAFT','SENT', 'IN PROGRESS', 'APPROVED', 'COMPLETED']
+    const { data, isLoading, isError, error } = useCustomerTableHook();
+    const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED']
     const { logoutMutation } = useAuth();
 
     const filteredData = activeFilter === 'ALL' 
-    ? customerTableData :
-    customerTableData.map(cus => ({ 
+    ? data?.customers :
+    data?.customers?.map(cus => ({ 
         ...cus,
         quote: cus.quote.filter(qt => qt.status === activeFilter.toLowerCase().replace(' ', '_'))
     }))
     .filter(cus => cus.quote.length > 0)
+
+    console.log(filteredData)
 
     return(
         <div className='dashboardPage'>
@@ -32,9 +35,9 @@ export function Dashboard(){
                     <div className='statusBtnsContainer'>
                         {filters.map(btns => (
                             <button 
-                            className={`statusBtns ${activeFilter === btns ? 'active' : ''}`}
-                            key={btns} 
-                            onClick={() => setActiveFilter(btns)}>
+                                className={`statusBtns ${activeFilter === btns ? 'active' : ''}`}
+                                key={btns} 
+                                onClick={() => setActiveFilter(btns)}>
                                 {btns}
                             </button>
                         ))}

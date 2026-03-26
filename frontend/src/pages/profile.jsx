@@ -156,7 +156,7 @@ export function ProfilePage() {
                      />
                     <ProfileCard
                         icon={<HandCoins />}
-                        value={monthlyRevenue}
+                        value={`$ ${monthlyRevenue}`}
                         isLoading={isLoading}
                         isError={isError}
                         label='MONTHLY REVENUE'

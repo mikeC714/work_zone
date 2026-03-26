@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.config.js';
+import { db } from '../config/supabase.config.js';
 
 export async function getAllCompletedJobs(req, res) {
     const user = req.user;
@@ -15,7 +15,7 @@ export async function getAllCompletedJobs(req, res) {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
 
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('quotes')
             .select('status')
             .eq('user_id', user.id)
@@ -54,7 +54,7 @@ export async function getUnpaidJobs(req,res){
     }
 
     try{
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('quotes')
             .select('status')
             .eq('user_id', user.id)
@@ -90,7 +90,7 @@ export async function getActiveJobs(req,res){
         })
     }
     try{
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from('quotes')
             .select('status')
             .eq('user_id', user.id)
@@ -131,7 +131,7 @@ export async function getMonthlyTotal(req,res){
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
 
-        const { data, error } = await supabase 
+        const { data, error } = await db
             .from('quotes')
             .select('total')
             .eq('user_id', user.id)
@@ -145,7 +145,7 @@ export async function getMonthlyTotal(req,res){
             })
         }
 
-        const monthTotal = data.reduce((acc, curr) => acc + curr.total , 0)
+        const monthTotal = data.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
 
         return res.status(200).json({
             success: true,

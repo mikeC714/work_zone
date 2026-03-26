@@ -1,8 +1,8 @@
-import { supabase } from "../config/supabase.config.js";
+import { db } from "../config/supabase.config.js";
 
 export async function getCustomerId(user){
 
-    const { data: customerId, error } = await supabase
+    const { data: customerId, error } = await db
         .from('customers')
         .select('id')
         .eq('user_id', user.id)
@@ -17,7 +17,7 @@ export async function getCustomerId(user){
 
 export async function getAllCustomerIds(user){
     
-    const { data: allCustomerId, error } = await supabase  
+    const { data: allCustomerId, error } = await db  
         .from('customers')
         .select('id')
         .eq('user_id', user.id)

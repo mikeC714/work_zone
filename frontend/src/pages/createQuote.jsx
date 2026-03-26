@@ -34,25 +34,28 @@ export function CreateQuote(){
     });
 
     const { mutate, isPending, isError, error, isSuccess } = useMutation({
-        mutationFn: async() => await apiFetch('http://localhost:3000/api/create-quote', POST, newQuote),
+      mutationFn: async (data) => 
+        await apiFetch('http://localhost:3000/api/create-quote', 'POST', data),
     })
 
-    function handleSaveQuote(){
-        e.preventDefault();
+    function handleSaveQuote() {
+        if(isSuccess){
+            console.log('Successfully Saved Quote')
+        }
 
-        mutate({
-            customer: customerInfo,
-            quote: userMarkup, total,
-            labor,
-            materials
-        })
+      mutate({
+        customer: customerInfo,
+        quote: { markup: userMarkup, total },
+        labor: labor,
+        materials: materials
+      })
     }
 
   function handleCustomerForm(e) {
-    const { customer, value } = e.target
+    const { name, value } = e.target
     setCustomerInfo(prev => ({
         ...prev,
-        [customer]: value
+        [name]: value
     }))
   }
 
@@ -89,8 +92,6 @@ export function CreateQuote(){
         ...labor.map(lab => lab.total),
     ].reduce((sum, val) => sum += val, 0);
 
-    console.log(subTotal);
-
     const total = subTotal * ( 1 + userMarkup / 100)
 
 
@@ -112,6 +113,7 @@ export function CreateQuote(){
     const markUpPerc = (userMarkup / 100 * subTotal).toLocaleString();
 
     const markUpDiff = limitNum(markUpPerc, 20)
+
 
     return (
         <div className='createQuotePage'>
@@ -160,7 +162,13 @@ export function CreateQuote(){
                         <span className='cqTotalValue'>${total.toFixed(2)}</span>
                     </div>
 
-                    <button className='cqSendToCustomerBtn'>
+                    <button 
+                        className='cqSendToCustomerBtn'
+                        onClick={(e) => {
+                            handleSaveQuote(),
+                            sendQuoteToCustomer(e)
+                        }}
+                    >
                         SEND TO CUSTOMER <Send size={14} />
                     </button>
                 </div>

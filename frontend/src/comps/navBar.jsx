@@ -74,7 +74,7 @@ export function CqNavBar({ handleSaveQuote }){
                     <option value="completed">Completed</option>
                 </select>
                 <button className='cqChangeOrderBtn'>+ Change Order</button>
-                <button className='cqSendQuoteBtn' type='submit' onClick={handleSaveQuote}>
+                <button className='cqSendQuoteBtn' onClick={handleSaveQuote}>
                     Save Quote
                 </button>
             </div>

@@ -36,65 +36,66 @@ const filterMap = {
 
 export function NotificationsPage(){
     const [activeFilter, setActiveFilter] = useState('ALL')
+    const { notifications, isLoading, isError, error } = useNotiHook();
     const notiFilter = ['ALL', 'APPROVED', 'FOLLOW UP', 'UNPAID']
     // const { notifications } = useNotiHook();
 
-    const notifications = [
-        {   
-            type: 'Approved', 
-            message: `Alex Smith has been approved Quote QT-121`,
-            customerId: 1234,
-            quoteId: 'QT-121',
-            title: `Quote # QT-1234 Approved`,
-            price: '$1,200',
-            read: false
-        },
-        {   
-            type: 'Follow Up', 
-            message: `Joe Shmoe has been approved Quote QT-122`,
-            customerId: 1234,
-            quoteId: 'QT-122',
-            title: `Quote # QT-125 Approved`,
-            price: '$1,200',
-            read: false
-        },
-        {   
-            type: 'Unpaid', 
-            message: `John Jones has been approved Quote QT-123`,
-            customerId: 1234,
-            quoteId: 'QT-123',
-            title: `Quote # QT-1234 Approved`,
-            price: '$1,200',
-            read: false
-        },
-        {   
-            type: 'Follow Up', 
-            message: `John Jones has been approved Quote QT-123`,
-            customerId: 1234,
-            quoteId: 'QT-124',
-            title: `Quote # QT-1234 Approved`,
-            price: '$1,200',
-            read: false
-        },
-        {   
-            type: 'Follow Up', 
-            message: `John Jones has been approved Quote QT-123`,
-            customerId: 1234,
-            quoteId: 'QT-125',
-            title: `Quote # QT-1234 Approved`,
-            price: '$1,200',
-            read: false
-        },
-        {   
-            type: 'Approved', 
-            message: `John Jones has been approved Quote QT-123`,
-            customerId: 1234,
-            quoteId: 'QT-126',
-            title: `Quote # QT-1234 Approved`,
-            price: '$1,200',
-            read: false
-        }
-    ]
+    // const notifications = [
+    //     {   
+    //         type: 'Approved', 
+    //         message: `Alex Smith has been approved Quote QT-121`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-121',
+    //         title: `Quote # QT-1234 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     },
+    //     {   
+    //         type: 'Follow Up', 
+    //         message: `Joe Shmoe has been approved Quote QT-122`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-122',
+    //         title: `Quote # QT-125 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     },
+    //     {   
+    //         type: 'Unpaid', 
+    //         message: `John Jones has been approved Quote QT-123`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-123',
+    //         title: `Quote # QT-1234 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     },
+    //     {   
+    //         type: 'Follow Up', 
+    //         message: `John Jones has been approved Quote QT-123`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-124',
+    //         title: `Quote # QT-1234 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     },
+    //     {   
+    //         type: 'Follow Up', 
+    //         message: `John Jones has been approved Quote QT-123`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-125',
+    //         title: `Quote # QT-1234 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     },
+    //     {   
+    //         type: 'Approved', 
+    //         message: `John Jones has been approved Quote QT-123`,
+    //         customerId: 1234,
+    //         quoteId: 'QT-126',
+    //         title: `Quote # QT-1234 Approved`,
+    //         price: '$1,200',
+    //         read: false
+    //     }
+    // ]
 
     const notiData = activeFilter === 'ALL'
     ? notifications :

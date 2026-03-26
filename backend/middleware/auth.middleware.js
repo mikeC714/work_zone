@@ -1,5 +1,5 @@
 import { getUser } from '../utils/getUser.js';
-import { supabase } from '../config/supabase.config.js';
+import { supAuth } from '../config/supabase.config.js';
 
 export async function requireAuth(req,res,next){
     const token = req.cookies.access_token;
@@ -30,7 +30,7 @@ export async function refreshUserToken(req,res,next){
     if(!accessToken && !refreshToken) return next();
 
     try{
-        const { data, error } = await supabase.auth.setSession({
+        const { data, error } = await supAuth.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
         })

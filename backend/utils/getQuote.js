@@ -1,9 +1,9 @@
-import { supabase } from '../config/supabase.config.js';
+import { db } from '../config/supabase.config.js';
 
 export async function getQuoteInfo(customerIds, user){
     const cusIds = customerIds.map(customer => customer.id)
 
-    const { data: quoteInfo, error } = await supabase
+    const { data: quoteInfo, error } = await db
         .from('quotes')
         .select('status, id, total, markup, job_id, created_at, customer_id')
         .eq('user_id', user.id)
@@ -19,7 +19,7 @@ export async function getQuoteInfo(customerIds, user){
 export async function getJobInfo(quote){
     const quoteIds = quote.map(quotes => quotes.id)
 
-    const { data: jobInfo, error } = await supabase
+    const { data: jobInfo, error } = await db
         .from('labor')
         .select('description, hours, hourly_rate, quote_id')
         .in('quote_id', quoteIds)   

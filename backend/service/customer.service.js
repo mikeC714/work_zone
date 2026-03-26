@@ -6,21 +6,19 @@ export class CustomerService{
         this.supabase = supabase
     }
 
-        async customerInfo(customerId, user){
+        async customerInfo(customerIds, user){
 
-        const customerIds = customerId.map(customer => customer.id)
+        const cusIds = customerIds.map(customer => customer.id)
 
         const { data: customerInfo, error } = await this.supabase
             .from('customers')
-            .select('id, name, phone, email, address, created_at')
+            .select('id, first_name, last_name, phone, email, address, created_at')
             .eq('user_id', user.id)
-            .in('id', customerIds)
+            .in('id', cusIds)
         
         if(error){
             throw new Error(`Failed to query Customer Info ${error.message}`);
         }
-
-        console.log(customerInfo);
 
         return customerInfo;
     }
@@ -84,14 +82,17 @@ export class CustomerService{
             .insert({
                 id:crypto.randomUUID(),
                 user_id: user.id,
-                name: customer.name, phone: customer.phone,
-                email: customer.email, address: customer.address,
+                name: customer.name,
+                phone: customer.phone,
+                email: customer.email, 
+                address: customer.address,
                 created_at: createdAt
             })
+            .select()
             .single()
 
             if(customerError){
-                console.error('Failed to insert Customer Data')
+                console.error(`Failed to insert Customer Data ${customerError.message}`)
                 return { error: customerError }
             }
 
@@ -125,7 +126,6 @@ export class CustomerService{
             .insert(
                 labor.map(work => ({
                     id: crypto.randomUUID(),
-                    user_id: user.id,
                     quote_id: quoteData.id, 
                     description: work.description,
                     hours: work.hours,
@@ -140,11 +140,9 @@ export class CustomerService{
             .insert(
                 materials.map(mats => ({
                     id: crypto.randomUUID(),
-                    user_id: user.id,
                     quote_id: quoteData.id,
                     description: mats.description,
                     quantity: mats.quantity,
-                    unit_metric: mats.metric,
                     unit_cost: mats.unitCost,
                     created_at: createdAt
                 }))

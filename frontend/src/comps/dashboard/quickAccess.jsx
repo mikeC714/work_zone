@@ -6,7 +6,7 @@ export function QuickAccess(){
     const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
     const isLoading = quickAccessData.some(data => data.isLoading)
     const isError = quickAccessData.some(data => data.isError);
-    
+
     return (
         <div className='statCardsGrid'>
             <div className='statCardWrapper'>

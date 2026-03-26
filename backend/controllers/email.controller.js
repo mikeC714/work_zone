@@ -1,10 +1,10 @@
 import { Resend } from 'resend';
 import { CustomerService } from '../service/customer.service.js';
-import { supabase } from '../config/supabase.config.js';
+import { db } from '../config/supabase.config.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const customerService = new CustomerService(supabase)
+const customerService = new CustomerService(db)
 
 const resend = new Resend(process.env.RESEND_KEY)
 

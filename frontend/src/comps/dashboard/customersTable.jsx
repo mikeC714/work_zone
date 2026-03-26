@@ -1,14 +1,10 @@
-import { useCustomerTableHook} from '../../hooks/customerTable.hooks.jsx';
 import { calendarConfig } from '../../../config/calender.config.js';
 import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
 export function CustomerTable({ filteredData }) {
-    const {  isLoading, isError, error } = useCustomerTableHook();
 
     dayjs.extend(calendar);
-
-    console.log(filteredData);
 
     function QuoteStatus({status}){
         switch(status){
@@ -18,8 +14,6 @@ export function CustomerTable({ filteredData }) {
                 return <div className='quoteStatus pendingStatusStyle'>PENDING</div> 
             case 'approved' :
                 return <div className='quoteStatus approvedStatusStyle'>APPROVED</div>
-            case 'in_progress' :
-                return <div className='quoteStatus inProgressStatusStyle'>IN PROGRESS</div>
             case 'completed' :
                 return <div className='quoteStatus completedStatusStyle'>COMPLETED</div>
             default:
@@ -46,22 +40,20 @@ export function CustomerTable({ filteredData }) {
                 <div className="tableBody">
                     { filteredData?.length > 0 ? filteredData.map((customer, customerIndex )=>
                         customer.quote.map(quote=>
-                            quote.job.map(job=> (
-                            <div key={job.id} className="customerDataRow">
+                            <div key={quote.id} className="customerDataRow">
                                 <div className="trLeft">
                                     <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
-                                    <div className="customerNameTxt">{customer.customer.name}
-                                        <span className="customerAddressTxt">{customer.customer.address}</span>
+                                    <div className="customerNameTxt">{customer.name}
+                                        <span className="customerAddressTxt">{customer.address}</span>
                                     </div>
                                 </div>
                                 <div className="trRight">
-                                    <div className="quoteJobDescriptionTxt">{job.description}</div>
+                                    <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
                                     <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
                                     <div className="quoteStatusCell"><QuoteStatus status={quote.status} /></div>
                                     <div className="quoteCreatedAtTxt">{dayjs(quote.created_at).calendar(null, calendarConfig)}</div>
                                 </div>
                             </div>
-                         ))
                     )) : <p> No Customers.</p> }
                 </div>
             </div>

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
-export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handleLaborForm, customerInfo, labor, materials, laborInputs, materialInputs, handleNumBlur}) {
+export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handleLaborForm, customerInfo, labor, materials, laborInputs, materialInputs}) {
 
     return(
         <div className='cqFormWrapper'>
 
             <form className='cqCustomerCard'>
                 <p className='cqCardLabel'>CUSTOMER</p>
-                <div className='cqCustomerFields'>
-                    <input className='cqInput cqInputWide' value={customerInfo.name} onChange={(e) => handleCustomerForm(e, index)} name='name' type="text" placeholder='Full name' />
-                    <input className='cqInput' value={customerInfo.email} onChange={(e) => handleCustomerForm(e, index)} name='email' type="text" placeholder='Email' />
-                    <input className='cqInput' value={customerInfo.phone} onChange={(e) => handleCustomerForm(e, index)} name='phone' type="text" placeholder='Phone' />
-                    <input className='cqInput cqInputWide' value={customerInfo.address} onChange={(e) => handleCustomerForm(e, index)} name='address' type="text" placeholder='Address' />
+                <div className='cqCustomerFields'> 
+                    <input className='cqInput cqInputWide' value={customerInfo.name} onChange={(e) => handleCustomerForm(e)} name='name' type="text" placeholder='Full name' />
+                    <input className='cqInput' value={customerInfo.email} onChange={(e) => handleCustomerForm(e)} name='email' type="text" placeholder='Email' />
+                    <input className='cqInput' value={customerInfo.phone} onChange={(e) => handleCustomerForm(e)} name='phone' type="text" placeholder='Phone' />
+                    <input className='cqInput cqInputWide' value={customerInfo.address} onChange={(e) => handleCustomerForm(e)} name='address' type="text" placeholder='Address' />
                 </div>
             </form>
 
