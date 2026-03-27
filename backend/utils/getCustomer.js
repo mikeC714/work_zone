@@ -25,7 +25,6 @@ export async function getAllCustomerIds(user){
     if(error){
         throw new Error(`Failed to query All Customers ${error.message}`)
     }
-    console.log(allCustomerId)
-
+    
     return allCustomerId
 }

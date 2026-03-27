@@ -3,7 +3,8 @@ import { useQueries } from '@tanstack/react-query';
 import { NavBar } from '../comps/navBar.jsx';
 import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
-import { HandCoins, Briefcase, BookCheck, Star } from 'lucide-react';
+import { useNotiHook } from '../hooks/notifications.hooks.jsx'
+import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank } from 'lucide-react';
 
 const user = {
     name: 'Jordan Mitchell',
@@ -88,13 +89,56 @@ function Security() {
     );
 }
 
-function Notifications() {
-    return (
-        <div className='profileOverviewCard'>
-            <p className='profilePlaceholderTxt'>Notification settings coming soon.</p>
-        </div>
-    );
+
+const notiConfig = {
+    'Approved': {
+        icon: <Check />,
+        style: 'notiApproved',
+        color: '#abf7b1'
+    },
+    // 'Complete': {
+    //     icon,
+    //     style,
+    //     color
+    // }
+    // ,
+    'Follow Up': {
+        icon: <Clock />,
+        style: 'notiFollowup',
+        color: '#FFFFE0'
+    },
+    'Unpaid': {
+        icon: <PiggyBank />,
+        style: 'notiUnpaid',
+        color: '#FF7F7F'
+    }
 }
+
+
+function Notifications() {
+    const { notifications, isLoading, isError, error } = useNotiHook();
+    console.log(notifications)
+    { notifications.length === 0? 
+        <p>No Notifications</p> :
+        notifications.map((noti, i) => {
+            const { icon, style, color } = notiConfig
+            return(
+                <div className="pNotiContainer">
+                    <div key={i} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
+                        <span className="pNotiIcon" style={{color, background: `${color}20`}}>{icon}</span>
+                        <div className="pNotiContent">
+                            <div className="pNotiHead">{noti.title}</div>
+                            <div className="pNotiMain">
+                                <p className='pNotiMsg'>{noti.message}</p>
+                                <p className='pNotiPrice'>{noti.price}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        })
+    }
+} 
 
 const viewMap = {
     overview: <Overview />,

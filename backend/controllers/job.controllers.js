@@ -133,7 +133,7 @@ export async function getMonthlyTotal(req,res){
 
         const { data, error } = await db
             .from('quotes')
-            .select('total')
+            .select('total, status')
             .eq('user_id', user.id)
             .gte('created_at', startOfMonth)
             .lte('created_at', endOfMonth)
@@ -145,7 +145,8 @@ export async function getMonthlyTotal(req,res){
             })
         }
 
-        const monthTotal = data.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
+        const filteredJobs = data.filter(job => job.status == 'approved' || job.status == 'completed')
+        const monthTotal = filteredJobs.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
 
         return res.status(200).json({
             success: true,
