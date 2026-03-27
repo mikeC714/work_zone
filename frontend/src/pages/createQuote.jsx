@@ -39,10 +39,6 @@ export function CreateQuote(){
     })
 
     function handleSaveQuote() {
-        if(isSuccess){
-            console.log('Successfully Saved Quote')
-        }
-
       mutate({
         customer: customerInfo,
         quote: { markup: userMarkup, total },
@@ -117,9 +113,10 @@ export function CreateQuote(){
 
     return (
         <div className='createQuotePage'>
-            <CqNavBar 
-                handleSaveQuote={handleSaveQuote}
-            />
+            <>
+            <CqNavBar handleSaveQuote={handleSaveQuote} />
+            { isSuccess && <p className="cqSuccessMsg">Successfully Created Quote.</p> }
+            </>
             <div className='createQuoteContent'>
 
                 <div className='cqLeft'>

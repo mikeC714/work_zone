@@ -1013,6 +1013,8 @@ Link{
     border-top: 1px solid var(--border);
 }
 
+
+
 /* ── DASHBOARD RESPONSIVE ── */
 
 /* Tablet (≤ 1024px) */
@@ -1819,6 +1821,88 @@ input::-webkit-inner-spin-button {
     font-size: 14px;
     color: var(--text-muted);
 }
+
+.pNotiContainer{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid  var(--border);
+    background: #5250503d;
+    border-radius: 14px;
+    height: 22em;
+    padding: 20px 18px ;
+
+}
+
+.pNotiBtns{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2em;
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+.pNotiBtns > button{
+    background: none;
+    font: var(--font);
+    font-size: 14px;
+    color: var(--orange);
+    border: none;
+    cursor: pointer;
+}
+
+.pNotiList{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr; 
+    gap: 20px; 
+}
+
+.pNotis{
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    height: 7em;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 10px 20px;
+}
+
+.pNotiIcon{
+    position: absolute;
+    height: 1.8em;
+    width: 1.8em;
+    border-radius: 24px;
+    top: 6px;
+    right: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.pNotiContent{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 12px;
+}
+
+.pNotiHead{
+    font: var(--font);    
+}
+
+.pNotiMsg{
+    font: var(--font);
+    font-size: 14px;
+}
+
+.pNotiPrice{
+    font: var(--font);
+    font-size: 15px;
+}
+
 
 .notiHead{
     display: flex;

@@ -25,15 +25,11 @@ export async function requireAuth(req,res,next){
 
 export async function refreshUserToken(req,res,next){
     const refreshToken = req.cookies.refresh_token;
-    const accessToken = req.cookies.access_token;
 
-    if(!accessToken && !refreshToken) return next();
+    if(!refreshToken) return next();
 
     try{
-        const { data, error } = await supAuth.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-        })
+        const { data, error } = await supAuth.auth.refreshSession({ refresh_token: refreshToken })
 
         if(error || !data.session){
             res.clearCookie('access_token')
@@ -41,13 +37,15 @@ export async function refreshUserToken(req,res,next){
             return next()
         }
 
-        res.cookie('access_token', data.session.access_token, {
+        const { session } = data
+
+        res.cookie('access_token', session.access_token, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
             maxAge: 60 * 60 * 1000 
         })
-        res.cookie('refresh_token', data.session.refresh_token, {
+        res.cookie('refresh_token', session.refresh_token, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',

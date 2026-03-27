@@ -81,10 +81,10 @@ function Overview() {
     );
 }
 
-function Security() {
+function Account() {
     return (
-        <div className='profileOverviewCard'>
-            <p className='profilePlaceholderTxt'>Security settings coming soon.</p>
+        <div className='pAccountContainer'>
+            
         </div>
     );
 }
@@ -118,32 +118,42 @@ const notiConfig = {
 function Notifications() {
     const { notifications, isLoading, isError, error } = useNotiHook();
     console.log(notifications)
-    { notifications.length === 0? 
-        <p>No Notifications</p> :
-        notifications.map((noti, i) => {
-            const { icon, style, color } = notiConfig
-            return(
-                <div className="pNotiContainer">
-                    <div key={i} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
-                        <span className="pNotiIcon" style={{color, background: `${color}20`}}>{icon}</span>
-                        <div className="pNotiContent">
-                            <div className="pNotiHead">{noti.title}</div>
-                            <div className="pNotiMain">
-                                <p className='pNotiMsg'>{noti.message}</p>
-                                <p className='pNotiPrice'>{noti.price}</p>
+    return(
+        <div className="pNotiContainer">
+            <div className="pNotiBtns">
+                <button>Read All</button>
+                <button>Clear</button>
+            </div>
+            <div className="pNotiList">
+                { notifications.length === 0 ? 
+                    <p>No Notifications</p> :
+                    notifications.map((noti, i) => {
+                        const { icon, style, color } = notiConfig[noti.type]
+                        return(
+                            <div key={i} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
+                                <span className="pNotiIcon" style={{color, background: `${color}20`}}>{icon}</span>
+                                <div className="pNotiContent">
+                                    <div className="pNotiHead">Filler Title </div>
+                                    <div className="pNotiMid">
+                                        <p className='pNotiMsg'>{noti.message}</p>
+                                    </div>
+                                    <div className='pNotiLow'>
+                                        <p className='pNotiPrice'>$1,200</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )
-        })
-    }
+                        )
+                    })
+                }
+            </div>
+        </div>
+    )
 } 
 
 const viewMap = {
     overview: <Overview />,
-    security: <Security />,
     notifications: <Notifications />,
+    account: <Account />,
 };
 
 export function ProfilePage() {
@@ -215,7 +225,7 @@ export function ProfilePage() {
                 </div>
                 <div className='profileTabSection'>
                     <div className='profileTabs'>
-                        {['overview', 'security', 'notifications'].map(tab => (
+                        {['overview', 'notifications', 'account'].map(tab => (
                             <button
                                 key={tab}
                                 className={`profileTab ${currView === tab ? 'active' : ''}`}
