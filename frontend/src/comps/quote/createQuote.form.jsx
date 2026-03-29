@@ -7,15 +7,25 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
 
             <form className='cqCustomerCard'>
                 <p className='cqCardLabel'>CUSTOMER</p>
-                <div className='cqCustomerFields'> 
-                    <input 
-                        className='cqInput cqInputWide' 
-                        value={customerInfo.name} 
-                        onChange={(e) => handleCustomerForm(e)} 
-                        name='name' 
-                        type="text" 
-                        placeholder='Full name' 
-                    />
+                <div className='cqCustomerFields'>
+                    <div className="cqCustomerNames"> 
+                        <input 
+                            className='cqInput cqInputWide' 
+                            value={customerInfo.firstName} 
+                            onChange={(e) => handleCustomerForm(e)} 
+                            name='firstName' 
+                            type="text" 
+                            placeholder='First Name' 
+                        />
+                        <input 
+                            className='cqInput cqInputWide' 
+                            value={customerInfo.lastName} 
+                            onChange={(e) => handleCustomerForm(e)} 
+                            name='lastName' 
+                            type="text" 
+                            placeholder='Last Name' 
+                        />
+                    </div>
                     <input 
                         className='cqInput' 
                         value={customerInfo.email} 

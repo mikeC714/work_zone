@@ -54,6 +54,15 @@ export class AuthService {
         console.log('Successful logOut')
     }
 
+    async deleteUser(pass, user){
+
+        const { error: deleteError } = await this.supabase.auth.admin.deleteUser(user.id)
+        if(deleteError){
+            throw new Error(`Failed to Delete User ${user.id}`)
+        }
+        console.log(`Successfully Deleted User ${user.id}`)
+    }
+
     async existingUser(email){
         const { data } = await this.supabase
             .from('users')

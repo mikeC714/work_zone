@@ -3,7 +3,8 @@ import { useQueries } from '@tanstack/react-query';
 import { NavBar } from '../comps/navBar.jsx';
 import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
-import { useNotiHook } from '../hooks/notifications.hooks.jsx'
+import { useNotiHook } from '../hooks/notifications.hooks.jsx';
+import { useAuth } from '../hooks/auth.hooks.jsx'
 import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank } from 'lucide-react';
 
 const user = {
@@ -81,10 +82,30 @@ function Overview() {
     );
 }
 
-function Account() {
+function Account(){
+    const [password, setPassword] = useState('')
+    const { deleteMutation } = useAuth();
+
     return (
-        <div className='pAccountContainer'>
-            
+        <div className='pAccContainer'>
+            <div className="pAccTxt">
+                <p>DELETING YOUR ACCOUNT IS PERMANENT. <br/>ALL DATA WILL BE LOST IF YOU WISH TO PROCEED ENTER YOUR PASSWORD.</p>
+            </div>
+            <div className="pAccContent">
+                <input 
+                    type="password"
+                    placeholder='password'
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+               {deleteMutation.isError && <p>{deleteMutation.error.message}</p>}
+                <button 
+                    onClick={() => deleteMutation.mutate(password)}
+                    disabled={deleteMutation.isPending}
+                >
+                    {deleteMutation.isPending ? 'DELETING...' : 'DELETE ACCOUNT'}
+                </button>
+            </div>
         </div>
     );
 }
@@ -124,7 +145,7 @@ function Notifications() {
                 <button>Read All</button>
                 <button>Clear</button>
             </div>
-            <div className="pNotiList">
+            <div className={`pNotiList ${notifications.length === 0 ? 'pNotiEmpty' : ''}`}>
                 { notifications.length === 0 ? 
                     <p>No Notifications</p> :
                     notifications.map((noti, i) => {

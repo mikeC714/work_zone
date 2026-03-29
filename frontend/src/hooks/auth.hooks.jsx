@@ -20,7 +20,14 @@ export function useAuth() {
         onSuccess: invalidateSession,
     });
 
-    return { loginMutation, signupMutation, logoutMutation };
+    const deleteMutation = useMutation({
+        mutationFn: (password) => apiFetch('http://localhost:3000/api/delete', 'DELETE',  { password }),
+        onSuccess: () => console.log('Successfully Deleted'),
+        onError: (error) => console.error(error.message)
+
+    })
+
+    return { loginMutation, signupMutation, logoutMutation, deleteMutation};
 }
 
 export function useSession(){

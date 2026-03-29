@@ -28,11 +28,18 @@ export function CreateQuote(){
         }
     ]);
     const [customerInfo, setCustomerInfo] = useState({
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         phone: "",
         address: "",
     });
+
+    const [status, setStatus] = useState('Draft');
+
+    function handleStatusChange(e){
+        setStatus(e.target.value);
+    }
 
     const { mutate, isPending, isError, error, isSuccess } = useMutation({
       mutationFn: async (data) => 
@@ -40,12 +47,21 @@ export function CreateQuote(){
     })
 
     function handleSaveQuote() {
+        console.log(customerInfo)
+        console.log(status)
       mutate({
         customer: customerInfo,
-        quote: { markup: userMarkup, total },
+        quote: {status: status ,markup: userMarkup, total },
         labor: labor,
-        materials: materials
+        materials: materials,
       })
+        if(isSuccess){ 
+            return(
+                <div className="cqPageOverlay">
+                    <p className="cqSuccessMsg">Successfully Created Quote.</p>
+                </div>
+            )
+        } 
     }
 
   function handleCustomerForm(e) {
@@ -122,10 +138,11 @@ export function CreateQuote(){
 
     return (
         <div className='createQuotePage'>
-            <>
-            <CqNavBar handleSaveQuote={handleSaveQuote} />
-            { isSuccess && <p className="cqSuccessMsg">Successfully Created Quote.</p> }
-            </>
+            <CqNavBar 
+                handleSaveQuote={handleSaveQuote}
+                handleStatusChange={handleStatusChange}
+                statusValue={status}
+            />
             <div className='createQuoteContent'>
 
                 <div className='cqLeft'>

@@ -12,10 +12,17 @@ const options = {
     const res = await fetch(url, options);
 
     if (!res.ok) {
+      let message = "Failed to fetch";
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
         const errorData = await res.json();
-        console.log(errorData)
-        throw new Error(errorData.message || "Failed to Fetch");
-    }
+        message = errorData.message || message;
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON error response:', text); 
+      }
+    throw new Error(message);
+  }
 
   return res.json()
 };

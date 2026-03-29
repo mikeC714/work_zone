@@ -43,8 +43,8 @@ export function CustomerTable({ filteredData }) {
                             <div key={quote.id} className="customerDataRow">
                                 <div className="trLeft">
                                     <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
-                                    <div className="customerNameTxt">{customer.name}
-                                        <span className="customerAddressTxt">{customer.address}</span>
+                                    <div className="customerNameNAdd">
+                                        <span className="customerAddressTxt"> {customer.name}{customer.address}</span>
                                     </div>
                                 </div>
                                 <div className="trRight">

@@ -1,5 +1,6 @@
 import { AuthService } from '../service/auth.service.js';
 import { supAuth } from '../config/supabase.config.js';
+import { getUser } from '../utils/getUser.js';
 
 const auth = new AuthService(supAuth);
 
@@ -110,6 +111,29 @@ export async function logOut(req,res){
         return res.status(500).json({
             success: false,
             error: error.message
+        })
+    }
+}
+
+export async function deleteUser(req,res){
+    const { password } = req.body;
+    const token = req.access_token
+    try{
+        const user = await getUser(token); 
+        await auth.deleteUser(password, user);
+
+        res.clearCookie('access_token')
+        res.clearCookie('refresh_token')
+
+        return res.status(200).json({
+            success: true,
+            message: `Successfully Deleted User ${user.id}`
+        })
+    }catch(error){
+        console.error('Delete user error:', error.message) 
+        return res.status(500).json({
+          success: false,
+          error: error.message
         })
     }
 }

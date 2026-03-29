@@ -56,8 +56,15 @@ export function NavBar(){
     )
 }
 
-export function CqNavBar({ handleSaveQuote }){
+export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
     const navigate = useNavigate()
+    const options= [
+        {label: 'Draft', value: 'draft'},
+        {label: 'Pending', value: 'pending'},
+        {label: 'Approved', value: 'approved'},
+        {label: 'Completed', value: 'completed'}
+    ]
+
     return(
         <nav className='createQuoteNav'>
             <div className='cqNavLeft'>
@@ -69,11 +76,10 @@ export function CqNavBar({ handleSaveQuote }){
                 </span>
             </div>
             <div className='cqNavRight'>
-                <select name="selectedQuoteStatus" className='quoteStatusSelect'>
-                    <option value="draft">Draft</option>
-                    <option value="inProgress">In Progress</option>
-                    <option value="approved">Approved</option>
-                    <option value="completed">Completed</option>
+                <select name="selectedQuoteStatus" className='quoteStatusSelect' value={statusValue} onChange={handleStatusChange}>
+                    {options.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}    
                 </select>
                 <button className='cqChangeOrderBtn'>+ Change Order</button>
                 <button className='cqSendQuoteBtn' onClick={handleSaveQuote}>

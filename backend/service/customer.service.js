@@ -82,7 +82,8 @@ export class CustomerService{
             .insert({
                 id:crypto.randomUUID(),
                 user_id: user.id,
-                name: customer.name,
+                first_name:customer.firstName,
+                last_name: customer.lastName,
                 phone: customer.phone,
                 email: customer.email, 
                 address: customer.address,
