@@ -1,6 +1,6 @@
 import { getUser } from '../utils/getUser.js';
 import { supAuth } from '../config/supabase.config.js';
-import { isTokenValid } from ''
+import { isTokenValid } from '../utils/auth.util.js'
 
 export async function requireAuth(req,res,next){
     const token = req.cookies.access_token;

@@ -1,4 +1,4 @@
-import { getUser } from "./getUser"
+import { getUser } from "../utils/getUser.js"
 
 export async function isTokenValid(token){
     try{
