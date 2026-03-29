@@ -5,12 +5,12 @@ import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'
 import { Send } from 'lucide-react';
 
-
 export function CreateQuote(){
 
     const [userMarkup, setUserMarkup] = useState(0);
     const [materials, setMaterials] = useState([
         {
+            id: crypto.randomUUID(),
             description: "",
             quantity: 0,
             unitCost: 0,
@@ -20,6 +20,7 @@ export function CreateQuote(){
     ]);
     const [labor, setLabor] = useState([
         {
+            id: crypto.randomUUID(),
             description: "",
             hours: 0,
             hourlyRate: 0,
@@ -92,11 +93,11 @@ export function CreateQuote(){
 
 
     function handleAddMaterialInputs() {
-        setMaterials(prev => [...prev, { description: "", quantity: 0, unitCost: 0, total: 0 }])
+        setMaterials(prev => [...prev, { id: crypto.randomUUID(), description: "", quantity: 0, unitCost: 0, total: 0 }])
     }
 
     function handleAddLaborInputs() {
-        setLabor(prev => [...prev, { description: "", hours: 0, hourlyRate: 0, total: 0 }])
+        setLabor(prev => [...prev, { id: crypto.randomUUID(), description: "", hours: 0, hourlyRate: 0, total: 0 }])
     }
 
     function limitNum(val, limit){
@@ -104,6 +105,14 @@ export function CreateQuote(){
             return  val.substring(0, limit-3) + '...';
         }
         return val;
+    }
+
+    function removeLaborBtn(id){
+        setLabor(labor.filter(inputs => inputs.id !== id));
+    }
+
+    function removeMatBtn(id){
+        setMaterials(materials.filter(inputs => inputs.id !== id));
     }
     
     const markUpPerc = (userMarkup / 100 * subTotal).toLocaleString();
@@ -129,6 +138,8 @@ export function CreateQuote(){
                         materials={materials}
                         materialInputs={handleAddMaterialInputs}
                         laborInputs={handleAddLaborInputs}
+                        removeLaborBtn={removeLaborBtn}
+                        removeMatBtn={removeMatBtn}
                     />
                 </div>
 

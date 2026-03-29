@@ -3,13 +3,11 @@ import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
 import { useCustomerTableHook} from '../hooks/customerTable.hooks.jsx';
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx'
 import { NavBar } from '../comps/navBar.jsx';
-import { useAuth } from '../hooks/auth.hooks.jsx';
 
 export function Dashboard(){
     const [activeFilter, setActiveFilter] = useState('ALL');
     const { data, isLoading, isError, error } = useCustomerTableHook();
     const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED']
-    const { logoutMutation } = useAuth();
 
     const filteredData = activeFilter === 'ALL' 
     ? data?.customers :
@@ -23,9 +21,7 @@ export function Dashboard(){
 
     return(
         <div className='dashboardPage'>
-            <NavBar  
-            logoutMutation={logoutMutation}
-            />
+            <NavBar />
             <div className='dashboardBody'>
                 <div className='quickAccessContainer'>
                     <QuickAccess />

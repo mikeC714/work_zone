@@ -1379,16 +1379,36 @@ input::-webkit-inner-spin-button {
     gap: 16px;
     border-bottom: 1px solid var(--border);
     align-items: center;
+    position: relative;
 }
 
 .cqTableRow:last-child {
     border-bottom: none;
 }
 
+.cqTableRow > button{
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    background: none;
+    border: none;
+    color: #E9ECEF;
+    cursor: pointer;
+}
+
 .cqColDesc {
     flex: 1;
     min-width: 0;
 }
+
+.cqSmallContainer{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    position: relative;
+    gap: 20px;
+}
+
 
 .cqColSmall {
     width: 80px;

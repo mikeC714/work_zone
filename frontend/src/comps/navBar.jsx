@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
+import { useAuth } from '../hooks/auth.hooks.jsx'
 
-export function NavBar({ logoutMutation }){
+export function NavBar(){
+    const { logoutMutation } = useAuth();
     const { nameInitials } = useUserContext();
     const navigate = useNavigate()
     return(
