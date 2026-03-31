@@ -47,8 +47,6 @@ export function CreateQuote(){
     })
 
     function handleSaveQuote() {
-        console.log(customerInfo)
-        console.log(status)
       mutate({
         customer: customerInfo,
         quote: {status: status ,markup: userMarkup, total },

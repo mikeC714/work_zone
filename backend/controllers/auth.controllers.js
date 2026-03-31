@@ -40,10 +40,6 @@ export async function signUp(req,res){
             maxAge: 90 * 24 * 60 * 60 * 1000
         })
 
-        console.log({
-            success: true,
-            user
-         })
         return res.status(201).json({
             success: true,
             user

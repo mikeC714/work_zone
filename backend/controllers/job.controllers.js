@@ -133,10 +133,8 @@ export async function getMonthlyTotal(req,res){
 
         const { data, error } = await db
             .from('quotes')
-            .select('total, status')
+            .select('total, status, created_at')
             .eq('user_id', user.id)
-            .gte('created_at', startOfMonth)
-            .lte('created_at', endOfMonth)
         
         if(error){
             return res.status(400).json({
@@ -145,8 +143,11 @@ export async function getMonthlyTotal(req,res){
             })
         }
 
-        const filteredJobs = data.filter(job => job.status == 'approved' || job.status == 'completed')
+        const filteredJobs = data.filter(job => (job.status === 'approved' || job.status === 'completed') && job.created_at >= startOfMonth && job.created_at <= endOfMonth )
         const monthTotal = filteredJobs.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
+
+        console.log(filteredJobs)
+        console.log(monthTotal)
 
         return res.status(200).json({
             success: true,

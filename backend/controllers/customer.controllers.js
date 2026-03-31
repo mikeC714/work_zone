@@ -26,11 +26,21 @@ export async function getCustomerInfo(req,res){
 
 export async function getAllUserCustomers(req,res){
     try{
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 12;
+            const offset = (page - 1) * limit;
+
             const customerIds = await getAllCustomerIds(req.user);
-            const quoteDetails = await getQuoteInfo(customerIds, req.user)
-            const jobDetails = await getJobInfo(quoteDetails) 
-            const customerDetails = await customerService.customerInfo(customerIds, req.user) 
+            const totalCustomers = customerIds.length;
+
+            const paginatedCustomers = customerIds.slice(offset, offset + limit);
             
+            const [ quoteDetails, customerDetails ] = await Promise.all([
+                getQuoteInfo(paginatedCustomers, req.user),
+                customerService.customerInfo(paginatedCustomers, req.user)
+            ])
+            const jobDetails = await getJobInfo(quoteDetails) 
+
             const customers = customerDetails.map(customer => {
                 return{
                     ...customer,
@@ -43,9 +53,19 @@ export async function getAllUserCustomers(req,res){
                 }
             })
 
+            console.log(paginatedCustomers, totalCustomers)
+
          return res.status(200).json({
                 success: true,
-                customers
+                customers,
+                paginated:{
+                    totalCustomers,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(totalCustomers / limit),
+                    nextPage: page < Math.ceil(totalCustomers / limit),
+                    prevPage: page > 1
+                }
             })
 
     }catch(error){

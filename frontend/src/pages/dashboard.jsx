@@ -7,42 +7,12 @@ import { NavBar } from '../comps/navBar.jsx';
 export function Dashboard(){
     const [activeFilter, setActiveFilter] = useState('ALL');
     const [searchFilter, setSearchFilter] = useState('');
-    const { data, isLoading, isError, error } = useCustomerTableHook();
+    const { filteredData, pagination, isLoading, isError, error } = useCustomerTableHook({activeFilter, searchFilter});
     const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED']
-
-    const filteredData = useMemo(() => {
-        let result = data?.customers ?? [];
-
-        if (activeFilter !== 'ALL') {
-            result = result.map(cus => ({
-                    ...cus,
-                    quote: cus.quote.filter(qt => 
-                        qt.status === activeFilter.toLowerCase().replace(' ', '_')
-                    )
-                }))
-                .filter(cus => cus.quote.length > 0);
-        }
-
-        if (searchFilter.trim() !== '') {
-            const search = searchFilter.toLowerCase().trim();
-            result = result.filter(cus => 
-                cus.first_name?.toLowerCase().includes(search) ||
-                cus.last_name?.toLowerCase().includes(search) ||
-                cus.quote.some(qt => qt.job_id?.toLowerCase().includes(search))||
-                cus.quote.some(qt => 
-                    qt.job?.some(job => job.description.toLowerCase().includes(search))
-                )
-            );
-        }
-
-        return result;
-
-    }, [data, activeFilter, searchFilter]);
 
     function handleSearchChange(e){
         setSearchFilter(e.target.value);
     }
-
 
     console.log(filteredData)
 
@@ -50,6 +20,8 @@ export function Dashboard(){
         <div className='dashboardPage'>
             <NavBar />
             <div className='dashboardBody'>
+
+            {/* {isLoading ? When loading is true render the skeleton display over the current model} */}
                 <div className='quickAccessContainer'>
                     <QuickAccess />
                 </div>
@@ -76,6 +48,7 @@ export function Dashboard(){
                 <div className='customerTableContainer'>
                     <CustomerTable 
                         filteredData={filteredData}
+                        pagination={pagination}
                     />
                 </div>
             </div>
