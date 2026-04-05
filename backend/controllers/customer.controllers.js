@@ -53,8 +53,6 @@ export async function getAllUserCustomers(req,res){
                 }
             })
 
-            console.log(paginatedCustomers, totalCustomers)
-
          return res.status(200).json({
                 success: true,
                 customers,

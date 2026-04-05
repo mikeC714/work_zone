@@ -12,16 +12,16 @@ export async function getAllCompletedJobs(req, res) {
 
     try {
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+        const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 
         const { data, error } = await db
             .from('quotes')
-            .select('status')
+            .select('status, created_at')
             .eq('user_id', user.id)
             .eq('status', 'completed')
-            .gte('created_at', startOfMonth)
-            .lte('created_at', endOfMonth)
+            .gte('created_at',startOfMonth.toISOString())
+            .lt('created_at',endOfMonth.toISOString())
             
         if(error){
             return res.status(400).json({ 
@@ -32,7 +32,7 @@ export async function getAllCompletedJobs(req, res) {
 
         return res.status(200).json({
              success: true, 
-             data 
+             data
         });
 
     }catch(error){
@@ -54,10 +54,17 @@ export async function getUnpaidJobs(req,res){
     }
 
     try{
+
+        const now = new Date();
+        const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+
         const { data, error } = await db
             .from('quotes')
-            .select('status')
+            .select('status, created_at')
             .eq('user_id', user.id)
+            .gte('created_at', startOfMonth.toISOString())
+            .lt('created_at', endOfMonth.toISOString())
             .neq('status', 'completed')
 
         if(error){
@@ -90,18 +97,26 @@ export async function getActiveJobs(req,res){
         })
     }
     try{
+
+        const now = new Date();
+        const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+        
         const { data, error } = await db
             .from('quotes')
-            .select('status')
+            .select('status, created_at')
             .eq('user_id', user.id)
             .eq('status', 'approved')
+            .gte('created_at', startOfMonth.toISOString())
+            .lt('created_at', endOfMonth.toISOString())
+
 
         if(error){
             return res.status(400).json({
                 success: false,
                 error: error.message
             })
-        }
+        }   
 
         return res.status(200).json({
             success: true,
@@ -128,13 +143,16 @@ export async function getMonthlyTotal(req,res){
     try{
 
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+        const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+        const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 
         const { data, error } = await db
             .from('quotes')
             .select('total, status, created_at')
             .eq('user_id', user.id)
+            .in('status', ['approved','completed'])
+            .gte('created_at', startOfMonth.toISOString())
+            .lt('created_at', endOfMonth.toISOString())
         
         if(error){
             return res.status(400).json({
@@ -143,12 +161,9 @@ export async function getMonthlyTotal(req,res){
             })
         }
 
-        const filteredJobs = data.filter(job => (job.status === 'approved' || job.status === 'completed') && job.created_at >= startOfMonth && job.created_at <= endOfMonth )
-        const monthTotal = filteredJobs.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
+        const monthTotal = data.reduce((acc, curr) => acc + curr.total , 0).toLocaleString();
 
-        console.log(filteredJobs)
-        console.log(monthTotal)
-
+        console.log(data)
         return res.status(200).json({
             success: true,
             monthTotal

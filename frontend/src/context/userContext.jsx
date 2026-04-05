@@ -19,6 +19,7 @@ export function UserProvider({children}){
         isLoading 
     }), [firstName, lastName, nameInitials, isLoading])
 
+    
     return(
         <UserContext.Provider value={value}>
             {children}

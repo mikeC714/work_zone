@@ -21,8 +21,6 @@ export class AuthService {
         if(error){
             throw new Error(error.message);
         }
-
-        console.log(data)
         return data;
     }
 
@@ -39,8 +37,6 @@ export class AuthService {
         if(error){
             throw new Error(`Failed to login user: ${error.message}`);
         }
-
-        console.log(data)
         return data;
     }
 

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
+import { Bell, Settings, LogOut } from 'lucide-react';
 
 export function NavBar(){
     const { logoutMutation } = useAuth();
@@ -30,15 +31,15 @@ export function NavBar(){
                                 className='navPopBtns' 
                                 onClick={() => navigate('/notifications')}
                             >
-                                NOTIFICATIONS
+                                alerts
                             </button>
-                        <button className='navPopBtns'>SETTINGS</button>
+                        <button className='navPopBtns'>settings</button>
                         <button
                             onClick={() => logoutMutation.mutate()}
                             // disabled={logoutMutation.isPending}
                             className='navPopBtns'   
                         >
-                            LOGOUT
+                            log out
                         </button>
                     </div>
                 }>
@@ -68,12 +69,12 @@ export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
     return(
         <nav className='createQuoteNav'>
             <div className='cqNavLeft'>
-                <span 
-                    className='cqNavBrand'
+               <div 
+                    className='navLogo' 
                     onClick={() => navigate('/')}
                 >
-                    VOLT
-                </span>
+                    <span className='navLogoIcon'>⚡</span> VOLT
+                </div>
             </div>
             <div className='cqNavRight'>
                 <select name="selectedQuoteStatus" className='quoteStatusSelect' value={statusValue} onChange={handleStatusChange}>
@@ -81,7 +82,7 @@ export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}    
                 </select>
-                <button className='cqChangeOrderBtn'>+ Change Order</button>
+                {/* <button className='cqChangeOrderBtn'>+ Change Order</button> */}
                 <button className='cqSendQuoteBtn' onClick={handleSaveQuote}>
                     Save Quote
                 </button>

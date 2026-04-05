@@ -526,6 +526,7 @@ Link{
 .navPopUpContainer{
     position: relative;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     align-items: center;
     gap: 10px;
@@ -536,13 +537,16 @@ Link{
     top:100%;
     background: #333;
     color: #fff;
-    padding: 6px 8px;
+    padding: 4px 4px 4px 4px;
     border-radius: 16px;
     white-space: nowrap;
     z-index: 10;
     display: flex;
+    justify-content: center;
     flex-direction: column;
-    margin-top:8px
+    margin-top:8px;
+    border: 1px solid var(--border); 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.24); 
 }
 .navPopUpActions {
     background: none;
@@ -560,6 +564,8 @@ Link{
 
 .navPopBtns{
     text-decoration: none;
+    font-size: 12px;
+    font: var(--font);
 }
 
 .navPopUpActions .navPopBtns::before {
@@ -1177,10 +1183,10 @@ Link{
     background: var(--orange);
     border: none;
     border-radius: 6px;
-    color: #111;
+    color: black;
     font-family: var(--font);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 560;
     padding: 0 18px;
     height: 36px;
     cursor: pointer;
