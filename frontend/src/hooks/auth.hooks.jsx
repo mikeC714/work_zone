@@ -1,57 +1,28 @@
 import { useMutation, useQueryClient, useQuery} from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
+import config from "../config.js"
 
-export function useAuth() {
-    const queryClient = useQueryClient();
-    const invalidateSession = () => queryClient.invalidateQueries({ queryKey: ['session'] });
-
+function useAuth() {
     const loginMutation = useMutation({
-        mutationFn: (credentials) => apiFetch('http://localhost:3000/api/login', 'POST', credentials),
-        onSuccess: invalidateSession,
+        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/login`, 'POST', credentials)
     });
 
     const signupMutation = useMutation({
-        mutationFn: (credentials) => apiFetch('http://localhost:3000/api/signup', 'POST', credentials),
-        onSuccess: invalidateSession,
+        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/signup`, 'POST', credentials)
     });
 
     const logoutMutation = useMutation({
-        mutationFn: () => apiFetch('http://localhost:3000/api/logout', 'POST'),
-        onSuccess: invalidateSession,
+        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/logout`, 'POST', credentials)
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (password) => apiFetch('http://localhost:3000/api/delete', 'DELETE',  { password }),
-        onSuccess: () => console.log('Successfully Deleted'),
+        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/delete`, `DELETE`, credentials),
+        onSuccess: () => console.log(`Successfully Deleted`),
         onError: (error) => console.error(error.message)
 
     })
 
-    return { loginMutation, signupMutation, logoutMutation, deleteMutation};
+    return { loginMutation, signupMutation, logoutMutation, deleteMutation };
 }
 
-export function useSession(){
-    const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['userSession'],
-        queryFn: async() => apiFetch('http://localhost:3000/api/session'),
-        staleTime: 1000 * 60 * 5,
-        retry: false
-    })
-    if(isLoading){
-        console.log('User session query is loading')
-    }
-    if(isError){
-        console.error(`Failed to query user session: ${error.message}`)
-    }
-
-    const firstName = data?.user?.user_metadata?.first_name;
-    const lastName = data?.user?.user_metadata?.last_name;
-
-    return {
-        name:{
-            firstName,
-            lastName
-        },
-        isLoading
-    }
-}
+export default useAuth();

@@ -1,18 +1,19 @@
 import { useMemo } from "react";
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
+import config from "../config.js"
 
-export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 12}){
+export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 20}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', page, limit],
-        queryFn: async() => await apiFetch(`http://localhost:3000/api/all-customers?page=${page}&limit=${limit}`),
+        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,
         retry: false
     })
     
     const filteredData = useMemo(() => {
-        let result = data?.customers ?? [];
+        let result = data?.paginated?.totalCustomers ?? {};
 
         if (activeFilter !== 'ALL') {
             result = result.map(cus => ({
@@ -43,8 +44,8 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
     console.log(data, filteredData)
 
     return { 
-        filteredData,
-        pagination: data?.paginated ?? [], 
+        filterdData: filteredData || {},
+        customers: data?.customers || [], 
         isLoading, 
         isError, 
         error 

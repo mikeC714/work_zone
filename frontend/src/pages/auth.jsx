@@ -47,10 +47,6 @@ export function Authentication() {
                     onSwitch={() => setAuth(prev => !prev)}
                 />
 
-                <footer className="authFooter">
-                    © 2024 VOLT Technologies Inc. All rights reserved.
-                </footer>
-
             </div>
 
             <div className="authRight">

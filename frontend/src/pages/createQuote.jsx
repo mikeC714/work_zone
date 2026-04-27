@@ -1,12 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
+import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'
 import { Send } from 'lucide-react';
 
 export function CreateQuote(){
-
+    const {mutate, isPending, isError, error, isSuccess} = useCreateQuote();
     const [userMarkup, setUserMarkup] = useState(0);
     const [materials, setMaterials] = useState([
         {
@@ -40,11 +41,6 @@ export function CreateQuote(){
     function handleStatusChange(e){
         setStatus(e.target.value);
     }
-
-    const { mutate, isPending, isError, error, isSuccess } = useMutation({
-      mutationFn: async (data) => 
-        await apiFetch('http://localhost:3000/api/create-quote', 'POST', data),
-    })
 
     function handleSaveQuote() {
       mutate({
