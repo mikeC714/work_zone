@@ -8,8 +8,6 @@ const authRouter = express.Router();
 authRouter.post('/signup', limiter, AuthController.signup);
 authRouter.post('/login', limiter, AuthController.login);
 authRouter.post('/logout', AuthMiddleware.verifyToken, AuthController.logout);
-
-// ## MAKE A METHOD TO DELETE USER
 authRouter.delete('/delete', AuthMiddleware.verifyToken, AuthController.deleteUser);
 
 

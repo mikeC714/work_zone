@@ -37,6 +37,9 @@ class UserService{
     }
 
     static async deleteUser(userId){
+        if(!userId){
+            throw new Error("Invalid user.");
+        }
         try{
             const user = await this.db.query(
                 `SELECT id FROM users WHERE id = $1`

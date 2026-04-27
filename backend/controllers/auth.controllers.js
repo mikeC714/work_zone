@@ -49,7 +49,7 @@ class AuthController{
         }catch(err){
             console.error(err.message);
             return res.status(500).json({
-                message: "Oops something failed.",
+                message: "Failed to login.",
                 error: err.message
             })
         }
@@ -91,7 +91,7 @@ class AuthController{
         }catch(err){
             console.error(err.message);
             return res.status(500).json({
-                message: "Oopsy something failed.",
+                message: "Failed to sign up.",
                 error: err.message
             })
         }
@@ -109,7 +109,7 @@ class AuthController{
                     message: "User unauthorized due to invalid token."
                 });
             }
-            await TokenService.deleteRefresh(decode.id, refresh);
+            await TokenService.deleteRefresh(decoded.id, refresh);
 
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
@@ -118,12 +118,37 @@ class AuthController{
 
         }catch(err){
             return res.status(500).json({
-                message: "Oops something bad happened.",
+                message: "Failed to logout.",
                 error: err.message
             })
         }
     }
 
+    async deleteUser(req, res){
+        const refresh = req.cookie.refresh_token;
+        if(!refresh){
+            return res.status(401).json({ message: "User is unauthorized." })
+        }
+        try{
+            const decoded = Auth.verifyRefresh(refresh);
+            if(!decoded){
+                return res.status(401).json({ message: "User unauthorized do to invalid token." });
+            }
+            
+            res.clearCookie("access_token");
+            res.clearCookie("refresh_token");
+
+            await UserService.deleteUser(decoded.id);
+
+            return res.status(200).json({ message: "Account successfully deleted." });
+
+        }catch(err){
+            return res.status(500).json({ 
+                message: "Failed to delete user.",
+                error: err.message
+             })
+        }
+    }
 }
 
 export default new AuthController();

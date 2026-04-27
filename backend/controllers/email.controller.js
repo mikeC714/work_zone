@@ -20,7 +20,7 @@ export async function sendQuoteEmail(req,res){
     const { quoteData } = await CustomerService.createQuote(user, customer, labor, materials, quote);
 
     const acceptQuote = `http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=accepted`
-    const declineQuote = `http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=declined` 
+    const declineQuote =`http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=declined` 
     
     try{
 
