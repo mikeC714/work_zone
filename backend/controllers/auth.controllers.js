@@ -1,135 +1,129 @@
-import { AuthService } from '../service/auth.service.js';
-import { supAuth } from '../config/supabase.config.js';
-import { getUser } from '../utils/getUser.js';
+import Auth from "../auth/auth.js";
+import AuthMiddleware from "../middleware/auth.middleware.js";
+import UserService from "../services/db/user.service.js";
+import TokenService from "../services/db/token.service.js";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+dotenv.config();
 
-const auth = new AuthService(supAuth);
+class AuthController{
+    async login(req, res){
+        const { email, password } = req.body;
 
-export async function signUp(req,res){
-    let { firstName, lastName, email, password  } = req.body;
+        if(!email || !password){
+            return res.status(400).json({ message: "Login failed, missing input field." });
+        }
+        
+        try{
+            const res = await UserService.getUser(email);
+            const user = res.rows[0];
+            if(!user){
+                return res.status(401).json({ message: "Invalid credentials." });
+            }
 
-    email = email?.trim().toLowerCase();   
+            const valid = await bcyrpt.compare(password, user.password);
+            if(!valid){
+                return res.status(401).json({ message: "Invalid Credentials." });
+            }
 
-    if(!firstName || !lastName || !email || !password){
-        console.error('Invalid field')
-        return res.status(400).json({
-        success: false,
-        error: `Invalid fields. Please try again`
-       })
-    }
-    try{
-        const userExists = await auth.existingUser(email)
+            const token = Auth.sign({ id: user.id });
+            const refreshToken = Auth.signRefresh({ id: user.id });
 
-        if(userExists){
-            return res.status(409).json({
-                success: false,
-                error: `Account with email ${email} already exists`
+            await TokenService.storeRefreshToken(user.id ,refreshToken);
+
+            res.cookie("access_token", token,{
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 900000 // 15M
+            })
+            res.cookie("refresh_token", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                maxAge: 604800000 // 7D
+            })
+
+            return res.status(200).json({ message: `${user.email}, successfully logged in.` });
+
+        }catch(err){
+            console.error(err.message);
+            return res.status(500).json({
+                message: "Oops something failed.",
+                error: err.message
             })
         }
-        const { session, user } = await auth.signUp(firstName, lastName, email, password);
-        
-        res.cookie('access_token', session.access_token,{
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 1000 
-        });
-        res.cookie('refresh_token', session.refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 90 * 24 * 60 * 60 * 1000
-        })
-
-        return res.status(201).json({
-            success: true,
-            user
-        })
-    }catch(error){
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
     }
+
+    async signup(req, res){
+        const { username, email, password } = req.body;
+        if(!username || !email || !password){
+            return res.status(400).json({ message: "Missing field input." });
+        }
+
+        try{
+            const salt = await bcrypt.genSalt(process.env.SALT);
+            const safePass = await bcrypt.hash(password, salt);
+
+            const user = await UserService.storeNewUser(username, email, safePass);
+
+
+            const token = Auth.sign({ id: user.id });
+            const refreshToken = Auth.signRefresh({ id: user.id });
+
+            await TokenService.storeRefreshToken(user.id, refreshToken);
+
+            res.cookie("access_token", token,{
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 900000 // 15M
+            })
+            res.cookie("refresh_token", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                maxAge: 604800000 // 7D
+            })
+
+            return res.status(201).json({ message: `${user.email}, successfully created an account.` });
+
+        }catch(err){
+            console.error(err.message);
+            return res.status(500).json({
+                message: "Oopsy something failed.",
+                error: err.message
+            })
+        }
+    }
+    
+    async logout(req, res){
+        const refresh = req.cookie.refresh_token;
+        if(!refresh){
+            return res.status(401).json({ message: "User is unauthorized." });
+        }
+        try{
+            const decoded = Auth.verifyRefresh(refresh);
+            if(!decoded){
+                return res.status(401).json({
+                    message: "User unauthorized due to invalid token."
+                });
+            }
+            await TokenService.deleteRefresh(decode.id, refresh);
+
+            res.clearCookie("access_token");
+            res.clearCookie("refresh_token");
+
+            return res.status(200).json({ message: `${decoded.id} has successfully logged out.` });
+
+        }catch(err){
+            return res.status(500).json({
+                message: "Oops something bad happened.",
+                error: err.message
+            })
+        }
+    }
+
 }
 
-export async function login(req,res){
-    const { email, password } = req.body;
-
-    if(!email || !password){
-
-        return res.status(400).json({
-            success: false,
-            error: `Invaild feilds. Please try again`
-        })
-    }
-    try{
-        const { session, user } = await auth.login(email, password);
-
-         res.cookie('access_token', session.access_token,{
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 1000 
-        });
-        res.cookie('refresh_token', session.refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 90 * 24 * 60 * 60 * 1000
-        })
-
-        return res.status(201).json({
-            success: true,
-            user
-        })
-
-    }catch(error){
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-export async function logOut(req,res){
-    try{
-        await auth.logout()
-
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
-
-        return res.status(200).json({
-            success: true,
-            message: 'Logging out was successful'
-        })
-
-    }catch(error){
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-export async function deleteUser(req,res){
-    const { password } = req.body;
-    const token = req.access_token
-    try{
-        const user = await getUser(token); 
-        await auth.deleteUser(password, user);
-
-        res.clearCookie('access_token')
-        res.clearCookie('refresh_token')
-
-        return res.status(200).json({
-            success: true,
-            message: `Successfully Deleted User ${user.id}`
-        })
-    }catch(error){
-        console.error('Delete user error:', error.message) 
-        return res.status(500).json({
-          success: false,
-          error: error.message
-        })
-    }
-}
+export default new AuthController();

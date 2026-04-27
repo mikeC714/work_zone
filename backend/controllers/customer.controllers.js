@@ -1,170 +1,146 @@
-import { CustomerService} from "../service/customer.service.js";
-import { getCustomerId, getAllCustomerIds } from '../utils/getCustomer.js';
-import { getQuoteInfo, getJobInfo } from "../utils/getQuote.js";
-import { db } from '../config/supabase.config.js'
+import CustomerService from "../service/customer.service.js";
+import CustomerInfo from "../service/customer.service.js";
+import JobService from "../service/job.service.js";
+import QuoteService from "../service/quote.service.js";
+import db from "../config/postgresql.config.js";
 
-const customerService = new CustomerService(db)
+class CustomerControllers{
+    
+    async getCustomerInfo(req,res){
+        const user = req.user;
+        try{
+            const customerId = await CustomerInfo.getAllCustomerIds(user);
+            const customerDetails = await CustomerService.customerDetails(customerId)
 
-export async function getCustomerInfo(req,res){
-    try{
-        const customerId = await getCustomerId(req.user);
-        const customerDetails = await customerService.customerInfo(customerId)
-
-        return res.status(200).json({
-            success: true,
-            customerDetails
-        })
-
-    }catch(error){
-        console.error(error.message);
-        return res.status(500).json({
-            success: false, 
-            error: error.message
-        })
+            return res.status(200).json({
+                success: true,
+                customerDetails
+            })
+        }catch(error){
+            console.error(error.message);
+            return res.status(500).json({
+                success: false, 
+                error: error.message
+            })
+        }
     }
-}
 
-export async function getAllUserCustomers(req,res){
-    try{
+    async getAllUserCustomers(req, res){
+        const user = req.user;
+        try{
             const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 12;
-            const offset = (page - 1) * limit;
+            const limit = parseInt(req.quer.limi) || 20;
+            const offset = (page -1) * limit;
 
-            const customerIds = await getAllCustomerIds(req.user);
+            const customerIds = await CustomerInfo.getAllCustomerIds(user);
             const totalCustomers = customerIds.length;
 
             const paginatedCustomers = customerIds.slice(offset, offset + limit);
             
             const [ quoteDetails, customerDetails ] = await Promise.all([
-                getQuoteInfo(paginatedCustomers, req.user),
-                customerService.customerInfo(paginatedCustomers, req.user)
-            ])
-            const jobDetails = await getJobInfo(quoteDetails) 
+                QuoteService.getQuoteInfo(paginatedCustomers, user)
+            ]);
+            
+            const jobDetails = await JobService.getJobInfo(quoteDetails);
 
             const customers = customerDetails.map(customer => {
                 return{
                     ...customer,
-                    quote: quoteDetails.filter(quote => quote.customer_id === customer.id).map(quotes => {
+                    quote: quoteDetails.map(qt => qt.customer.id === customer.id).map(qts => {
                         return{
                             ...quotes,
-                            job: jobDetails.filter(job => job.quote_id === quotes.id)
-                       }
+                            job: jobDetails.filter(job => job.quote_id === qts.id)
+                        }
                     })
                 }
-            })
+            });
 
-         return res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 customers,
-                paginated:{
+                paginated: {
                     totalCustomers,
                     page,
                     limit,
-                    totalPages: Math.ceil(totalCustomers / limit),
+                    totalPages : Math.ceil(totalCustomers / limit),
                     nextPage: page < Math.ceil(totalCustomers / limit),
                     prevPage: page > 1
                 }
-            })
-
-    }catch(error){
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
+            });
+        }catch(err){
+            return res.status(500).json({
+                error: `Failed to fetch all customers: ${err.message}`
+            });
+        }
     }
-}
-
-
-
-export async function getCustomerQuoteInfo(req,res){
-    try{
-        const customerId = await getCustomerId(req.user);
-        const customerQuoteDetails = await customerService.customerQuoteInfo(customerId, req.user)
-
-        return res.status(200).json({
-            success: true,
-            customerQuoteDetails
-        })
-    }catch(error){
-        console.error(error.message);
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-export async function getCustomerStatus(req,res){
-    try {
-        const customerId = await getCustomerId(req.user);
-        const customerStatusDetails = await customerService.customerStatus(customerId, req.user);
-
-        return res.status(200).json({
-            success: true,
-            customerStatusDetails
-        })
-    }catch(error){
-        console.error(error.message);
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-export async function createCustomerQuote(req,res){
-    const { customer, labor, materials, quote } = req.body;
-    try {
+ 
+    async getCustomerQuoteInfo(req, res){
         const user = req.user;
-        const createdAt = new Date().toISOString();
+        try{
+            const customerIds = await CustomerInfo.getAllCustomerIds(user);
+            const quotes = await QuoteService.getQuoteInfo(customerIds, user);
+            const customerQuoteDetails = await CustomerService.customerQuoteInfo(quotes, user)
 
-        const newQuote = await customerService.createQuote(user, customer, quote, labor, materials, createdAt);
-
-        if(newQuote.error){
+            return res.status(200).json({
+                customerQuoteDetails
+            });
+        }catch(err){
             return res.status(500).json({
-                success: false,
-                error: newQuote.error.message
-            })
+                error: `Failed to get customers quote info: ${err.message}`
+            });
         }
+    }
 
-        console.log(newQuote)
+    async getCustomerStatus(req, res){
+        const user = req.user;
+        try{
+            const customerIds = await CustomerService.getAllCustomerIds(user);
+            const customStatus = await CustomerService.customerStatus(customerIds, user);
 
-        return {
-            ...newQuote
+            return res.status(200).json({
+                customerStatus
+            });
+        }catch(err){
+            return res.status(500).json({
+                error: `Failed to get customers stasus`
+            });
         }
-    }catch(error){
-        console.error(`Failed to Create New Quote`);
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
+    }
+
+    async createCustomerQuote(req, res){
+        const { customer, labor, materials, quote } = req.body;
+        const user = req.user;
+        try{
+            const createdAt = new Date().toISOString();
+
+            const newQuote = await CustomerService.createQuote(user, customer, quote, labor, materials, createdAt);
+            
+            return res.status(200).json({
+                ...newQuote
+            });
+
+        }catch(err){
+            return res.status(500).json({
+                error: `Failed to create customer's quote: ${err.message}`
+            });
+        }
+    }
+
+    async deleteCustomerQuote(req,res){
+        const { quoteId } = req.parms;
+        const user = req.user;
+        try{
+            const deletedQuote = await CustomerService.deleteQuote(quoteId, user.id);
+
+            return res.status(200).json({
+                message: `Quote ${quoteId} was successfully deleted.`
+            });
+        }catch(err){
+            return res.status(500).json({
+                error: `Failed to delete customer quote: ${err.message}`
+            });
+        }
     }
 }
 
-export async function deleteCustomerQuote(req,res){
-    const { quoteId } = req.parms;
-    const user = req.user;
-    try{
-        const deletedQuote = await customerService.deleteQuote(quoteId, user.id);
-
-        if(deletedQuote.error){
-            console.error(`Failed to Delete Customer Quote ${quoteId}`);
-            return res.status(500).json({
-                success: false,
-                error: deletedQuote.error.message
-            })
-        }
-        
-        return res.status(200).json({
-            success: true,
-            message: `Quote ${quoteId} was successfully deleted`
-        })
-
-    }catch(error){
-        console.error(`Error while Deleting Quote: ${error.message}`);
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
+export default new CustomerControllers()

@@ -1,12 +1,13 @@
 import express from 'express';
-import { getCustomerInfo, getCustomerStatus, getCustomerQuoteInfo, createCustomerQuote, deleteCustomerQuote, getAllUserCustomers } from '../controllers/customer.controllers.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import CustomerControllers from "../controllers/customer.controllers.js";
+import AuthMiddleware from '../middleware/auth.middleware.js';
 
 export const customerRouter = express.Router();
 
-customerRouter.get('/all-customers', requireAuth, getAllUserCustomers)
-customerRouter.get('/customer-info', requireAuth, getCustomerInfo)
-customerRouter.get('/customer-status', requireAuth, getCustomerStatus)
-customerRouter.get('/customer-quote', requireAuth, getCustomerQuoteInfo)
-customerRouter.post('/create-quote', requireAuth, createCustomerQuote)
-customerRouter.delete('/delete-quote/:quoteId', requireAuth, deleteCustomerQuote)
+customerRouter.use(AuthMiddleware.verifyToken);
+customerRouter.get('/all-customers', CustomerControllers.getAllUserCustomers);
+customerRouter.get('/customer-info', CustomerControllers.getCustomerInfo);
+customerRouter.get('/customer-status', CustomerControllers.getCustomerStatus);
+customerRouter.get('/customer-quote', CustomerControllers.getCustomerQuoteInfo);
+customerRouter.post('/create-quote', CustomerControllers.createCustomerQuote);
+customerRouter.delete('/delete-quote/:quoteId', CustomerControllers.deleteCustomerQuote);
