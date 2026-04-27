@@ -2,7 +2,7 @@ import express from 'express';
 import JobControllers from "../controllers/job.controllers.js";
 import Auth from '../middleware/auth.middleware.js';
 
-export const jobRouter = express.Router();
+const jobRouter = express.Router();
 
 jobRouter.use(Auth.verifyToken);
 jobRouter.get('/completed-jobs', JobControllers.getAllCompletedJobs);
@@ -10,3 +10,4 @@ jobRouter.get('/unpaid-jobs', JobControllers.getUnpaidJobs);
 jobRouter.get('/active-jobs', JobControllers.getActiveJobs);
 jobRouter.get('/monthly-revenue', JobControllers.getMonthlyTotal);
 
+export default jobRouter;

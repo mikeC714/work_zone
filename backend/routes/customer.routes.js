@@ -2,7 +2,7 @@ import express from 'express';
 import CustomerControllers from "../controllers/customer.controllers.js";
 import AuthMiddleware from '../middleware/auth.middleware.js';
 
-export const customerRouter = express.Router();
+const customerRouter = express.Router();
 
 customerRouter.use(AuthMiddleware.verifyToken);
 customerRouter.get('/all-customers', CustomerControllers.getAllUserCustomers);
@@ -11,3 +11,5 @@ customerRouter.get('/customer-status', CustomerControllers.getCustomerStatus);
 customerRouter.get('/customer-quote', CustomerControllers.getCustomerQuoteInfo);
 customerRouter.post('/create-quote', CustomerControllers.createCustomerQuote);
 customerRouter.delete('/delete-quote/:quoteId', CustomerControllers.deleteCustomerQuote);
+
+export default customerRouter;
