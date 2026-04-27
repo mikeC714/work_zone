@@ -1,11 +1,11 @@
 import Auth from "../auth/auth.js";
-import TokenService from "../services/db/token.service.js";
-import decrypt from "../utils/crypto.js";
+import TokenService from "../service/db/token.service.js";
+import { decrypt } from "../utils/encrypt.js";
 
 class AuthMiddleware{
     async verifyToken(req, res, next){
-        const token = req.cookie.token;
-        const refreshToken = req.cookie.refresh_token;
+        const token = req.cookies.token;
+        const refreshToken = req.cookies.refresh_token;
 
         if(!token && !refreshToken){
             return res.status(401).json({

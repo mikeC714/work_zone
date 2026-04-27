@@ -1,11 +1,13 @@
 import { createContext, useContext, useMemo } from 'react';
-import { useSession } from '../hooks/auth.hooks.jsx';
 
 const UserContext = createContext();
 
 
 export function UserProvider({children}){
-    const { name:{ firstName, lastName }, isLoading } = useSession();
+    let firstName;
+    let lastName; 
+    let isLoading = null;
+    
 
     const nameInitials = useMemo(() => {
         if(!firstName || !lastName) return '';

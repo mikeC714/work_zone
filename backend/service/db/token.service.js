@@ -1,4 +1,4 @@
-import decrypt from "../../utils/crypto.js";
+import { decrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
 
 class TokenService{

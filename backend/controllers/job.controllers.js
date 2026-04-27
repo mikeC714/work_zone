@@ -1,4 +1,4 @@
-import JobService from "../service/job/job.service.js";
+import JobService from "../service/job.service.js";
 
 class JobControllers{
 

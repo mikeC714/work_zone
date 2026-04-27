@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from '../hooks/auth.hooks.jsx';
+import useAuth from '../hooks/auth.hooks.jsx';
 import { AuthForm } from '../comps/auth/authForm.jsx';
 
 export function Authentication() {

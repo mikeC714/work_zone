@@ -1,4 +1,4 @@
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import db from "../config/postgresql.config.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -7,6 +7,9 @@ class Auth{
     #expiry
     #secret
     #db
+    #refreshExpiry
+    #refreshSecret
+
     constructor(db){
         this.#db = db;
         this.#secret = process.env.JWT_SECRET;

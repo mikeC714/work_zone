@@ -1,10 +1,9 @@
 import express from 'express';
-import { authRouter } from './routes/auth.routes.js';
-import { customerRouter } from './routes/customer.routes.js';
-import { emailRouter } from './routes/email.route.js';
-import { jobRouter } from './routes/job.routes.js';
-import { notiRouter } from './routes/notifications.routes.js';
-import { refreshUserToken } from './middleware/auth.middleware.js';
+import authRouter from "./routes/auth.routes.js";
+import customerRouter from './routes/customer.routes.js';
+import emailRouter from './routes/email.route.js';
+import jobRouter from './routes/job.routes.js';
+import notiRouter  from './routes/notifications.routes.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
 import dotenv from 'dotenv';
@@ -19,7 +18,6 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }))
-app.use(refreshUserToken)
 
 app.use('/api', authRouter)
 app.use('/api', customerRouter)

@@ -1,16 +1,12 @@
-import { Notis } from '../service/notifications.service.js';
-import { CustomerService } from '../service/customer.service.js';
-import { getAllCustomerIds } from '../utils/getCustomer.js';
-import { db } from '../config/supabase.config.js';
-
-const notis = new Notis(db)
-const cs = new CustomerService(db)
+import Notis from '../service/notifications.service.js';
+import { CustomerService, CustomerInfo } from '../service/customer.service.js';
+import db from "../config/postgresql.config.js";
 
 export async function allNotifications(req,res){
     const user = req.user;
     try{
-        const customerIds = await getAllCustomerIds(user);
-        const customerInfo = await cs.customerInfo(customerIds, user)
+        const customerIds = await CustomerInfo.getAllCustomerIds(user.id);
+        const customerInfo = await CustomerService.customerDetails(customerIds, user.id)
         const notifications = await notis.getNotis(user, customerInfo)
 
         return res.status(200).json({
@@ -24,3 +20,4 @@ export async function allNotifications(req,res){
         })
     }
 }
+

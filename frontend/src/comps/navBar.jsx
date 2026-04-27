@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
-import { useAuth } from '../hooks/auth.hooks.jsx'
+import useAuth from '../hooks/auth.hooks.jsx'
 import { Bell, Settings, LogOut } from 'lucide-react';
 
 export function NavBar(){

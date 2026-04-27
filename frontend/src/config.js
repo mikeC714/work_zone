@@ -1,5 +1,5 @@
 const config = {
-    SERVER: meta.env.SERVER,
+    SERVER: import.meta.env.SERVER,
 }
 
 export default config;

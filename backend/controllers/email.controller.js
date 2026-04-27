@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
-import CustomerService from '../service/customer/customer.service.js';
-import { db } from '../config/supabase.config.js';
+import { CustomerService } from "../service/customer.service.js";
+import db from "../config/postgresql.config.js";
 import dotenv from 'dotenv';
 dotenv.config();
 

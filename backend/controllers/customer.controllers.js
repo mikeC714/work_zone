@@ -1,5 +1,4 @@
-import CustomerService from "../service/customer.service.js";
-import CustomerInfo from "../service/customer.service.js";
+import { CustomerInfo, CustomerService } from "../service/customer.service.js";
 import JobService from "../service/job.service.js";
 import QuoteService from "../service/quote.service.js";
 import db from "../config/postgresql.config.js";
@@ -29,7 +28,7 @@ class CustomerControllers{
         const user = req.user;
         try{
             const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.quer.limi) || 20;
+            const limit = parseInt(req.query.limit) || 20;
             const offset = (page -1) * limit;
 
             const customerIds = await CustomerInfo.getAllCustomerIds(user);
@@ -48,7 +47,7 @@ class CustomerControllers{
                     ...customer,
                     quote: quoteDetails.map(qt => qt.customer.id === customer.id).map(qts => {
                         return{
-                            ...quotes,
+                            ...qts,
                             job: jobDetails.filter(job => job.quote_id === qts.id)
                         }
                     })

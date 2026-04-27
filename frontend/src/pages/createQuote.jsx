@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
-import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
+import useCreateQuote from "../hooks/createQuote.hook.jsx";
 import { useState } from 'react';
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'

@@ -1,4 +1,4 @@
-import db from "../../config/postgresql.config.js";
+import db from "../config/postgresql.config.js";
 
 class QuoteService{
     constructor(db){
@@ -37,4 +37,4 @@ class QuoteService{
     }
 }
 
-export default new QuoteInfo(db);
+export default new QuoteService(db);

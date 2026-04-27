@@ -15,4 +15,4 @@ function useCreateQuote(){
     }
 }
 
-export default createQuote();
+export default useCreateQuote;

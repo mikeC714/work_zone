@@ -1,4 +1,4 @@
-import encrypt from "../../utils/crypto.js";
+import { encrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
 
 class UserService{

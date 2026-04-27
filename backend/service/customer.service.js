@@ -3,7 +3,7 @@ import JobService from "./job.service.js";
 import db from "../config/postgresql.config.js";
 
 
-class CustomerInfo{
+class customerInfo{
     constructor(db){
         this.db = db;
     }
@@ -18,7 +18,7 @@ class CustomerInfo{
                 [userId]
             );
             return {
-                customerIds = results.rows
+                customerIds: results.rows
             };
         }catch(err){
             throw new Error(`Failed to fetch all customer ids:${err.message}.`)
@@ -26,7 +26,7 @@ class CustomerInfo{
     }
 }
 
-class CustomerService{
+class customerService{
     constructor(db){
         this.db = db;
     }
@@ -65,7 +65,7 @@ class CustomerService{
         }
         try{
             const quotedJobs = await Promise.all(
-                quotes.map(quote => {
+                quotes.map(async quote => {
                     const jobInfo = await JobService.getJobInfo([quote]);
                     return {
                         ...quote,
@@ -164,5 +164,10 @@ class CustomerService{
     }
 }
 
-export default new CustomerService(db);
-export default new CustomerInfo(db);
+const CustomerService = new customerService(db);
+const CustomerInfo = new customerInfo(db);
+
+export {
+    CustomerService,
+    CustomerInfo
+}

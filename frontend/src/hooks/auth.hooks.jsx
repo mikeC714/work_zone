@@ -25,4 +25,4 @@ function useAuth() {
     return { loginMutation, signupMutation, logoutMutation, deleteMutation };
 }
 
-export default useAuth();
+export default useAuth;
