@@ -21,7 +21,8 @@ class QuoteService{
                     status,
                     total,
                     markup,
-                    job_id,
+                    material_id,
+                    labor_id,
                     created_at
                 FROM quotes
                 WHERE user_id = $1

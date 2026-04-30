@@ -81,25 +81,20 @@ class customerService{
         }
     }
 
-    async customerStatus(quotes, user){
-        // const quotes = await QuoteService.getQuoteInfo([customer], user);
+    async customerStatus(quotes){
         if(!quotes || quotes.length === 0){
             return {
                 quotes: [], status: null
             }
         }
 
-        const approvedStatus = quotes.filter(quote => quote.status === 'approved');
-        const pendingStatus = quotes.filter(quote => quote.status === 'pending');
-        const completedStatus = quotes.filter(quote => quote.status === 'completed');
-        const declinedStatus = quotes.filter(quote => quote.status === 'declined');
-
-        return {
-            approvedStatus,
-            pendingStatus,
-            completedStatus,
-            declinedStatus
-        }
+        return (quotes ?? []).reduce((acc, val) => {
+            const key = val.status;
+            return{
+                ...acc,
+                [key]: [...(acc[key] ?? []), val]
+            }
+        }, {})        
     }
 
     async createQuote(user, customer, quote, labor, materials, createdAt){
@@ -122,19 +117,29 @@ class customerService{
                 laborData,
                 materialsData
             ] = await Promise.all([
+
+                /* ## DESCRIPTION row for both labor and materials will look like
+
+                        FOR LABOR
+                    [{ desc, hours }]
+
+                        FOR MATERIALS
+                    [{ desc, quantity, unit_cost }]
+                */
+
+
                 labor.map(labVals => 
                     this.db.query(
                     `INSERT INTO labor
-                        (quote_id, description, hours, hourly_rate, total, created_at)
-                    VALUES($1, $2, $3, $4, $5, $6)
-                    `, labVals
+                        (quote_id, description, hourly_rate, total, created_at)
+                    VALUES($1, $2, $3, $4, $5)
+                    `, [quote.id, JSON.stringify(labVals), new Date()]
                 )),
                 materials.map(matVals =>
                     this.db.query( 
-                    `INSERT INTO quote
-                        (quote_id, description, quantity, unit_cost, created_at)
-                    VALUES($1, $2, $3, $4, $5)
-                    `, matVals
+                    `INSERT INTO quote(quote_id, description, created_at)
+                    VALUES($1, $2, $3)
+                    `, [quote.id, JSON.stringify(matVals), new Date()]
                 ))
             ]);
 

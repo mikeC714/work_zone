@@ -19,11 +19,11 @@ class Auth{
     }
     
     sign(payload){
-        return jwt.sign(payload, this.#secret, { expiresIn: this.#expiry });
+        return jwt.sign(payload, this.#secret, { expiry: this.#expiry });
     }
 
     signRefresh(payload){
-        return jwt.sign(payload, this.#refreshSecret, { expiresIn: this.#refreshExpiry });
+        return jwt.sign(payload, this.#refreshSecret, { expiry: this.#refreshExpiry });
     }
 
     verifyRefresh(token){

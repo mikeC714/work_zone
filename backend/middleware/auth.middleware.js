@@ -59,15 +59,15 @@ class AuthMiddleware{
                     req.user = decoded;
                     next();
                 }catch{
-                    return res.status(400).json({ message: "Unauthorized" })
+                    return res.redirect("/auth");
                 }
             }
 
-            return res.status(403).json({
-                message: "Unauthorized."
-            })
+            return res.redirect("/auth");
         }
     }
 }
+
+
 
 export default new AuthMiddleware();

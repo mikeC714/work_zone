@@ -21,7 +21,7 @@ class AuthController{
                 return res.status(401).json({ message: "Invalid credentials." });
             }
 
-            const valid = await bcyrpt.compare(password, user.password);
+            const valid = await bcrypt.compare(password, user.password);
             if(!valid){
                 return res.status(401).json({ message: "Invalid Credentials." });
             }
@@ -56,20 +56,20 @@ class AuthController{
     }
 
     async signup(req, res){
-        const { username, email, password } = req.body;
-        if(!username || !email || !password){
+        const { email, firstName, lastName, password } = req.body;
+        if(!firstName || !lastName || !email || !password){
             return res.status(400).json({ message: "Missing field input." });
         }
 
         try{
-            const salt = await bcrypt.genSalt(process.env.SALT);
+            const season = 16
+            const salt = await bcrypt.genSalt(season);
             const safePass = await bcrypt.hash(password, salt);
 
-            const user = await UserService.storeNewUser(username, email, safePass);
+            const user = await UserService.storeNewUser(firstName, lastName, email, safePass);
 
-
-            const token = Auth.sign({ id: user.id });
-            const refreshToken = Auth.signRefresh({ id: user.id });
+            const token = Auth.sign(user.id);
+            const refreshToken = Auth.signRefresh(user.id);
 
             await TokenService.storeRefreshToken(user.id, refreshToken);
 

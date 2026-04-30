@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { apiFetch } from '../../utils/apiFetch.jsx'
+import config from '../config.js';
 
 // export function useSendEmail(){
 //     const { data,  isPending, isError, error } = useMutation({
@@ -15,7 +16,7 @@ import { apiFetch } from '../../utils/apiFetch.jsx'
 
 
 export async function sendQuote(payload){
-     const res = await apiFetch('http://localhost:3000/api/quote/send', 'POST', payload)
+     const res = await apiFetch(`http://${config.SERVER}/api/quote/send`, 'POST', payload)
      if(!res.ok){
         console.log('Failed to send quote')
      }

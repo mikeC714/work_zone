@@ -94,7 +94,8 @@ class CustomerControllers{
         const user = req.user;
         try{
             const customerIds = await CustomerService.getAllCustomerIds(user);
-            const customStatus = await CustomerService.customerStatus(customerIds, user);
+            const quotes = await QuoteService.getQuoteInfo(customerIds, user)
+            const customStatus = await CustomerService.customerStatus(quotes);
 
             return res.status(200).json({
                 customerStatus

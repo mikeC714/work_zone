@@ -10,6 +10,7 @@ export function Authentication() {
         e.preventDefault();
         const formData = new FormData(e.target);
         const credentials = Object.fromEntries(formData);
+        console.log(credentials);
         isAuth ? loginMutation.mutate(credentials) : signupMutation.mutate(credentials);
     }
 

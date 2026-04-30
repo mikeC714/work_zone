@@ -1,4 +1,4 @@
-import { decrypt } from "../../utils/encrypt.js";
+import { encrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
 
 class TokenService{
@@ -18,8 +18,8 @@ class TokenService{
             const safeToken = await encrypt(token);
 
             await this.#db.query(
-                "UPDATE refresh_tokens SET token = $1 WHERE id = $2",
-                [safeToken, id]
+                "UPDATE tokens SET token = $1 WHERE id = $2 AND expires_at = $3",
+                [safeToken, id, token.expiry]
             )
         }catch(err){
             if(err){

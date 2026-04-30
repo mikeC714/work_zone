@@ -7,28 +7,29 @@ class UserService{
        this.#db = db; 
     }
 
-    static async storeNewUser(username, email, safePassword){
-        if(!username || !email || !password){
+    async storeNewUser(firstName, lastName, email, password){
+        if(!firstName || !lastName || !email || !password){
             throw new Error("Missing user field.");
         }
         try{
             const newUser = await this.#db.query(
-                "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email",
-                [username, email, safePassword]
+                "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
+                [firstName, lastName, email, password]
             );
-            return newUser;
+            console.log(newUser);
+            return newUser.rows[0]; 
         }catch(err){
             throw new Error(err.message);
         }
     }
 
-    static async getUser(email){
+    async getUser(email){
         if(!email){
             throw new Error("Missing field.");
         }
         try{
             return await this.#db.query(
-                "SELECT id, email, password  FROM users WHERE email = $1",
+                "SELECT id, email, password FROM users WHERE email = $1",
                 [email]
             )
         }catch(err){
@@ -36,7 +37,7 @@ class UserService{
         }
     }
 
-    static async deleteUser(userId){
+    async deleteUser(userId){
         if(!userId){
             throw new Error("Invalid user.");
         }
