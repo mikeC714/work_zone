@@ -1,8 +1,6 @@
 import { Resend } from 'resend';
 import { CustomerService } from "../service/customer.service.js";
 import db from "../config/postgresql.config.js";
-import dotenv from 'dotenv';
-dotenv.config();
 
 const resend = new Resend(process.env.RESEND_KEY)
 

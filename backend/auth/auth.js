@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import db from "../config/postgresql.config.js";
-import dotenv from "dotenv";
-dotenv.config();
 
 class Auth{
     #expiry
@@ -19,11 +17,11 @@ class Auth{
     }
     
     sign(payload){
-        return jwt.sign(payload, this.#secret, { expiry: this.#expiry });
+        return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
     }
 
     signRefresh(payload){
-        return jwt.sign(payload, this.#refreshSecret, { expiry: this.#refreshExpiry });
+        return jwt.sign({ payload: payload }, this.#refreshSecret, { expiresIn: this.#refreshExpiry });
     }
 
     verifyRefresh(token){

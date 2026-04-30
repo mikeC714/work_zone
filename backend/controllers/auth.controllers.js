@@ -3,8 +3,6 @@ import AuthMiddleware from "../middleware/auth.middleware.js";
 import UserService from "../service/db/user.service.js";
 import TokenService from "../service/db/token.service.js";
 import bcrypt from "bcrypt";
-import dotenv from "dotenv";
-dotenv.config();
 
 class AuthController{
     async login(req, res){
@@ -62,8 +60,8 @@ class AuthController{
         }
 
         try{
-            const season = 16
-            const salt = await bcrypt.genSalt(season);
+            const rounds = 16
+            const salt = await bcrypt.genSalt(rounds);
             const safePass = await bcrypt.hash(password, salt);
 
             const user = await UserService.storeNewUser(firstName, lastName, email, safePass);

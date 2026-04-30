@@ -7,7 +7,7 @@ class TokenService{
         this.#db = db;
     }
 
-    static async storeRefreshToken(id, token){
+    async storeRefreshToken(id, token){
         if(!token){
             throw new Error("Expired refresh token.");
         }
@@ -19,16 +19,14 @@ class TokenService{
 
             await this.#db.query(
                 "UPDATE tokens SET token = $1 WHERE id = $2 AND expires_at = $3",
-                [safeToken, id, token.expiry]
+                [safeToken, id, token.exp]
             )
         }catch(err){
-            if(err){
-                throw new Error("Failed to store user token", err);
-            }
+            throw new Error(err.message);
         }
     }
 
-    static async deleteRefreshToken(userId, token){
+    async deleteRefreshToken(userId, token){
         if(!userId){
             throw new Error("Invalid User.");
         }
@@ -46,7 +44,7 @@ class TokenService{
         }
     }
 
-    static async getRefreshToken(id){
+    async getRefreshToken(id){
         if(!id){
             throw new Error("Invalid user.");
         }

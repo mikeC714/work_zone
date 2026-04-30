@@ -1,10 +1,9 @@
 import crypto from "crypto";
-import dotenv from "dotenv";
-dotenv.config();
+
 
 function encrypt(text){
-    const iv = crypto.randomBytes(process.env.IV_LENGTH);
-    const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(process.env.ENCRYPT_KEY));
+    const iv = crypto.randomBytes(parseInt(process.env.IV_LENGTH));
+    const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(process.env.ENCRYPT_KEY, 'hex'), iv);
     const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
     return iv.toString("hex") + ":" + encrypted.toString("hex");
 };
