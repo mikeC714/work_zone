@@ -10,8 +10,8 @@ function encrypt(text){
 
 function decrypt(text){
     const [iv, cipher] = text.split(":");
-    const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(process.env.ENCRYPT_KEY));
-    return Buffer.concat([decipher.update(Buffer.from(encrypted, "hex")), decipher.final()]).toString();
+    const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(process.env.ENCRYPT_KEY, 'hex'), Buffer.from(iv, 'hex'));
+    return Buffer.concat([decipher.update(Buffer.from(cipher, "hex")), decipher.final()]).toString();
 };
 
 export {

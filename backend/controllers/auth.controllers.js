@@ -13,8 +13,8 @@ class AuthController{
         }
         
         try{
-            const res = await UserService.getUser(email);
-            const user = res.rows[0];
+            const results = await UserService.getUser(email);
+            const user = results.rows[0];
             if(!user){
                 return res.status(401).json({ message: "Invalid credentials." });
             }
