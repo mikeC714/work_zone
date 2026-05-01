@@ -20,7 +20,7 @@ class AuthMiddleware{
         }catch(err){
             if(err.name === "TokenExpiredError" && refreshToken){
 
-                // # Query the db based using user.id the get the currently stored refresh token.
+                //   Query the db based using user.id the get the currently stored refresh token.
                 //   Verify the token
                 //   Next pass that curr token to deleteRefresh to rotate token
                 //   Followed by storing the new refresh token after hashing it
@@ -67,6 +67,9 @@ class AuthMiddleware{
         }
     }
 }
+
+
+
 
 
 

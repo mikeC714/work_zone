@@ -96,7 +96,7 @@ class AuthController{
     }
     
     async logout(req, res){
-        const refresh = req.cookie.refresh_token;
+        const refresh = req.cookies.refresh_token;
         if(!refresh){
             return res.status(401).json({ message: "User is unauthorized." });
         }

@@ -1,0 +1,64 @@
+# Authentication 
+This README will go over the authentication system which uses JWT (JsonWebTokens) and HTTP-Only Cookies to securely manage user sessions.
+
+
+# Overview
+
+Authentication is handled using dual token strategy generating an short lived access token for handling request authorization, paired with a long lived refresh token used to 
+maintain the user's session without having to re-authenticate.
+
+# Why Dual Token and Why Cookies? 
+
+The reasoning behind using a dual token strategy is due to balance between security while still giving a good user experience. Now if I were to have a single token that was long lasting
+an attacker or an unauthorized user if that token were to be compromised the now unauthorized user will be able to have their way until the session is finished. Same would apply for utilizing localStorage rather than using cookies
+XSS vulnerability is the key issue with using to store vulnerable data localStorage. Since JavaScript can read localStorage if there were an unauthorized user injecting malicious scripts they can easily steal a users session.
+Using cookies HTTP-Only restricts JavaScript from accessing the cookie allowing it to only be sent to the server.
+
+# Security Measures For Sessions 
+
+Token Rotation - Used as an additional security measure. Each time a refresh token is used to issue a new access token, the previous token is invalidated. Limiting the damage window if a refresh token is ever compromised.
+## (I'll be adding Theft Detection piggybacking Token Rotation to allow the server to detect replay attacks, if a previously used token is presented again, the entire token family is revoked and the user is forced to re-authenticate)
+HTTP-Only - restricts JavaScript from accessing the user's cookies 
+Token Encryption - Since token rotation is being used, storing the user's refresh token is needed in order to monitor which ones have my used. So instead of storing the raw token encryption is being used (AES-256-CBC) to increase the complexity needed in order to steal a user's token.
+
+
+# Endpoints
+
+## POST /auth/signup
+
+* Validates that the needed fields for a new user is filled
+* Encrypts the user's password then stores the user with my database. Returning needed information to then
+sign the user's tokens.
+* Refresh token is then encrypted and stored within the database with the user's id
+* Lastly it sets the user's res.cookie with their now signed tokens returning a res.status of 200
+
+
+## POST  /auth/login 
+
+* Obtains the given email and password verifies if the fields are empty return status 400 if so
+* Calls to the UserService to obtain the user within the given email validating if the user has an active account returning the user's credentials that're needed
+* Compares the entered password with the encrypted password stored to validate the user's authorization
+* Once the security measures are done their tokens are signed storing the encrypted refresh token issuing their tokens to their cookies and returning a res 200
+
+## POST /auth/logout
+
+* The user's refresh token is validated to verify if the user is authorized to make the req
+* The refresh token is now verified to make sure the given token matches the current user's credentials using the tokens signed payload
+* Once the token is verified, it's deleted from it's table and the cookies are cleared ending the user's
+session 
+
+
+# Middleware
+
+* RateLimiter - Used primarily on the authentication endpoints to prevent brute force attacks.
+Adding a layer of protection to the server from excessive requests
+* Token Verfication - Verifies the user's access token before processing any protected request. The middleware validates the token's signature against the secret and checks its expiry. If the access token is expired, a new one is issued using the refresh token, which is then rotated invalidating the old token and replacing it with a freshly generated one. 
+
+
+### SOME NOTES ALONG THE WAY 
+
+* JWT payload has to be within an object otherwise it'll be read as a string
+* Private fields never knew they existed within JS. Now declared using (#) hashtag while in previous
+code it was just (_) underscore.
+* Encryption seems like mandarin I barely understand it definetly need to go a little deeper in
+the topic 

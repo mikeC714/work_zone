@@ -6,10 +6,10 @@ import auth from '../auth/auth.js';
 
 const authRouter = express.Router();
 
-authRouter.post('/signup', authLimiter, AuthController.signup);
-authRouter.post('/login', authLimiter, AuthController.login);
-authRouter.post('/logout', AuthMiddleware.verifyToken, AuthController.logout);
-authRouter.delete('/delete', AuthMiddleware.verifyToken, AuthController.deleteUser);
+authRouter.post('/auth/signup', authLimiter, AuthController.signup);
+authRouter.post('/auth/login', authLimiter, AuthController.login);
+authRouter.post('/auth/logout', AuthMiddleware.verifyToken, AuthController.logout);
+authRouter.delete('/auth/delete', AuthMiddleware.verifyToken, AuthController.deleteUser);
 
 
 export default authRouter;
