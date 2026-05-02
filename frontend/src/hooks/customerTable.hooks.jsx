@@ -31,9 +31,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
                 cus.first_name?.toLowerCase().includes(search) ||
                 cus.last_name?.toLowerCase().includes(search) ||
                 cus.quote.some(qt => qt.job_id?.toLowerCase().includes(search))||
-                cus.quote.some(qt => 
-                    qt.job?.some(job => job.description.toLowerCase().includes(search))
-                )
+                cus.quote.some(qt => qt.job?.some(job => job.description.toLowerCase().includes(search)))
             );
         }
 

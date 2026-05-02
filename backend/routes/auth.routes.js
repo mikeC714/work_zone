@@ -10,6 +10,7 @@ authRouter.post('/auth/signup', authLimiter, AuthController.signup);
 authRouter.post('/auth/login', authLimiter, AuthController.login);
 authRouter.post('/auth/logout', AuthMiddleware.verifyToken, AuthController.logout);
 authRouter.delete('/auth/delete', AuthMiddleware.verifyToken, AuthController.deleteUser);
+authRouter.get('/auth/me', AuthMiddleware.verifyToken,)
 
 
 export default authRouter;

@@ -42,7 +42,13 @@ class AuthController{
                 maxAge: 604800000 // 7D
             })
 
-            return res.status(200).json({ message: `${user.email}, successfully logged in.` });
+            return res.status(200).json({ 
+                message: `${user.email}, successfully logged in.`,
+                user: {
+                    firstName: user.first_name,
+                    lastName: user.last_name
+                }
+            });
 
         }catch(err){
             console.error(err.message);
@@ -84,7 +90,13 @@ class AuthController{
                 maxAge: 604800000 // 7D
             })
 
-            return res.status(201).json({ message: `${user.email}, successfully created an account.` });
+            return res.status(201).json({
+                message: `${user.email}, successfully created an account.`, 
+                user:{
+                    firstName: user.first_name,
+                    lastName: user.last_name
+                }
+                });
 
         }catch(err){
             console.error(err.message);

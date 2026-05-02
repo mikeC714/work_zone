@@ -6,7 +6,7 @@ export function CustomerTable({ filteredData }) {
 
     dayjs.extend(calendar);
 
-    function QuoteStatus({status}){
+    function QuoteStatus({ status }){
         switch(status){
             case 'sent' :
                 return <div className='quoteStatus sentStatusStyle'>SENT</div>
@@ -38,8 +38,8 @@ export function CustomerTable({ filteredData }) {
                     </div>
                 </div>
                 <div className="tableBody">
-                    { filteredData?.length > 0 ? filteredData.map((customer, customerIndex )=>
-                        customer.quote.map(quote=>
+                    { filteredData?.length > 0 ? filteredData.map((customer, customerIndex ) =>
+                        customer.quote.map(quote =>
                             <div key={quote.id} className="customerDataRow">
                                 <div className="trLeft">
                                     <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>

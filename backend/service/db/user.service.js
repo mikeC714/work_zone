@@ -29,7 +29,7 @@ class UserService{
         }
         try{
             return await this.#db.query(
-                "SELECT id, email, password FROM users WHERE email = $1",
+                "SELECT id, first_name, last_name, email, password FROM users WHERE email = $1",
                 [email]
             )
         }catch(err){
