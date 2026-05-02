@@ -10,7 +10,10 @@ class customerInfo{
 
     async getAllCustomerIds(userId){
         if(!userId){
-            throw new Error("Invalid user.");
+            throw new Error({
+                message: "Invalid user.",
+                error: err.message
+            });
         }    
         try{
             const results = await this.db.query(
@@ -31,7 +34,10 @@ class customerService{
         this.db = db;
     }
     async customerDetails(customerIds, userId){
-        if(!userId) throw new Error("Invalid user.", err)
+        if(!userId) throw new Error({
+            message:"Invalid user.", 
+            error: err.message
+        })
         const cusIds = customerIds.map(customer => customer.id)
         if(!cusIds || customerIds === 0) return { customerInfo: [] };
         try{
