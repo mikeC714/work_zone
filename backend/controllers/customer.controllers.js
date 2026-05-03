@@ -1,7 +1,6 @@
 import { CustomerInfo, CustomerService } from "../service/customer.service.js";
 import JobService from "../service/job.service.js";
 import QuoteService from "../service/quote.service.js";
-import db from "../config/postgresql.config.js";
 
 class CustomerControllers{
     

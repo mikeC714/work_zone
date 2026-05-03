@@ -7,7 +7,7 @@ export async function allNotifications(req,res){
     try{
         const customerIds = await CustomerInfo.getAllCustomerIds(user.id);
         const customerInfo = await CustomerService.customerDetails(customerIds, user.id)
-        const notifications = await notis.getNotis(user, customerInfo)
+        const notifications = await Notis.getNotis(user, customerInfo)
 
         return res.status(200).json({
             success: true,

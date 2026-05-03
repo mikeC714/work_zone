@@ -5,8 +5,18 @@ import { authLimiter } from '../middleware/ratelimiter.js';
 
 const emailRouter = express.Router();
 
+emailRouter.post('/quote/send', async (req, res) => {
+    const user = req.user;
+    
+    const link = `http://${process.env.PORT}/quote/accepted`;
 
-emailRouter.post('/quote/send', Auth.verifyToken, authLimiter, sendQuoteEmail);
-emailRouter.get('/quote/respond', quoteResponse);
+});
+emailRouter.get('/quote/:accepted', async (req, res) => {
+    const token  = req.params.token;
+    const payload = await Auth.verifyEmailToken(token)
+
+
+});
+
 
 export default emailRouter;

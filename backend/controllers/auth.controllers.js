@@ -1,5 +1,4 @@
 import Auth from "../auth/auth.js";
-import AuthMiddleware from "../middleware/auth.middleware.js";
 import UserService from "../service/db/user.service.js";
 import TokenService from "../service/db/token.service.js";
 import bcrypt from "bcrypt";
