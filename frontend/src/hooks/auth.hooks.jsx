@@ -4,7 +4,7 @@ import config from "../config.js"
 
 const queryClient = useQueryClient();
 
-function useAuth() {
+export function useAuth() {
     const loginMutation = useMutation({
         mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/login`, 'POST', credentials),
         onSuccess: ({ user }) => {
@@ -38,5 +38,3 @@ function useAuth() {
 
     return { loginMutation, signupMutation, logoutMutation, deleteMutation };
 }
-
-export default useAuth;

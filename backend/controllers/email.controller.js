@@ -8,14 +8,19 @@ class EmailControllers{
         const user = req.user;
         const data = req.body;
         try{
-            const quoteData = QuoteService.getQuote(user.id, data.customer.email);
             const token = await Auth.signEmail({userId: user.id, customerEmail: data.customer.email, quoteId: quoteData.id});
             const safeToken = await encrypt(token);
-            await QuoteService.changeQuoteStatus(user.id, quoteData.id, safeToken);
+            await TokensService.storeQuoteToken(quoteData.id ,safeToken);
 
-            const link = `http://${process.env.PORT}/quote?token=${token}`
-            
+            await QuoteService.changeQuoteStatus(user.id, quoteData.id);
+
+            const link = `http://${process.env.PORT}/quote/accept?token=${token}`
+
+            const status = "Sent";
+
             await EmailService.send(user, data, link);
+            await QuoteService.changeQuoteStatus(data.quote.id, status);
+            
             return res.send("Email Successfully Sent!")
         }catch(err){
             return res.send("Failed to send email. Please try again.")
@@ -31,20 +36,23 @@ class EmailControllers{
             const verified = await Auth.verifyEmail(token)
             const decoded = await Auth.decode(verified);
 
-            const storedToken = await QuoteService.getQuoteToken(decoded.payload.userId, decoded.payload.customerEmail);
+            const storedToken = await QuoteService.getQuoteToken(decoded.payload.userId, decoded.payload.quoteId);
             const decrypted = await decrypt(storedToken);
         
             const decodedStored = await Auth.decode(decrypted);
+            const status = "Approved";
 
             if(decoded.payload.userId === decodedStored.payload.userId &&
                 decoded.payload.customerEmail === decodedStored.payload.customerEmail
             ){
-                await QuoteService.changeQuoteStatus(decoded.payload.id);
-                return res.redirect("/quote/email/accept");
+                await QuoteService.changeQuoteStatus(decoded.payload.id, status);
+                return res.sendFle(path.join(__dirname, 'public/thank-you.html'));
             }
-            return res.redirect("quote/email/accept-fail")
+            return res.sendFile(path.join(__dirname, 'public/failed.html'))
         }catch(err){
             throw new Error("Failed to accept quote.");
         }
     }
 }
+
+export default new EmailControllers();
