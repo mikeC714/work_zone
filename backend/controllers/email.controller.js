@@ -1,94 +1,58 @@
-import { Resend } from 'resend';
-import { CustomerService } from "../service/customer.service.js";
-import db from "../config/postgresql.config.js";
+import Auth from "../auth/auth.js";
+import EmailService from "../service/email.service.js";
+import { encrypt, decrypt } from "../utils/encrypt.js";
+import QuoteService from "../service/quote.service.js";
 
-const resend = new Resend(process.env.RESEND_KEY)
+class EmailControllers{
+    async handleSending(req, res){
+        const user = req.user;
+        const data = req.body;
+        try{
+            const token = await Auth.signEmail({userId: user.id, customerEmail: data.customer.email, quoteId: quoteData.id});
+            const safeToken = await encrypt(token);
+            await TokensService.storeQuoteToken(quoteData.id ,safeToken);
 
-export async function sendQuoteEmail(req,res){
-    const user = req.user;
-    const { customer, labor, materials, quote } = req.body;
-   
-    if(!user){
-        return res.status(401).json({
-            success: false,
-            error: `User is unauthorized`
-        })
+            await QuoteService.changeQuoteStatus(user.id, quoteData.id);
+
+            const link = `http://${process.env.PORT}/quote/accept?token=${token}`
+
+            const status = "Sent";
+
+            await EmailService.send(user, data, link);
+            await QuoteService.changeQuoteStatus(data.quote.id, status);
+            
+            return res.send("Email Successfully Sent!")
+        }catch(err){
+            return res.send("Failed to send email. Please try again.")
+        }
     }
-    
-    const { quoteData } = await CustomerService.createQuote(user, customer, labor, materials, quote);
 
-    const acceptQuote = `http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=accepted`
-    const declineQuote =`http://localhost:3000/api/quote/respond?token=${quoteData.token}&action=declined` 
-    
-    try{
-
-        const { data, error } = await resend.emails.send({
-            from: user.email,
-            to: customer.email,
-            subject: `Quote From ${user.name}`
-            // html IMPORT JSX COMPONENT OF THE EMAIL FORMAT
-        });
-
-        if(error){
-            return res.status(500).json({
-                success: false,
-                error: error.message
-            })
+    async handleAcceptance(req, res){
+        const token = req.query.token;
+        if(!token){
+           return res.status(400).json({ message: "Invalid token, token may have expired." });
         }
+        try{
+            const verified = await Auth.verifyEmail(token)
+            const decoded = await Auth.decode(verified);
 
-        return res.status(200).json({
-            success: true,
-            data
-        })
+            const storedToken = await QuoteService.getQuoteToken(decoded.payload.userId, decoded.payload.quoteId);
+            const decrypted = await decrypt(storedToken);
+        
+            const decodedStored = await Auth.decode(decrypted);
+            const status = "Approved";
 
-    }catch(error){
-        console.error(`Failed to send email: ${error.message}`);
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-export async function quoteResponse(req,res){
-    const { token, action } = req.query;
-
-    try{
-        const { data, error } = await supabase
-            .from('quotes')
-            .select('token')
-            .eq('token', token)
-            .single()
-
-
-        if(error || !data){
-            return res.status(500).json({
-                success: false,
-                error: `Quote not found ${error.message}`
-            })
+            if(decoded.payload.userId === decodedStored.payload.userId &&
+                decoded.payload.customerEmail === decodedStored.payload.customerEmail
+            ){
+                await QuoteService.changeQuoteStatus(decoded.payload.id, status);
+                return res.sendFle(path.join(__dirname, 'public/thank-you.html'));
+            }
+            return res.sendFile(path.join(__dirname, 'public/failed.html'))
+        }catch(err){
+            throw new Error("Failed to accept quote.");
         }
-
-        const { error: updateQuoteStatusError } = await supabase
-            .from('quotes')
-            .update({ status: action })
-            .eq('token', token)
-
-        if(updateQuoteStatusError){
-            return res.status(500).json({
-                success: false,
-                error: `Failed to Update Quote Status ${updateQuoteStatusError.message}`
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: 'Quote status has successfully been updated '
-        })
-
-    }catch(error){
-        return res.status(500).json({
-            success: false,
-            error: error.message
-        })
     }
 }
+
+export default new EmailControllers();

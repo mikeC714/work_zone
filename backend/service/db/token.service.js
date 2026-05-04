@@ -40,7 +40,7 @@ class TokenService{
             );
             console.log(`${userId}'s token was successfully deleted`);
         }catch(err){
-            throw new Error("Failed to delete token.", err);
+            throw new Error("Failed to delete token.", err.message);
         }
     }
 
@@ -54,9 +54,51 @@ class TokenService{
                 [id]
             );
         }catch(err){
-            throw new Error("Failed to get user's token.", err)
+            throw new Error("Failed to get user's token.", err.message)
         }
     }
+
+    async storeQuoteToken(id, token){
+        if(!id){
+            throw new Error("Invalid user.");
+        }
+        if(!token){
+            throw new Error("Quote token is unprovided.");
+        }
+        try{
+            await this.#db.query(
+                "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2)",
+                [id, token]
+            );
+        }catch(err){
+            throw new Error("Failed to store quote token.", err.message);
+        }
+    }
+
+    async getQuoteToken(id, quoteId){
+        if(!id){
+            throw new Error("Invalid user");
+        }
+        if(!cusEmail){
+            throw new Error("Customer email was not provided.");
+        }
+        try{
+            const token = await this.#db.query(
+                `SELECT token FROM quote_tokens
+                WHERE user_id = $1
+                AND quote_id = $2
+                `, [id, quoteId]
+            )
+            console.log(token.rows[0]);
+            return{
+                token: token.rows
+            }
+        }catch(err){
+            throw new Error("Failed to get quote token", err.message);
+        }
+    }
+
+    
 }
 
 export default new TokenService(db);

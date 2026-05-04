@@ -1,33 +1,32 @@
-import { useMutation } from '@tanstack/react-query'
-import { apiFetch } from '../../utils/apiFetch.jsx'
+import { useMutation } from '@tanstack/react-query';
+import { apiFetch } from '../../utils/apiFetch.jsx';
+import { Loader } from 'lucide-react'; 
 import config from '../config.js';
 
-// export function useSendEmail(){
-//     const { data,  isPending, isError, error } = useMutation({
-//         mutationKey: ['customerEmail'],
-//         mutationFn: async() => await apiFetch('http://localhost:3000/api/quote/send'),
-//         retry: false 
-//     })
-
-//     return {
-//         data, isPending, isError, error
-//     }
-// }
-
-
-export async function sendQuote(payload){
-     const res = await apiFetch(`http://${config.SERVER}/api/quote/send`, 'POST', payload)
-     if(!res.ok){
-        console.log('Failed to send quote')
-     }
-}
-
- const { mutate, isPending, isError, error } = useMutation({
-        mutationFn: sendQuote,
-        onSuccess: (data) => {
-            console.log('Clear Form State')
+export async function sendQuote(){
+    useMutation({
+        mutationFn: async (quote) => await apiFetch(`http://${config.SERVER}/api/quote/send`, "POST", quote),
+        retry: true,
+        onSuccess: () => {
+            return (
+                <div className="sendQuoteOverlay">
+                    <p className="sendQuoteSuccess">Quote Sent!</p>
+                </div>
+            )
+        },
+        isPending: () => {
+            return (
+                <div className="sendQuoteOverlay">
+                    <p className="sendQuoteLoad"><Loader /></p>
+                </div>
+            )
         },
         onError: (error) => {
-            console.error(error);
-        }
+            return(
+                <div className='sendQuoteOverlay'>
+                    <p className="sendQuoteFail">Failed to send quote.</p>
+                </div>
+            )
+        }   
     })
+}

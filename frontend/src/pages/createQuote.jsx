@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
-import useCreateQuote from "../hooks/createQuote.hook.jsx";
-import { useState } from 'react';
+import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
+import { sendQuote } from "../hooks/email.hooks.jsx";
 import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'
 import { Send } from 'lucide-react';
@@ -185,7 +186,7 @@ export function CreateQuote(){
                         className='cqSendToCustomerBtn'
                         onClick={(e) => {
                             handleSaveQuote(),
-                            sendQuoteToCustomer(e)
+                            sendQuote()
                         }}
                     >
                         SEND TO CUSTOMER <Send size={14} />
