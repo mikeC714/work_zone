@@ -35,12 +35,11 @@ class TokenService{
         }
         try{
             await this.#db.query(
-                "DELETE FROM refresh_tokens WHERE token = $1 AND user_id = $2",
+                "DELETE FROM tokens WHERE token = $1 AND user_id = $2",
                 [token, userId]
             );
-            console.log(`${userId}'s token was successfully deleted`);
         }catch(err){
-            throw new Error("Failed to delete token.", err.message);
+            throw new Error(err.message);
         }
     }
 
@@ -89,7 +88,6 @@ class TokenService{
                 AND quote_id = $2
                 `, [id, quoteId]
             )
-            console.log(token.rows[0]);
             return{
                 token: token.rows
             }

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import useAuth from '../hooks/auth.hooks.jsx';
-import { AuthForm } from '../comps/auth/authForm.jsx';
+import { useAuth } from '../hooks/auth.hooks.jsx';
+import { AuthForm } from '../comps/authForm.jsx';
 
 export function Authentication() {
     const [isAuth, setAuth] = useState(true);

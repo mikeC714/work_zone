@@ -4,7 +4,7 @@ import { NavBar } from '../comps/navBar.jsx';
 import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
 import { useNotiHook } from '../hooks/notifications.hooks.jsx';
-import useAuth from '../hooks/auth.hooks.jsx'
+import { useAuth } from '../hooks/auth.hooks.jsx'
 import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank } from 'lucide-react';
 
 const user = {

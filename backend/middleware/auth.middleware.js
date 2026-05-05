@@ -4,7 +4,7 @@ import { decrypt } from "../utils/encrypt.js";
 
 class AuthMiddleware{
     async verifyToken(req, res, next){
-        const token = req.cookies.token;
+        const token = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
 
         if(!token && !refreshToken){
@@ -25,23 +25,22 @@ class AuthMiddleware{
                 //   Next pass that curr token to deleteRefresh to rotate token
                 //   Followed by storing the new refresh token after hashing it
                 //   Lastly assign the newly generated tokens via cookie
-
-                const storedToken = await TokenService.getRefreshToken(req.user.id); // Since this token will be encrypted it will need to be decrypted in order to get it's content
-                if(!storedToken){
-                    return res.status(401).json({ message: "Unauthorized." });
-                }
-
                 try{
                     const decrypted = await decrypt(refreshToken);
                     const decoded = Auth.verifyRefresh(decrypted);
 
-                    const newToken = Auth.sign({ id: decoded.id });
-                    const newRefreshToken = Auth.signRefresh({ id: decoded.id });
+                    const storedToken = await TokenService.getRefreshToken(decoded.payload.id); // Since this token will be encrypted it will need to be decrypted in order to get it's content
+                     if(!storedToken){
+                        return res.status(401).json({ message: "Unauthorized." });
+                    }
 
-                    await TokenService.deleteRefreshToken(decoded.id ,storedToken);
+                    const newToken = Auth.sign({ id: decoded.payload.id });
+                    const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
+
+                    await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
 
                     // hash the token before storing
-                    await TokenService.storeRefreshToken(decoded.id, newRefreshToken);
+                    await TokenService.storeRefreshToken(decoded.payload.id, newRefreshToken);
 
                     res.cookie("token", newToken,{
                         httpOnly: true,
@@ -59,11 +58,13 @@ class AuthMiddleware{
                     req.user = decoded;
                     next();
                 }catch{
-                    return res.redirect("/auth");
+                    return res.status(401).json({ message: "Unauthorized." });
+                    // res.redirect("/auth");
                 }
             }
 
-            return res.redirect("/auth");
+            return res.status(401).json({ message: "Unauthorized." });
+            // res.redirect("/auth");
         }
     }
 }

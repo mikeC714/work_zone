@@ -5,7 +5,7 @@ class JobControllers{
     async getAllCompletedJobs(req, res) {
         const user = req.user;
         try {
-            const data = await JobService.allCompletedJobs(user.id);
+            const data = await JobService.allCompletedJobs(user.payload.id);
             return res.status(200).json({
                  success: true, 
                  data
@@ -22,7 +22,7 @@ class JobControllers{
     async getUnpaidJobs(req,res){
         const user = req.user;
         try{
-            const data = await JobService.allUnpaidJobs(user.id);  
+            const data = await JobService.allUnpaidJobs(user.payload.id);  
             return res.status(200).json({
                 success: true,
                 data
@@ -39,7 +39,7 @@ class JobControllers{
     async getActiveJobs(req,res){
         const user = req.user;
         try{
-            const data = await JobService.allActiveJobs(user.id);
+            const data = await JobService.allActiveJobs(user.payload.id);
             return res.status(200).json({
                 success: true,
                 data
@@ -56,7 +56,7 @@ class JobControllers{
     async getMonthlyTotal(req,res){
         const user = req.user
         try{
-            const data = await JobService.fetchMonthlyTotal(user.id)
+            const data = await JobService.fetchMonthlyTotal(user.payload.id)
             return res.status(200).json({
                 success: true,
                 data

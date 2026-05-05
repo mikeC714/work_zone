@@ -37,6 +37,20 @@ class UserService{
         }
     }
 
+    async getUserById(userId){
+        if(!userId){
+            throw new Error("Missing user id.");
+        }
+        try{
+            return await this.#db.query(
+                "SELECT id, email, first_name, last_name FROM users WHERE id = $1",
+                [userId]
+            );
+        }catch(err){
+            throw new Error(err.message);
+        }
+    }
+
     async deleteUser(userId){
         if(!userId){
             throw new Error("Invalid user.");

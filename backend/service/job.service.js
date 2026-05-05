@@ -28,30 +28,31 @@ class JobService{
                 data: results.rows
             };
         }catch(err){
-            throw new Error("Failed to fetch job info.", err);
+            throw new Error(err.message);
         }
     }
 
     async allCompletedJobs(id){
         if(!id){
-            throw new Error("ID of user is unprovided.", err);
+            throw new Error("ID of user is unprovided.");
         }
         try{
             const results = await this.db.query(
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
-                    AND status = 'completed'
+                    AND status = 'Completed'::status_type
                     AND created_at >= $2
                     AND created_at < $3
                 `, [id, startOfMonth, endOfMonth]
             );
+            console.log(results.rows);
 
             return {
-                data: results.row
+                data: results.rows
             }
         }catch(err){
-            throw new Error("Failed to fetch all completed jobs.",err);
+            throw new Error(err.message);
         }
     }
 
@@ -60,21 +61,22 @@ class JobService{
             throw new Error("ID of user is unprovided.", err);
         }
         try{
-            const reslts = await this.db.query(
+            const results = await this.db.query(
                 `SELECT status, created_at
                     FROM quotes
-                    WHERE user_id = $1
+                    WHERE user_id = $1 
                     AND created_at >= $2
                     AND created_at < $3
-                    AND status != 'completed'
+                    AND status != 'Completed'::status_type
                 `, [id, startOfMonth, endOfMonth]
             );
+            console.log(results.rows);
 
             return {
                 data: results.rows
             };
         }catch(err){
-            throw new Error("Failed to fetch all unpaid jobs.", err);
+            throw new Error(err.message);
         }
     }
 
@@ -87,7 +89,7 @@ class JobService{
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
-                    AND status = 'approved'
+                    AND status = 'Accepted'::status_type
                     AND created_at >= $2
                     AND created_at < $3
                 `,[id, startOfMonth, endOfMonth] 
@@ -97,7 +99,7 @@ class JobService{
                 data: results.rows
             }
         }catch(err){
-            throw new Error("Failed to fetch all active jobs", err);
+            throw new Error(err.message);
         }
     }
 
@@ -110,9 +112,9 @@ class JobService{
                 `SELECT SUM(total) AS totalValue, status, created_at
                     FROM quotes
                     WHERE user_id = $1
-                    AND status in ('approved', 'completed')
                     AND created_at >= $2
                     AND created_at < $3
+                    GROUP BY status
                 `, [id, startOfMonth, endOfMonth]
             );
 
@@ -120,7 +122,7 @@ class JobService{
                 data: results.rows[0].totalValue
             };
         }catch(err){
-            throw new Error("Failed to fetch monthly total", err);
+            throw new Error(err.message);
         }    
     }
 

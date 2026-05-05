@@ -112,18 +112,18 @@ class AuthController{
             return res.status(401).json({ message: "User is unauthorized." });
         }
         try{
-            const decoded = Auth.verifyRefresh(refresh);
-            if(!decoded){
+            const verified = Auth.verifyRefresh(refresh);
+            if(!verified){
                 return res.status(401).json({
                     message: "User unauthorized due to invalid token."
                 });
             }
-            await TokenService.deleteRefresh(decoded.id, refresh);
+            await TokenService.deleteRefreshToken(verified.payload.id, refresh);
 
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
 
-            return res.status(200).json({ message: `${decoded.id} has successfully logged out.` });
+            return res.status(200).json({ message: `${verified.payload.id} has successfully logged out.` });
 
         }catch(err){
             return res.status(500).json({
@@ -139,15 +139,15 @@ class AuthController{
             return res.status(401).json({ message: "User is unauthorized." })
         }
         try{
-            const decoded = Auth.verifyRefresh(refresh);
-            if(!decoded){
+            const verified = Auth.verifyRefresh(refresh);
+            if(!verified){
                 return res.status(401).json({ message: "User unauthorized do to invalid token." });
             }
             
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
 
-            await UserService.deleteUser(decoded.id);
+            await UserService.deleteUser(verified.payload.id);
 
             return res.status(200).json({ message: "Account successfully deleted." });
 
@@ -156,6 +156,30 @@ class AuthController{
                 message: "Failed to delete user.",
                 error: err.message
              })
+        }
+    }
+
+    async currUser(req,res){
+        const userId = req.user.payload.id;
+        if(!userId){
+            return res.status(401).json({ message: "Unauthorized user." });
+        }
+        try{
+            const results = await UserService.getUser(userId);
+            if(!results){
+                return res.status(404).json({ message: "Invalid user credentials." });
+            }
+
+            const user = results.rows;
+
+            return res.status(200).json({ user });
+
+        }catch(err){
+            return res.status(500).json({
+                error: err.message,
+                message: "Failed to get current user."
+
+            })
         }
     }
 }

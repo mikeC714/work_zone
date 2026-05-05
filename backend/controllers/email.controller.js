@@ -8,7 +8,7 @@ class EmailControllers{
         const user = req.user;
         const data = req.body;
         try{
-            const token = await Auth.signEmail({userId: user.id, customerEmail: data.customer.email, quoteId: quoteData.id});
+            const token = await Auth.signEmail({id: user.id, customerEmail: data.customer.email, quoteId: quoteData.id});
             const safeToken = await encrypt(token);
             await TokensService.storeQuoteToken(quoteData.id ,safeToken);
 
@@ -36,13 +36,13 @@ class EmailControllers{
             const verified = await Auth.verifyEmail(token)
             const decoded = await Auth.decode(verified);
 
-            const storedToken = await QuoteService.getQuoteToken(decoded.payload.userId, decoded.payload.quoteId);
+            const storedToken = await QuoteService.getQuoteToken(decoded.payload.id, decoded.payload.quoteId);
             const decrypted = await decrypt(storedToken);
         
             const decodedStored = await Auth.decode(decrypted);
             const status = "Approved";
 
-            if(decoded.payload.userId === decodedStored.payload.userId &&
+            if(decoded.payload.id === decodedStored.payload.id &&
                 decoded.payload.customerEmail === decodedStored.payload.customerEmail
             ){
                 await QuoteService.changeQuoteStatus(decoded.payload.id, status);

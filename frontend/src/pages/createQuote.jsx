@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
 import { sendQuote } from "../hooks/email.hooks.jsx";
-import { CreateQuoteForm } from '../comps/quote/createQuote.form.jsx';
+import { CreateQuoteForm } from '../comps/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'
 import { Send } from 'lucide-react';
 
