@@ -29,6 +29,7 @@ class QuoteService{
                 AND customer_id = ANY ($2)
                 `, [id, cusIds]
             ) 
+
             return {
                 data: results.rows
             }

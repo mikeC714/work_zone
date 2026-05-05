@@ -11,15 +11,13 @@ export function UserProvider({children}){
     const { data, isLoading } = useQuery({
         queryKey: ["user"],
         queryFn: async() => {
-            const res = await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
-            if(!res.ok) throw new Error("Failed to fetch current user.");
-            return res
+            return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
         },
         staleTime: Infinity
     });
 
-    const firstName = data?.firstName ?? "";
-    const lastName = data?.lastName ?? "";
+    const firstName = data?.data?.first_name ?? "";
+    const lastName = data?.data?.last_name ?? "";
 
     const nameInitials = useMemo(() => {
         if(!firstName || !lastName) return '';

@@ -7,6 +7,7 @@ export function QuickAccess(){
     const isLoading = quickAccessData.some(data => data.isLoading)
     const isError = quickAccessData.some(data => data.isError);
 
+    
     return (
         <div className='statCardsGrid'>
             <div className='statCardWrapper'>

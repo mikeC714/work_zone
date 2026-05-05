@@ -30,7 +30,7 @@ class CustomerControllers{
             const limit = parseInt(req.query.limit) || 20;
             const offset = (page -1) * limit;
 
-            const customerIds = await CustomerInfo.getAllCustomerIds(user.payload.id);
+            const { customerIds } = await CustomerInfo.getAllCustomerIds(user.payload.id);
             const totalCustomers = customerIds.length;
 
             const paginatedCustomers = customerIds.slice(offset, offset + limit);
@@ -40,6 +40,8 @@ class CustomerControllers{
             ]);
             
             const jobDetails = await JobService.getJobInfo(quoteDetails);
+
+            console.log(jobDetails.data);
 
             const customers = customerDetails.map(customer => {
                 return{

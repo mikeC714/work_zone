@@ -1,4 +1,4 @@
-import { encrypt } from "../../utils/encrypt.js";
+import { encrypt, decrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
 
 class TokenService{
@@ -6,6 +6,12 @@ class TokenService{
     constructor(db){
         this.#db = db;
     }
+
+    /*
+        TOKEN METHODS ARE EXPECTING THE TOKEN TO BE ENCRYPTED ON ARRIVAL.
+        getStoredToken will return an encrypted refreshToken so if the method is being used the 
+        token will have to be decrypted if token contents are needed
+    */
 
     async storeRefreshToken(id, token){
         if(!token){
@@ -15,11 +21,9 @@ class TokenService{
             throw new Error("Unauthorized user.");
         }
         try{
-            const safeToken = await encrypt(token);
-
             await this.#db.query(
                 "UPDATE tokens SET token = $1 WHERE id = $2 AND expires_at = $3",
-                [safeToken, id, token.exp]
+                [token, id, token.exp]
             )
         }catch(err){
             throw new Error(err.message);

@@ -8,10 +8,12 @@ class JobService{
 
     async getJobInfo(quotes){
         if(!quotes){
+            console.log("Quote Ids: []")
             return { data: [] };
         }
         try{
             const quoteIds = quotes.map(qts => qts.id);
+            console.log("Quote Ids:", quoteIds)
 
             const results = await this.db.query(
                 `SELECT 
@@ -24,6 +26,8 @@ class JobService{
                 `, [quoteIds]
             );
 
+            console.log("Quote IDs:",results.rows);
+
             return {
                 data: results.rows
             };
@@ -34,7 +38,7 @@ class JobService{
 
     async allCompletedJobs(id){
         if(!id){
-            throw new Error("ID of user is unprovided.");
+            throw new Error("ID of user is unprovided. Failed to fetch all completed jobs.");
         }
         try{
             const results = await this.db.query(
@@ -46,7 +50,8 @@ class JobService{
                     AND created_at < $3
                 `, [id, startOfMonth, endOfMonth]
             );
-            console.log(results.rows);
+
+            console.log("Completed Jobs:", results.rows);
 
             return {
                 data: results.rows
@@ -58,7 +63,7 @@ class JobService{
 
     async allUnpaidJobs(id){
         if(!id){
-            throw new Error("ID of user is unprovided.", err);
+            throw new Error("ID of user is unprovided. Failed to fetch all unpaid jobs.");
         }
         try{
             const results = await this.db.query(
@@ -72,6 +77,8 @@ class JobService{
             );
             console.log(results.rows);
 
+            console.log("Unpaid Jobs:", results.rows);
+
             return {
                 data: results.rows
             };
@@ -82,7 +89,7 @@ class JobService{
 
     async allActiveJobs(id){
         if(!id){
-            throw new Error("ID of user is unprovided.", err);
+            throw new Error("ID of user is unprovided. Failed to fetch all active jobs.");
         }
         try{
             const results = await this.db.query(
@@ -94,6 +101,8 @@ class JobService{
                     AND created_at < $3
                 `,[id, startOfMonth, endOfMonth] 
             );
+            
+            console.log("Active Jobs:", results.rows);
 
             return {
                 data: results.rows
@@ -105,7 +114,7 @@ class JobService{
 
     async fetchMonthlyTotal(id){
         if(!id){
-            throw new Error("ID of user is unprovided.", err);
+            throw new Error("ID of user is unprovided. Failed to fetch monthly revenue.");
         }
         try{
             const results = await this.db.query(
@@ -114,12 +123,14 @@ class JobService{
                     WHERE user_id = $1
                     AND created_at >= $2
                     AND created_at < $3
-                    GROUP BY status
+                    GROUP BY status, created_at
                 `, [id, startOfMonth, endOfMonth]
             );
 
+            console.log("Monthly Total:", results.rows);
+
             return {
-                data: results.rows[0].totalValue
+                data: results.rows[0]?.totalValue ?? 0
             };
         }catch(err){
             throw new Error(err.message);

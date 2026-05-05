@@ -10,16 +10,14 @@ class customerInfo{
 
     async getAllCustomerIds(userId){
         if(!userId){
-            throw new Error({
-                message: "Invalid user.",
-                error: err.message
-            });
+            throw new Error("Invalid user. Failed to get all customer Ids.");
         }    
         try{
             const results = await this.db.query(
-                `SELECT customer_id FROM customers WHERE id = $1`,
+                `SELECT id FROM customers WHERE user_id = $1`,
                 [userId]
             );
+
             return {
                 customerIds: results.rows
             };
@@ -34,10 +32,9 @@ class customerService{
         this.db = db;
     }
     async customerDetails(customerIds, userId){
-        if(!userId) throw new Error({
-            message:"Invalid user.", 
-            error: err.message
-        })
+        if(!userId){ 
+            throw new Error("Invalid user. Failed to fetch customer detials.");
+        }
         const cusIds = customerIds.map(customer => customer.id)
         if(!cusIds || customerIds === 0) return { customerInfo: [] };
         try{

@@ -1,13 +1,13 @@
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
-import { decrypt } from "../utils/encrypt.js";
+import { decrypt, encrypt } from "../utils/encrypt.js";
 
 class AuthMiddleware{
     async verifyToken(req, res, next){
         const token = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
 
-        if(!token && !refreshToken){
+        if(!token){
             return res.status(401).json({
                 message: "Unauthorized."
             })
@@ -26,29 +26,44 @@ class AuthMiddleware{
                 //   Followed by storing the new refresh token after hashing it
                 //   Lastly assign the newly generated tokens via cookie
                 try{
-                    const decrypted = await decrypt(refreshToken);
-                    const decoded = Auth.verifyRefresh(decrypted);
+                    const decryptedToken = await decrypt(refreshToken)
+                    const decoded = Auth.verifyRefresh(decryptedToken);
 
-                    const storedToken = await TokenService.getRefreshToken(decoded.payload.id); // Since this token will be encrypted it will need to be decrypted in order to get it's content
+                    // Refresh tokens are stored encrypted
+                    const storedToken = await TokenService.getRefreshToken(decoded.payload.id); 
                      if(!storedToken){
                         return res.status(401).json({ message: "Unauthorized." });
                     }
+                    const decryptedStored = await decrypt(storedToken);
 
-                    const newToken = Auth.sign({ id: decoded.payload.id });
-                    const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
+                    // Validate the tokens match
+                    if(decryptedStored !== decryptedToken){
+                        await TokenService.terminateSession(decoded.payload.id);
+                        res.clearCookie("access_token");
+                        res.clearCookie("refresh_token");
+                        return res.status(401).json({ message: "User is unauthorized." });
+                    }
 
+                    // Once verified rotate token; Delete old token to then generate new token
                     await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
 
-                    // hash the token before storing
-                    await TokenService.storeRefreshToken(decoded.payload.id, newRefreshToken);
 
-                    res.cookie("token", newToken,{
+                    // new tokens are then signed
+                    const newToken = Auth.sign({ id: decoded.payload.id });
+                    const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
+                    const encryptedRefresh = await encrypt(newRefreshToken);
+
+                    // Store new refresh token. Successfully rotating the refresh tokens.
+                    await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
+
+
+                    res.cookie("access_token", newToken,{
                         httpOnly: true,
                         secure: true,
                         sameSite: 'strict',
                         maxAge: 900000 // 15M
                     });
-                    res.cookie("refresh_token", newRefreshToken, {
+                    res.cookie("refresh_token", encryptedRefresh, {
                         httpOnly: true,
                         secure: true,
                         sameSite: "strict",

@@ -1,6 +1,7 @@
 import Auth from "../auth/auth.js";
 import UserService from "../service/db/user.service.js";
 import TokenService from "../service/db/token.service.js";
+import { encrypt, decrypt } from "../utils/encrypt.js";
 import bcrypt from "bcrypt";
 
 class AuthController{
@@ -26,7 +27,8 @@ class AuthController{
             const token = Auth.sign({ id: user.id });
             const refreshToken = Auth.signRefresh({ id: user.id });
 
-            await TokenService.storeRefreshToken(user.id ,refreshToken);
+            const encryptedRefresh = await encrypt(refreshToken);
+            await TokenService.storeRefreshToken(user.id ,encryptedRefresh);
 
             res.cookie("access_token", token,{
                 httpOnly: true,
@@ -34,7 +36,7 @@ class AuthController{
                 sameSite: 'strict',
                 maxAge: 900000 // 15M
             })
-            res.cookie("refresh_token", refreshToken, {
+            res.cookie("refresh_token", encryptedRefresh, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
@@ -74,7 +76,8 @@ class AuthController{
             const token = Auth.sign(user.id);
             const refreshToken = Auth.signRefresh(user.id);
 
-            await TokenService.storeRefreshToken(user.id, refreshToken);
+            const encryptedRefresh = await encrypt(refreshToken);
+            await TokenService.storeRefreshToken(user.id, encryptedRefresh);
 
             res.cookie("access_token", token,{
                 httpOnly: true,
@@ -82,7 +85,7 @@ class AuthController{
                 sameSite: 'strict',
                 maxAge: 900000 // 15M
             })
-            res.cookie("refresh_token", refreshToken, {
+            res.cookie("refresh_token", encryptedRefresh, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
@@ -112,13 +115,15 @@ class AuthController{
             return res.status(401).json({ message: "User is unauthorized." });
         }
         try{
-            const verified = Auth.verifyRefresh(refresh);
+            const decryptedRefresh = await decrypt(refresh);
+            const verified = Auth.verifyRefresh(decryptedRefresh);
             if(!verified){
                 return res.status(401).json({
                     message: "User unauthorized due to invalid token."
                 });
             }
-            await TokenService.deleteRefreshToken(verified.payload.id, refresh);
+            
+            await TokenService.deleteRefreshToken(verified.payload.id, decryptedRefresh);
 
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
@@ -139,7 +144,8 @@ class AuthController{
             return res.status(401).json({ message: "User is unauthorized." })
         }
         try{
-            const verified = Auth.verifyRefresh(refresh);
+            const decryptedRefresh = await decrypt(refresh);
+            const verified = Auth.verifyRefresh(decryptedRefresh);
             if(!verified){
                 return res.status(401).json({ message: "User unauthorized do to invalid token." });
             }
@@ -165,14 +171,12 @@ class AuthController{
             return res.status(401).json({ message: "Unauthorized user." });
         }
         try{
-            const results = await UserService.getUser(userId);
+            const results = await UserService.getUserById(userId);
             if(!results){
                 return res.status(404).json({ message: "Invalid user credentials." });
             }
 
-            const user = results.rows;
-
-            return res.status(200).json({ user });
+            return res.status(200).json({ data: results.rows[0] });
 
         }catch(err){
             return res.status(500).json({

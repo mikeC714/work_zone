@@ -6,14 +6,17 @@ import { Bell, Settings, LogOut } from 'lucide-react';
 
 export function NavBar(){
     const { logoutMutation } = useAuth();
-    const { nameInitials } = useUserContext();
-    const navigate = useNavigate()
+    const { nameInitials, isLoading } = useUserContext();
+    const navigate = useNavigate();
+
+    if(isLoading) return null;
+
     return(
         <nav className='dashboardNav'>
             <div className='navLeft'>
                 <div 
                     className='navLogo' 
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/dashboard')}
                 >
                     <span className='navLogoIcon'>⚡</span> VOLT
                 </div>
