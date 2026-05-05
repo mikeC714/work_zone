@@ -20,31 +20,59 @@ class Auth{
     }
     
     sign(payload){
-        return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
+        try{
+            return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
+        }catch(err){
+            throw err;
+        }        
     }
 
     signRefresh(payload){
-        return jwt.sign({ payload: payload }, this.#refreshSecret, { expiresIn: this.#refreshExpiry });
+        try{
+            return jwt.sign({ payload: payload }, this.#refreshSecret, { expiresIn: this.#refreshExpiry });
+        }catch(err){
+            throw err;
+        }
     }
 
     signEmail(payload){
-        return jwt.sign({ payload: payload }, this.#emailSecret, { expiresIn: this.#emailExpiry});
+        try{
+            return jwt.sign({ payload: payload }, this.#emailSecret, { expiresIn: this.#emailExpiry});
+        }catch(err){
+            throw err;
+        }
     }
         
     verifyEmail(token){
-        return jwt.verify(token, this.#emailSecret);
+        try{
+            return jwt.verify(token, this.#emailSecret);
+        }catch(err){
+            throw err;
+        }
     }
 
     verifyRefresh(token){
-        return jwt.verify(token, this.#refreshSecret);
+        try{
+            return jwt.verify(token, this.#refreshSecret);
+        }catch(err){
+            throw err;
+        }
     }
 
     verify(token){
-        return jwt.verify(token, this.#secret);
+        try{
+            return jwt.verify(token, this.#secret);
+        }catch(err){
+            throw err;
+        }
     }
 
     decode(token){
-        return jwt.decode(token);
+        try{
+            return jwt.decode(token);
+        }catch(err){
+            throw err;
+        }
     }
 }
 

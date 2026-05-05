@@ -43,7 +43,7 @@ class UserService{
         }
         try{
             return await this.#db.query(
-                "SELECT id, email, first_name, last_name FROM users WHERE id = $1",
+                "SELECT id, first_name, last_name FROM users WHERE id = $1",
                 [userId]
             );
         }catch(err){
@@ -72,6 +72,24 @@ class UserService{
             throw new Error("Failed to delete user.", err);
         }
     }
+
+    async flagUser(userId){
+        if(!userId){
+            throw new Error("Failed to terminate session. User id was not provided");
+        }
+        try{
+            await this.#db.query(
+                "UPDATE users SET is_flagged = $1 WHERE id = $2",
+                [true, userId]
+            )
+        }catch(err){
+            throw new Error(err.message);
+        }/*finally{
+           SET UP MESSAGING ONCE FLAG USER IS TRIGGERED SEND EMAIL TO USER ABOUT ACCOUNT BEING FLAGGED 
+           FOR SUSPICIOUS ACITVITY 
+        }*/
+    }
+    
 }
 
 export default new UserService(db);

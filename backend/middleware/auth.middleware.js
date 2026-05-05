@@ -1,6 +1,30 @@
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
+import UserService from "../service/db/user.service.js";
 import { decrypt, encrypt } from "../utils/encrypt.js";
+
+
+class TokenVerify{
+    async validToken(req, res, next){
+        const token = req.cookies.access_token;
+        try{
+            const decoded = await Auth.verify(token);
+            if(!decoded){
+                return res.status(401).json({
+                    error: "Token is invalid."
+                });
+            }
+            if(decoded.exp < Date.now()){
+                return true
+            }
+        }catch(err){
+            return res.status(500).json({
+                error: "Failed to validate token expiry."
+            })
+        }
+    }
+}
+
 
 class AuthMiddleware{
     async verifyToken(req, res, next){
@@ -9,10 +33,9 @@ class AuthMiddleware{
 
         if(!token){
             return res.status(401).json({
-                message: "Unauthorized."
+                error: "Unauthorized user. Failed to provide access token."
             })
         }
-
         try{
             const decoded = Auth.verify(token);
             req.user = decoded;
@@ -34,11 +57,12 @@ class AuthMiddleware{
                      if(!storedToken){
                         return res.status(401).json({ message: "Unauthorized." });
                     }
-                    const decryptedStored = await decrypt(storedToken);
+                    const decryptedStored = await decrypt(storedToken.rows[0]);
 
                     // Validate the tokens match
                     if(decryptedStored !== decryptedToken){
-                        await TokenService.terminateSession(decoded.payload.id);
+                        await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
+                        await UserService.flagUser(decoded.payload.id);
                         res.clearCookie("access_token");
                         res.clearCookie("refresh_token");
                         return res.status(401).json({ message: "User is unauthorized." });

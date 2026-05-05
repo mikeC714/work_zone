@@ -22,8 +22,9 @@ class TokenService{
         }
         try{
             await this.#db.query(
-                "UPDATE tokens SET token = $1 WHERE id = $2 AND expires_at = $3",
-                [token, id, token.exp]
+                `INSERT INTO tokens(user_id, token) 
+                VALUES($1, $2)`,
+                [id, token]
             )
         }catch(err){
             throw new Error(err.message);
@@ -99,8 +100,6 @@ class TokenService{
             throw new Error("Failed to get quote token", err.message);
         }
     }
-
-    
 }
 
 export default new TokenService(db);
