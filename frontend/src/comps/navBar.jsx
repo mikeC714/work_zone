@@ -2,14 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
-import { Bell, Settings, LogOut } from 'lucide-react';
+import { Bell, Settings, LogOut, User } from 'lucide-react';
 
 export function NavBar(){
     const { logoutMutation } = useAuth();
     const { nameInitials, isLoading } = useUserContext();
     const navigate = useNavigate();
-
-    if(isLoading) return null;
 
     return(
         <nav className='dashboardNav'>
@@ -51,7 +49,7 @@ export function NavBar(){
                         onClick={() => navigate('/profile')}    
                     >
                         <h3>
-                            {nameInitials}
+                            { isLoading ? <User /> : nameInitials}
                         </h3>
                     </div>
                 </NavHoverPopUp>

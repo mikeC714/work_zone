@@ -16,7 +16,9 @@ class AuthMiddleware{
         }
 
         if(!token && refreshToken){
-            return this.#handleRefresh(req, res, refreshToken);
+            console.log("Refreshing token. HURRAYYYYYY!")
+            await this.#handleRefresh(req, res, refreshToken);
+            return;
         }
 
         try{
@@ -27,7 +29,7 @@ class AuthMiddleware{
              if(err.name === "TokenExpiredError" && refreshToken) {
             return this.#handleRefresh(req, res, next, refreshToken);
         }
-        return res.status(401).json({ message: "Unauthorized." });
+        return res.status(401).json({ error: err.message });
         }
     }
 
@@ -43,12 +45,12 @@ class AuthMiddleware{
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id); 
              if(!storedToken){
-                return res.status(401).json({ message: "Unauthorized." });
+                return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
-            const decryptedStored = await decrypt(storedToken);
+            const decryptedStored = await decrypt(storedToken.rows[0]);
 
-            console.log("Stored Token:", decryptedStored); // DELETE THIS LATER
             // Validate the tokens match
+            // If not end user session and flag their
             if(decryptedStored !== decryptedToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
                 await UserService.flagUser(decoded.payload.id);
@@ -57,7 +59,35 @@ class AuthMiddleware{
                 return res.status(401).json({ message: "User is unauthorized." });
             }
             // Once verified rotate token; Delete old token to then generate new token
-            await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            /* TESTING CURRENTLY BELIEVE RUNNING INTO RACE CONDITION WITH WHAT I BELIEVE TO BE 
+                FROM REQUESTS COMING IN WHILE ATTEMPTING TO DELETE TOKEN
+                SO A CLAUSE WAS PUT IN PLACE VALIDATING IF THERE WERE ANY DELETED DATA
+                                        |
+                                        V
+            */
+            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            if(!deleted.data){
+                const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
+                const newAccess = Auth.sign({ id: decoded.payload.id });
+
+                res.cookie("access_token", newAccess, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 900000
+                })
+                res.cookie("refresh_token", activeRefresh.rows[0], {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 604800000
+                })
+
+                req.user = decoded;
+                next();
+                return res.status(200).json({ message: "User has received a new token" })
+            };
+
             // new tokens are then signed
             const newToken = Auth.sign({ id: decoded.payload.id });
             const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
@@ -78,8 +108,8 @@ class AuthMiddleware{
             });
             req.user = decoded;
             next();
-        }catch{
-            return res.status(401).json({ message: "Unauthorized." });
+        }catch(err){
+            return res.status(401).json({ error: err.message });
             // res.redirect("/auth");
         }
     }
