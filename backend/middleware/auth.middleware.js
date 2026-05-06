@@ -47,7 +47,6 @@ class AuthMiddleware{
             }
             const decryptedStored = await decrypt(storedToken.rows[0]);
 
-            console.log(decryptedStored); // DELETE THIS LATER
             // Validate the tokens match
             if(decryptedStored !== decryptedToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
@@ -57,7 +56,35 @@ class AuthMiddleware{
                 return res.status(401).json({ message: "User is unauthorized." });
             }
             // Once verified rotate token; Delete old token to then generate new token
-            await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            /* TESTING CURRENTLY BELIEVE RUNNING INTO RACE CONDITION WITH WHAT I BELIEVE TO BE 
+                FROM REQUESTS COMING IN WHILE ATTEMPTING TO DELETE TOKEN
+                SO A CLAUSE WAS PUT IN PLACE VALIDATING IF THERE WERE ANY DELETED DATA
+                                        |
+                                        V
+            */
+            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            if(!deleted.data){
+                const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
+                const newAccess = Auth.sign({ id: decoded.payload.id });
+
+                res.cookie("access_token", newAccess, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 900000
+                })
+                res.cookie("refresh_token", activeRefresh.rows[0], {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 604800000
+                })
+
+                req.user = decoded;
+                next();
+                return res.status(200).json({ message: "User has received a new token" })
+            };
+
             // new tokens are then signed
             const newToken = Auth.sign({ id: decoded.payload.id });
             const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });

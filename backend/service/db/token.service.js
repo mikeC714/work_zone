@@ -39,10 +39,15 @@ class TokenService{
             throw new Error("Unauthorized.");
         }
         try{
-            await this.#db.query(
+            const results = await this.#db.query(
                 "DELETE FROM tokens WHERE token = $1 AND user_id = $2",
                 [token, userId]
             );
+
+            return{
+                data: results.rows > 0 
+            }
+
         }catch(err){
             throw new Error(err.message);
         }
