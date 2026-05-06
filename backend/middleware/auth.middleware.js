@@ -16,7 +16,9 @@ class AuthMiddleware{
         }
 
         if(!token && refreshToken){
-            return this.#handleRefresh(req, res, refreshToken);
+            console.log("Refreshing token. HURRAYYYYYY!")
+            await this.#handleRefresh(req, res, refreshToken);
+            return;
         }
 
         try{
@@ -27,7 +29,7 @@ class AuthMiddleware{
              if(err.name === "TokenExpiredError" && refreshToken) {
             return this.#handleRefresh(req, res, next, refreshToken);
         }
-        return res.status(401).json({ message: "Unauthorized." });
+        return res.status(401).json({ error: err.message });
         }
     }
 
@@ -43,11 +45,12 @@ class AuthMiddleware{
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id); 
              if(!storedToken){
-                return res.status(401).json({ message: "Unauthorized." });
+                return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
             const decryptedStored = await decrypt(storedToken.rows[0]);
 
             // Validate the tokens match
+            // If not end user session and flag their
             if(decryptedStored !== decryptedToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
                 await UserService.flagUser(decoded.payload.id);
@@ -105,8 +108,8 @@ class AuthMiddleware{
             });
             req.user = decoded;
             next();
-        }catch{
-            return res.status(401).json({ message: "Unauthorized." });
+        }catch(err){
+            return res.status(401).json({ error: err.message });
             // res.redirect("/auth");
         }
     }

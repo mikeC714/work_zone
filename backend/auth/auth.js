@@ -12,7 +12,7 @@ class Auth{
     constructor(db){
         this.#db = db;
         this.#secret = process.env.JWT_SECRET;
-        this.#expiry = process.env.JWT_EXPIRY || "1h"; 
+        this.#expiry = process.env.JWT_EXPIRY || "15m"; 
         this.#refreshExpiry = process.env.JWT_REFRESH_EXPIRY || "7d";
         this.#refreshSecret = process.env.JWT_REFRESH_SECRET;
         this.#emailSecret = process.env.EMAIL_TOKEN
@@ -21,7 +21,7 @@ class Auth{
     
     sign(payload){
         try{
-            return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
+            return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry }, { clockTolerance: 30 });
         }catch(err){
             throw err;
         }        
