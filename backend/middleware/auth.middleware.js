@@ -45,9 +45,9 @@ class AuthMiddleware{
              if(!storedToken){
                 return res.status(401).json({ message: "Unauthorized." });
             }
-            const decryptedStored = await decrypt(storedToken.rows[0]);
+            const decryptedStored = await decrypt(storedToken);
 
-            console.log(decryptedStored); // DELETE THIS LATER
+            console.log("Stored Token:", decryptedStored); // DELETE THIS LATER
             // Validate the tokens match
             if(decryptedStored !== decryptedToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
