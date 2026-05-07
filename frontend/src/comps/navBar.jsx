@@ -22,7 +22,7 @@ export function NavBar(){
             <div className='navRight'>
                 <button 
                     className='createQuoteBtn'
-                    onClick={() => navigate('/createQuote')}    
+                    onClick={() => navigate('/create-quote')}    
                 >
                     + New Quote
                 </button>
@@ -72,7 +72,7 @@ export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
             <div className='cqNavLeft'>
                <div 
                     className='navLogo' 
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/dashboard')}
                 >
                     <span className='navLogoIcon'>⚡</span> VOLT
                 </div>

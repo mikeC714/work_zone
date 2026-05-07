@@ -50,7 +50,6 @@ class AuthMiddleware{
              if(!storedToken){
                 return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
-            console.log(typeof(storedToken.rows[0].token));
             const decryptedStored = decrypt(storedToken.rows[0].token);
 
 

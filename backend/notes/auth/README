@@ -62,3 +62,83 @@ Adding a layer of protection to the server from excessive requests
 code it was just (_) underscore.
 * Encryption seems like mandarin I barely understand it definetly need to go a little deeper in
 the topic 
+
+
+
+## May 7, 2026
+
+- Race condition due to my auth middleware, from refreshing the access token while making the protected routes slam their dedicated routes. 
+
+    * WHAT WAS USED 
+        Not sure if it is the cleanest but this is what I came up with
+                        |
+                        V 
+
+            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            console.log(`User ${decoded.payload.id} - deleted: ${deleted.data} - token: ${storedToken}`);
+
+            if(!deleted.data){
+                console.log(`User ${decoded.payload.id} - loser branch hit, reattaching token`);
+                const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
+                const newAccess = Auth.sign({ id: decoded.payload.id });
+
+                res.cookie("access_token", newAccess, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 900000
+                })
+                res.cookie("refresh_token", activeRefresh.rows[0].token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 604800000
+                })
+
+                req.user = decoded;
+                next();
+                return res.status(200).json({ message: "User has received a new token" })
+            };
+
+        Utilizing my Database (postgreSQL) as a guard using it's queue writing. Since all protected request
+        hit the verifyToken simultaneously all 8 requests with the same token Deleting the same token that was already deleted is pysically impossible. So when deleted.data returns false we get the active token that was set by the first condition and use them.
+
+        ## MAIN CONCERN
+
+        * The losers of the race condition are all getting access tokens issued per request.
+        Although since the same credentials are being used making 8 dupes of the same token. Doesn't seem the most ideal. 
+        
+        ### WHAT I MIGHT TRY
+        
+        * If I can find away to use the old access token exp and give it a grace period of another 2 minutes 
+        or so, but refreshing the access token 2 minutes before the grace period all while still utilzing the 
+        old one until the 2 minutes are up. Smoothly transition into the recent stored one
+
+            /* WHAT MIGHT BE NEEDED */
+
+        - Might have to store the newly generated access_token into db. Create new table
+        - Need to find out if a grace period can be used or added to tokens exp
+        - Condition on a unix variable of 15mins 
+            ( 
+                const now = Math.floor(Date.now() / 1000)  -> Will give you the ms
+                const gracePeriod = 2 * 60
+
+                if(token.exp - now < gracePeriod) -> Run condition 
+            )
+        Not sure if it'll work but that's what I can come up with
+
+
+        ### ANANLOGY
+    
+        * Your on a vacation with 5 other people within a large hotel. You're given a key for the room
+        but you forgot putting the key next to your phone can cause the key to deactivate.
+
+        * So you and the 4 others decide to race to see who can get the new key first.
+
+        * You took off first, but your son was faster getting there before anyone else gaining the new valid key (Winner)
+
+        * The rest of the group (you and 2 others) make it to the receptionist with her informing them the new 
+        key was already has been issued and the old one has been deleted (Making them the losers), if they
+        would like to get into their hotel they'll need to use the current key (Token stored within the DB)
+
+ 

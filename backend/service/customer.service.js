@@ -67,6 +67,7 @@ class customerService{
             }
         }
         try{
+            console.log("Quotes From Service:", quotes);
             const quotedJobs = await Promise.all(
                 quotes.map(async quote => {
                     const jobInfo = await JobService.getJobInfo([quote]);
@@ -100,7 +101,7 @@ class customerService{
         }, {})        
     }
 
-    async createQuote(user, customer, quote, labor, materials, createdAt){
+    async createQuote(user, customer, quote, labor, materials){
         try{
             const customerData = await this.db.query(
                 `INSERT INTO customers 
@@ -111,9 +112,9 @@ class customerService{
 
             const quoteData = await this.db.query(
                 `INSERT INTO quotes
-                    (user_id, customer_id, status, markup, total, created_at)
+                    (user_id, customer_id, status, markup, total)
                 VALUES($1, $2, $3, $4, $5, $6, $7)    
-                `, [user.id, customer.id, quote.status, quote.markup, quote.total, createdAt]
+                `, [user.id, customer.id, quote.status, quote.markup, quote.total]
             );
 
             const [
@@ -134,15 +135,15 @@ class customerService{
                 labor.map(labVals => 
                     this.db.query(
                     `INSERT INTO labor
-                        (quote_id, description, hourly_rate, total, created_at)
+                        (quote_id, description, hourly_rate, total)
                     VALUES($1, $2, $3, $4, $5)
-                    `, [quote.id, JSON.stringify(labVals), new Date()]
+                    `, [quote.id, JSON.stringify(labVals)]
                 )),
                 materials.map(matVals =>
                     this.db.query( 
-                    `INSERT INTO quote(quote_id, description, created_at)
+                    `INSERT INTO quote(quote_id, description, )
                     VALUES($1, $2, $3)
-                    `, [quote.id, JSON.stringify(matVals), new Date()]
+                    `, [quote.id, JSON.stringify(matVals)]
                 ))
             ]);
 
