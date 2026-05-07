@@ -39,13 +39,15 @@ class TokenService{
             throw new Error("Unauthorized.");
         }
         try{
+            console.log("Deleting token:",token);
+            
             const results = await this.#db.query(
                 "DELETE FROM tokens WHERE token = $1 AND user_id = $2",
                 [token, userId]
             );
 
             return{
-                data: results.rows > 0 
+                data: results.rows[0] > 0 
             }
 
         }catch(err){
@@ -59,7 +61,7 @@ class TokenService{
         }
         try{
             return await this.#db.query(
-                "SELECT token FROM refresh_tokens WHERE user_id = $1",
+                "SELECT token FROM tokens WHERE user_id = $1",
                 [id]
             );
         }catch(err){

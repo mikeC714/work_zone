@@ -16,9 +16,13 @@ class AuthMiddleware{
         }
 
         if(!token && refreshToken){
-            console.log("Refreshing token. HURRAYYYYYY!")
-            await this.#handleRefresh(req, res, refreshToken);
-            return;
+            try{
+                const decrypted = decrypt(refreshToken);
+                await this.#handleRefresh(req, res, next, decrypted);
+                return;
+            }catch(err){
+                return res.status(500).json({ error: err.message })
+            }
         }
 
         try{
@@ -40,18 +44,19 @@ class AuthMiddleware{
         //   Followed by storing the new refresh token after hashing it
         //   Lastly assign the newly generated tokens via cookie
         try{
-            const decryptedToken = await decrypt(refreshToken)
-            const decoded = Auth.verifyRefresh(decryptedToken);
+            const decoded = Auth.verifyRefresh(refreshToken);
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id); 
              if(!storedToken){
                 return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
-            const decryptedStored = await decrypt(storedToken.rows[0]);
+            console.log(typeof(storedToken.rows[0].token));
+            const decryptedStored = decrypt(storedToken.rows[0].token);
+
 
             // Validate the tokens match
             // If not end user session and flag their
-            if(decryptedStored !== decryptedToken){
+            if(decryptedStored !== refreshToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
                 await UserService.flagUser(decoded.payload.id);
                 res.clearCookie("access_token");
@@ -66,7 +71,10 @@ class AuthMiddleware{
                                         V
             */
             const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            console.log(`User ${decoded.payload.id} - deleted: ${deleted.data} - token: ${storedToken}`);
+
             if(!deleted.data){
+                console.log(`User ${decoded.payload.id} - loser branch hit, reattaching token`);
                 const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
                 const newAccess = Auth.sign({ id: decoded.payload.id });
 
@@ -76,7 +84,7 @@ class AuthMiddleware{
                     sameSite: 'strict',
                     maxAge: 900000
                 })
-                res.cookie("refresh_token", activeRefresh.rows[0], {
+                res.cookie("refresh_token", activeRefresh.rows[0].token, {
                     httpOnly: true,
                     secure: true,
                     sameSite: 'strict',
@@ -109,8 +117,10 @@ class AuthMiddleware{
             req.user = decoded;
             next();
         }catch(err){
-            return res.status(401).json({ error: err.message });
+            // console.log('FULL ERROR:', err);
+            // console.log('STACK:', err.stack);
             // res.redirect("/auth");
+            return res.status(500).json({ error: err.message });
         }
     }
 }

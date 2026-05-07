@@ -21,7 +21,7 @@ class Auth{
     
     sign(payload){
         try{
-            return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry }, { clockTolerance: 30 });
+            return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
         }catch(err){
             throw err;
         }        

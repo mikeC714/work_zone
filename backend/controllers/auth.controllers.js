@@ -27,7 +27,7 @@ class AuthController{
             const token = Auth.sign({ id: user.id });
             const refreshToken = Auth.signRefresh({ id: user.id });
 
-            const encryptedRefresh = await encrypt(refreshToken);
+            const encryptedRefresh = encrypt(refreshToken);
             await TokenService.storeRefreshToken(user.id ,encryptedRefresh);
 
             res.cookie("access_token", token,{
@@ -76,7 +76,7 @@ class AuthController{
             const token = Auth.sign(user.id);
             const refreshToken = Auth.signRefresh(user.id);
 
-            const encryptedRefresh = await encrypt(refreshToken);
+            const encryptedRefresh = encrypt(refreshToken);
             await TokenService.storeRefreshToken(user.id, encryptedRefresh);
 
             res.cookie("access_token", token,{

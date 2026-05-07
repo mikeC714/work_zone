@@ -16,7 +16,6 @@ class UserService{
                 "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
                 [firstName, lastName, email, password]
             );
-            console.log(newUser);
             return newUser.rows[0]; 
         }catch(err){
             throw new Error(err.message);
@@ -66,7 +65,7 @@ class UserService{
 
             await this.db.query(
                 `DELETE FROM users WHERE userId = $1`,
-                [userId]
+                [user.rows[0].id]
             );
         }catch(err){
             throw new Error("Failed to delete user.", err);

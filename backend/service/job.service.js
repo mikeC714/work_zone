@@ -8,7 +8,6 @@ class JobService{
 
     async getJobInfo(quotes){
         if(!quotes){
-            console.log("Quote Ids: []")
             return { data: [] };
         }
         try{
@@ -25,8 +24,6 @@ class JobService{
                 WHERE quote_id = ANY ($1)
                 `, [quoteIds]
             );
-
-            console.log("Quote IDs:",results.rows);
 
             return {
                 data: results.rows
@@ -51,8 +48,6 @@ class JobService{
                 `, [id, startOfMonth, endOfMonth]
             );
 
-            console.log("Completed Jobs:", results.rows);
-
             return {
                 data: results.rows
             }
@@ -75,9 +70,6 @@ class JobService{
                     AND status != 'Completed'::status_type
                 `, [id, startOfMonth, endOfMonth]
             );
-            console.log(results.rows);
-
-            console.log("Unpaid Jobs:", results.rows);
 
             return {
                 data: results.rows
@@ -102,7 +94,6 @@ class JobService{
                 `,[id, startOfMonth, endOfMonth] 
             );
             
-            console.log("Active Jobs:", results.rows);
 
             return {
                 data: results.rows
@@ -126,8 +117,6 @@ class JobService{
                     GROUP BY status, created_at
                 `, [id, startOfMonth, endOfMonth]
             );
-
-            console.log("Monthly Total:", results.rows);
 
             return {
                 data: results.rows[0]?.totalValue ?? 0
