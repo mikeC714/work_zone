@@ -31,12 +31,16 @@ class CustomerControllers{
             const offset = (page -1) * limit;
             
             const { customers } = await CustomerInfo.getAllCustomerInfo(user.payload.id);
+            console.log("CUSTOMERS",customers)
+
             const totalCustomers = customers.length;
             const paginatedCustomers = customers.slice(offset, offset + limit);
 
-            console.log("CUSTOMERS:",customers);
+            console.log("PAGINATED CUSTOMERS:",paginatedCustomers);
             
             const quoteDetails = await QuoteService.getQuoteInfo(paginatedCustomers, user.payload.id)
+
+            
 
             console.log("QUOTE DETAILS:",quoteDetails);
 
@@ -50,7 +54,7 @@ class CustomerControllers{
             // console.log("Chunk of customers:" ,paginatedCustomers);
             // console.log("Job Data:", jobDetails.data);
             
-            const c = customers.map(customer => {
+            const cusData = customers.map(customer => {
                 console.log([...customer]);
                 return{
                     ...customer,
@@ -65,10 +69,10 @@ class CustomerControllers{
 
             return res.status(200).json({
                 success: true,
-                customers,
+                cusData,
                 paginated: {
                     paginatedCustomers,
-                    customersLength,
+                    totalCustomers,
                     page,
                     limit,
                     totalPages : Math.ceil(totalCustomers / limit),

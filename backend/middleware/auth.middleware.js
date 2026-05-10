@@ -71,7 +71,7 @@ class AuthMiddleware{
                                         |
                                         V
             */
-            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
+            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id, decryptedStored);
 
             if(!deleted.data){
                 const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);

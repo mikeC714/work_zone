@@ -14,8 +14,6 @@ export function Dashboard(){
         setSearchFilter(e.target.value);
     }
 
-    console.log(filteredData);
-
     return(
         <div className='dashboardPage'>
             <NavBar />
