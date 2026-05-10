@@ -1,19 +1,16 @@
-import { quickAccessQueries } from "../../hooks/quickAccess.hooks.jsx";
-import { useQueries } from "@tanstack/react-query";
+import { useQuickAccess} from "../../hooks/quickAccess.hooks.jsx";
 
 export function QuickAccess(){
-    const quickAccessData = useQueries({ queries: quickAccessQueries })
-    const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
-    const isLoading = quickAccessData.some(data => data.isLoading)
-    const isError = quickAccessData.some(data => data.isError);
+    const { data, isLoading, isError } = useQuickAccess();
 
+    
     
     return (
         <div className='statCardsGrid'>
             <div className='statCardWrapper'>
                 <StatCard
                     title="ACTIVE JOBS"
-                    value={activeJobs}
+                    value={data?.activeJobs?.data || 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -22,7 +19,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="MONTHLY REVENUE"
-                    value={`$ ${monthlyRevenue}`}
+                    value={`$ ${data?.monthlyTotal?.data}`}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -31,7 +28,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="UNPAID QUOTES"
-                    value={unpaidJobs}
+                    value={data?.unpaidJobs?.data || 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -40,7 +37,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                <StatCard
                     title="COMPLETED JOBS"
-                    value={completedJobs}
+                    value={data?.completedJobs?.data || 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -60,7 +57,7 @@ function StatCard({ title, value, isLoading, isError, subtitle }) {
       ) : isError ? (
         <p className='statCardValue'>—</p>
       ) : (
-        <p className='statCardValue'>{value ?? 0}</p>
+        <p className='statCardValue'>{value.length === 0 ? 0 : value}</p>
       )}
       {subtitle && <span className='statCardSubtitle'>{subtitle}</span>}
     </div>

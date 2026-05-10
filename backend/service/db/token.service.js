@@ -1,7 +1,7 @@
 import { encrypt, decrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
 
-class TokenService{
+export class TokenService{
     #db
     constructor(db){
         this.#db = db;
@@ -39,7 +39,6 @@ class TokenService{
             throw new Error("Unauthorized.");
         }
         try{
-            console.log("Deleting token:",token);
             
             const results = await this.#db.query(
                 "DELETE FROM tokens WHERE token = $1 AND user_id = $2",
@@ -65,7 +64,7 @@ class TokenService{
                 [id]
             );
         }catch(err){
-            throw new Error("Failed to get user's token.", err.message)
+            throw new Error("Failed to fetch user's token.",err.message)
         }
     }
 
@@ -109,4 +108,6 @@ class TokenService{
     }
 }
 
-export default new TokenService(db);
+
+
+export default new TokenService(db)

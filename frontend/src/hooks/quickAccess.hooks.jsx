@@ -1,9 +1,20 @@
+import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js";
 
- export const quickAccessQueries = [
-            { queryKey:['monthlyRevenue'], queryFn: async() => { const data = await apiFetch(`http://${config.SERVER}/api/monthly-revenue`);  return data.data.data },  staleTime: 1000 * 60 * 5},
-            { queryKey:['completedJobs'], queryFn: async() =>{ const data = await apiFetch(`http://${config.SERVER}/api/completed-jobs`); return data.data.data.length },  staleTime: 1000 * 60 * 5},
-            { queryKey:['activeJobs'], queryFn: async() => { const data = await apiFetch(`http://${config.SERVER}/api/active-jobs`); return data.data.data.length },  staleTime: 1000 * 60 * 5},
-            { queryKey:['unpaidJobs'], queryFn: async() => { const data = await apiFetch(`http://${config.SERVER}/api/unpaid-jobs`); return data.data.data.length },  staleTime: 1000 * 60 * 5},
-        ]
+export function useQuickAccess(){
+    const { data, isLoading, isSuccess, isError, error } = useQuery({
+        queryKey: ["quick_access"],
+        queryFn: async () => await apiFetch(`http://${config.SERVER}/api/quick-access`, "GET"),
+        staleTime: 1000 * 60 * 20,
+    })
+    if(isError){
+        throw new Error(error.message);
+    }
+    return {
+        data,
+        isLoading, 
+        isSuccess,
+        isError
+    }
+}

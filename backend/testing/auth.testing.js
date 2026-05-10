@@ -1,40 +1,32 @@
-import { AuthService } from "../service/auth.service.js";
+import { describe, it, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
+import db from "../config/postgresql.config.js"; // ✅ your existing connection
+import TokenService from "../service/db/token.service.js";
+import { decrypt } from '../utils/encrypt.js';
 
-const fakeLogin = {
-    auth: {
-        signInWithPassword: () => ({ 
-            data: {email: 'FakeEmail@email.com', password: 'zxcvbnm'},
-            error: null
-        })
-    }
-}
+const userId = "070f2f6c-6d3f-485a-9b32-fa63fc5291b3"
 
-const fakeSignOut = {
-    auth: {
-        signOut: () => ({
-            error: null
-        })
-    }
-}
+const t = TokenService.getRefreshToken(userId);
+const token = t.rows;
+console.log(token)
 
-const fakeSignup = {
-    auth:{
-        signUp: () => ({
-            data: ({email: 'fakeEamil@email.com', password: 'abc123',
-                options: [
-                    'joeMama'
-                ]
-            })
-        })
-    }
-}
+// describe('TokenService', () => {
 
+//     it("deletes a user's token", async () => {
+        
+//         const result = await TokenService.deleteRefreshToken( userId, token);
 
-const testLogin = new AuthService(fakeLogin)
-const testSignup = new AuthService(fakeSignup)
+//         assert.strictEqual(result, true);
 
+//         const { rows } = await db.query(
+//             'SELECT * FROM tokens WHERE token = $1 AND user_id = $2', [token, userId]
+//         );
+//         assert.strictEqual(rows.length, 0);
+//     });
 
-console.log(testLogin.login('FakeEmail@email.com', 'zxcvbnm'));
-console.log(testSignup.signUp('fakeEamil@email.com', 'abc123', ['joeMama']))
+//     it('returns false if token does not exist', async () => {
+//         const result = await TokenService.deleteRefreshToken(userId, token);
+//         assert.strictEqual(result, false);
+//     });
 
-
+// });

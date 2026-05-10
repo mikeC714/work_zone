@@ -1,17 +1,20 @@
 import { startOfMonth, endOfMonth } from "../utils/date.js";
 import db from "../config/postgresql.config.js";
 
+
 class JobService{
     constructor(db){
         this.db = db;
     }
+
+    
 
     async getJobInfo(quotes){
         if(!quotes){
             return { data: [] };
         }
         try{
-            const quoteIds = quotes.map(qts => qts.id);
+            const quoteIds = quotes.data.map(qts => qts.id);
             console.log("Quote Ids:", quoteIds)
 
             const results = await this.db.query(
@@ -103,7 +106,7 @@ class JobService{
         }
     }
 
-    async fetchMonthlyTotal(id){
+    async getMonthlyTotal(id){
         if(!id){
             throw new Error("ID of user is unprovided. Failed to fetch monthly revenue.");
         }

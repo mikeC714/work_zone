@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { NavBar } from '../comps/navBar.jsx';
-import { quickAccessQueries } from '../hooks/quickAccess.hooks.jsx';
+import { useQuickAccess } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
 import { useNotiHook } from '../hooks/notifications.hooks.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
@@ -182,11 +182,13 @@ export function ProfilePage() {
     const { firstName, lastName, nameInitials } = useUserContext()
     const fullName = firstName + " " + lastName
 
-    const quickAccessData = useQueries({ queries: quickAccessQueries })
-    const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
-    const isLoading = quickAccessData.some(data => data.isLoading)
-    const isError = quickAccessData.some(data => data.isError);
+    // const quickAccessData = useQueries({ queries: quickAccessQueries })
+    // const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
+    // const isLoading = quickAccessData.some(data => data.isLoading)
+    // const isError = quickAccessData.some(data => data.isError);
     
+
+    const { data, isLoading, isError } = useQuickAccess();
 
     return (
         <div className='profilePage'>
@@ -217,21 +219,21 @@ export function ProfilePage() {
                 <div className='profileStatsRow'>
                     <ProfileCard
                         icon={<Briefcase />}
-                        value={activeJobs}
+                        value={data.activeJobs}
                         isLoading={isLoading}
                         isError={isError}
                         label='ACTIVE JOBS'
                     /> 
                     <ProfileCard
                         icon={<BookCheck />}
-                        value={completedJobs}
+                        value={data.completedJobs}
                         isLoading={isLoading}
                         isError={isError}
                         label='COMPLETED JOBS'
                      />
                     <ProfileCard
                         icon={<HandCoins />}
-                        value={`$ ${monthlyRevenue}`}
+                        value={`$ ${data.monthlyRevenue}`}
                         isLoading={isLoading}
                         isError={isError}
                         label='MONTHLY REVENUE'

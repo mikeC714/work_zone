@@ -1,3 +1,4 @@
+import { decode } from "jsonwebtoken";
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
 import UserService from "../service/db/user.service.js";
@@ -8,13 +9,14 @@ class AuthMiddleware{
     verifyToken = async(req, res, next) => {
         const token = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
-
+        
+        
         if(!token && !refreshToken){
-            return res.status(401).json({
-                error: "Unauthorized user. Failed to provide token."
+            return res.status(401).json({ 
+                error: "Unauthorized user. Failed to provide token." 
             })
         }
-
+        
         if(!token && refreshToken){
             try{
                 const decrypted = decrypt(refreshToken);
@@ -24,14 +26,15 @@ class AuthMiddleware{
                 return res.status(500).json({ error: err.message })
             }
         }
-
+        
         try{
+            const decrypted = decrypt(refreshToken);
             const decoded = Auth.verify(token);
             req.user = decoded;
             next();
         }catch(err){
              if(err.name === "TokenExpiredError" && refreshToken) {
-            return this.#handleRefresh(req, res, next, refreshToken);
+            return this.#handleRefresh(req, res, next, decrypted);
         }
         return res.status(401).json({ error: err.message });
         }
@@ -45,13 +48,15 @@ class AuthMiddleware{
         //   Lastly assign the newly generated tokens via cookie
         try{
             const decoded = Auth.verifyRefresh(refreshToken);
+            console.log("1) DECODED:", decoded);
             // Refresh tokens are stored encrypted
-            const storedToken = await TokenService.getRefreshToken(decoded.payload.id); 
+            const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
+            console.log("2) GETTING STORED TOKEN:", storedToken); 
              if(!storedToken){
                 return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
             const decryptedStored = decrypt(storedToken.rows[0].token);
-
+            console.log("3) DECRYPTING STORED:", decryptedStored);
 
             // Validate the tokens match
             // If not end user session and flag their
@@ -70,10 +75,10 @@ class AuthMiddleware{
                                         V
             */
             const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
-            console.log(`User ${decoded.payload.id} - deleted: ${deleted.data} - token: ${storedToken}`);
+            console.log("4) DELETING OLD TOKEN:", deleted.data);
 
             if(!deleted.data){
-                console.log(`User ${decoded.payload.id} - loser branch hit, reattaching token`);
+                console.log("5) LOSER BRANCH:", deleted.data);
                 const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
                 const newAccess = Auth.sign({ id: decoded.payload.id });
 
@@ -91,17 +96,19 @@ class AuthMiddleware{
                 })
 
                 req.user = decoded;
-                next();
-                return res.status(200).json({ message: "User has received a new token" })
+                return next();
             };
 
             // new tokens are then signed
             const newToken = Auth.sign({ id: decoded.payload.id });
             const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
+            console.log(`6) GENERATE NEW TOKENS:   ACCESS:${newToken},   REFRESH:${newRefreshToken}`)
+
             const encryptedRefresh = await encrypt(newRefreshToken);
+            console.log("7) ENCRYPTING REFRESH TOKEN:", encryptedRefresh);
             // Store new refresh token. Successfully rotating the refresh tokens.
-            await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
-            res.cookie("access_token", newToken,{
+            const awaitingStorage = await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
+            console.log("8) STORING REFRESH TOKEN:", awaitingStorage);            res.cookie("access_token", newToken,{
                 httpOnly: true,
                 secure: true,
                 sameSite: 'strict',

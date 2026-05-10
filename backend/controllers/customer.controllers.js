@@ -30,28 +30,27 @@ class CustomerControllers{
             const limit = parseInt(req.query.limit) || 20;
             const offset = (page -1) * limit;
             
-            console.log("Page:" ,page)
-            console.log("Limit:" ,limit)
-            console.log("Offset:",offset)
+            const { customers } = await CustomerInfo.getAllCustomerInfo(user.payload.id);
+            const totalCustomers = customers.length;
+            const paginatedCustomers = customers.slice(offset, offset + limit);
+
+            console.log("CUSTOMERS:",customers);
             
-            const { customerIds } = await CustomerInfo.getAllCustomerIds(user.payload.id);
-            console.log("Customer Ids:", [customerIds]);
+            const quoteDetails = await QuoteService.getQuoteInfo(paginatedCustomers, user.payload.id)
 
-            const totalCustomers = customerIds.length;
-            console.log("Total Customers: ",totalCustomers);
+            console.log("QUOTE DETAILS:",quoteDetails);
 
-            const paginatedCustomers = customerIds.slice(offset, offset + limit);
-            console.log("Chunk of customers:" ,paginatedCustomers);
-
-            const [ quoteDetails, customerDetails ] = await Promise.all([
-                QuoteService.getQuoteInfo(paginatedCustomers, user.payload.id)
-            ]);
-            
             const jobDetails = await JobService.getJobInfo(quoteDetails);
 
-            console.log("Job Data:", jobDetails.data);
-
-            const customers = customerDetails.map(customer => {
+            // console.log("Page:" ,page)
+            // console.log("Limit:" ,limit)
+            // console.log("Offset:",offset)
+            // console.log("Customer Ids:", [customerIds]);
+            // console.log("Total Customers: ",totalCustomers);
+            // console.log("Chunk of customers:" ,paginatedCustomers);
+            // console.log("Job Data:", jobDetails.data);
+            
+            const c = customers.map(customer => {
                 console.log([...customer]);
                 return{
                     ...customer,

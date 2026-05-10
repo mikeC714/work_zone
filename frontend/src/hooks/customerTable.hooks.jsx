@@ -5,15 +5,18 @@ import config from "../config.js"
 
 export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 20}){
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['customers', page, limit],
-        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=page=${page}&limit=${limit}`),
+        queryKey: ['customers', page, limit], 
+        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,
         retry: false
     })
     
+    console.log(data?.paginated?.totalCustomers);
+    console.log("TYPEOF DATA",typeof(data));
+
     const filteredData = useMemo(() => {
-        let result = data?.paginated?.totalCustomers ?? {};
+        let result = data?.paginated?.totalCustomers ?? [];
 
         if (activeFilter !== 'ALL') {
             result = result.map(cus => ({
@@ -39,7 +42,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
 
     }, [data, activeFilter, searchFilter]);
 
-    console.log(data, filteredData)
+    console.log(data?.paginated, filteredData)
 
     return { 
         filterdData: filteredData || {},

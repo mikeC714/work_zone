@@ -25,6 +25,30 @@ class customerInfo{
             throw new Error(`Failed to fetch all customer ids:${err.message}.`)
         }
     }
+
+    async getAllCustomerInfo(userId){
+        if(!userId){
+            throw new Error("Invalid user. Failed to fetch all customer info.");
+        }
+        try{
+            const results = await this.db.query(
+                `SELECT * FROM customers WHERE user_id = $1`,
+                [userId]
+            );
+            if(!results){
+                return {
+                    data: []
+                }
+            }
+
+            return{
+                customers: results.rows
+            }
+            
+        }catch(err){
+
+        }
+    }
 }
 
 class customerService{
