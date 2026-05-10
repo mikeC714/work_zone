@@ -48,15 +48,12 @@ class AuthMiddleware{
         //   Lastly assign the newly generated tokens via cookie
         try{
             const decoded = Auth.verifyRefresh(refreshToken);
-            console.log("1) DECODED:", decoded);
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
-            console.log("2) GETTING STORED TOKEN:", storedToken); 
              if(!storedToken){
                 return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
             }
             const decryptedStored = decrypt(storedToken.rows[0].token);
-            console.log("3) DECRYPTING STORED:", decryptedStored);
 
             // Validate the tokens match
             // If not end user session and flag their
@@ -75,10 +72,8 @@ class AuthMiddleware{
                                         V
             */
             const deleted = await TokenService.deleteRefreshToken(decoded.payload.id ,storedToken);
-            console.log("4) DELETING OLD TOKEN:", deleted.data);
 
             if(!deleted.data){
-                console.log("5) LOSER BRANCH:", deleted.data);
                 const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
                 const newAccess = Auth.sign({ id: decoded.payload.id });
 
@@ -96,7 +91,6 @@ class AuthMiddleware{
                 })
 
                 req.user = decoded;
-                return next();
             };
 
             // new tokens are then signed
@@ -107,8 +101,10 @@ class AuthMiddleware{
             const encryptedRefresh = await encrypt(newRefreshToken);
             console.log("7) ENCRYPTING REFRESH TOKEN:", encryptedRefresh);
             // Store new refresh token. Successfully rotating the refresh tokens.
-            const awaitingStorage = await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
-            console.log("8) STORING REFRESH TOKEN:", awaitingStorage);            res.cookie("access_token", newToken,{
+            await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
+            console.log("8) STORING REFRESH TOKEN");            
+            
+            res.cookie("access_token", newToken,{
                 httpOnly: true,
                 secure: true,
                 sameSite: 'strict',

@@ -141,4 +141,17 @@ the topic
         key was already has been issued and the old one has been deleted (Making them the losers), if they
         would like to get into their hotel they'll need to use the current key (Token stored within the DB)
 
+
+## May 10, 2026 3:11 AM
+
+    * ABOUT TIMEEE. Finally fixed the issue with the refresh toknes. It was due to useless queries, and race conditions occuring on the protected routes demanding for the authorized user.
+
+        ** HOW THE ISSUE WAS RESOLVED
+            - Added a condition that is used to monitor the results boolean wether the rows > 0
+            - With the boolean I am able to write an if statement for the loser conditions 
+            ("the condition(s) that wasn't first to execute") were issued an access token and their newly stored refresh from the first condition.
+            Now what has me concerned and it may be due to my own incomptence I am from what it seems creating two access_tokens
+            although I am using the same exact credentials don't know if there is a work around or a simpiler solution,
+            but for not it works that's all that really matters currently.
+            
  

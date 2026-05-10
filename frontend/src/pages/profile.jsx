@@ -219,28 +219,28 @@ export function ProfilePage() {
                 <div className='profileStatsRow'>
                     <ProfileCard
                         icon={<Briefcase />}
-                        value={data.activeJobs}
+                        value={data?.activeJobs?.data}
                         isLoading={isLoading}
                         isError={isError}
                         label='ACTIVE JOBS'
                     /> 
                     <ProfileCard
                         icon={<BookCheck />}
-                        value={data.completedJobs}
+                        value={data?.completedJobs?.data}
                         isLoading={isLoading}
                         isError={isError}
                         label='COMPLETED JOBS'
                      />
                     <ProfileCard
                         icon={<HandCoins />}
-                        value={`$ ${data.monthlyRevenue}`}
+                        value={`$ ${data?.monthlyTotal?.data}`}
                         isLoading={isLoading}
                         isError={isError}
                         label='MONTHLY REVENUE'
                      />
                     <ProfileCard
                         icon={<Star />}
-                        value={null}
+                        value={0}
                         isLoading={isLoading}
                         isError={isError}
                         label='MEMBER SINCE'
@@ -276,7 +276,7 @@ function ProfileCard({ icon, value, label, isLoading, isError }){
             ): isError ? (
                 <span className="profileStatValue">—</span>
             ): (
-                <span className="profileStatValue">{value ?? 0}</span>
+                <span className="profileStatValue">{value.length === 0 ? 0 : value}</span>
             )}
             {label && <span className='profileStatLabel'>{label}</span>}
         </div>
