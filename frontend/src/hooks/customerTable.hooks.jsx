@@ -13,10 +13,9 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
     })
     
     console.log(data?.paginated?.totalCustomers);
-    console.log("TYPEOF DATA",typeof(data));
 
     const filteredData = useMemo(() => {
-        let result = data?.paginated?.totalCustomers ?? [];
+        let result = data?.paginated?.paginatedCustomers ?? [];
 
         if (activeFilter !== 'ALL') {
             result = result.map(cus => ({
@@ -25,7 +24,6 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
                         qt.status === activeFilter.toLowerCase().replace(' ', '_')
                     )
                 }))
-                .filter(cus => cus.quote.length > 0);
         }
 
         if (searchFilter.trim() !== '') {
@@ -45,7 +43,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
     console.log(data?.paginated, filteredData)
 
     return { 
-        filterdData: filteredData || {},
+        filteredData: filteredData || {},
         customers: data?.customers || [], 
         isLoading, 
         isError, 

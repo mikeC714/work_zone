@@ -14,14 +14,14 @@ export function Dashboard(){
         setSearchFilter(e.target.value);
     }
 
-    console.log(filteredData)
+    console.log(filteredData);
 
     return(
         <div className='dashboardPage'>
             <NavBar />
             <div className='dashboardBody'>
 
-            {/* {isLoading ? When loading is true render the skeleton display over the current model} */}
+            
                 <div className='quickAccessContainer'>
                     <QuickAccess />
                 </div>

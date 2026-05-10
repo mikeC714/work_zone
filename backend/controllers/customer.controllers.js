@@ -67,7 +67,8 @@ class CustomerControllers{
                 success: true,
                 customers,
                 paginated: {
-                    totalCustomers,
+                    paginatedCustomers,
+                    customersLength,
                     page,
                     limit,
                     totalPages : Math.ceil(totalCustomers / limit),

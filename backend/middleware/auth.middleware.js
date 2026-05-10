@@ -56,7 +56,7 @@ class AuthMiddleware{
             const decryptedStored = decrypt(storedToken.rows[0].token);
 
             // Validate the tokens match
-            // If not end user session and flag their
+            // If not end user session and flag their acc
             if(decryptedStored !== refreshToken){
                 await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
                 await UserService.flagUser(decoded.payload.id);
@@ -96,13 +96,11 @@ class AuthMiddleware{
             // new tokens are then signed
             const newToken = Auth.sign({ id: decoded.payload.id });
             const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
-            console.log(`6) GENERATE NEW TOKENS:   ACCESS:${newToken},   REFRESH:${newRefreshToken}`)
 
             const encryptedRefresh = await encrypt(newRefreshToken);
-            console.log("7) ENCRYPTING REFRESH TOKEN:", encryptedRefresh);
+
             // Store new refresh token. Successfully rotating the refresh tokens.
-            await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);
-            console.log("8) STORING REFRESH TOKEN");            
+            await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);            
             
             res.cookie("access_token", newToken,{
                 httpOnly: true,
