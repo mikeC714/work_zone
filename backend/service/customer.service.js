@@ -32,8 +32,11 @@ class customerInfo{
         }
         try{
             const results = await this.db.query(
-                `SELECT * FROM customers WHERE user_id = $1`,
-                [userId]
+                `SELECT * FROM customers 
+                WHERE user_id = $1
+                ORDER BY created_at
+                LIMIT 20 OFFSET 20
+                `,[userId]
             );
             if(!results){
                 return {
