@@ -110,7 +110,7 @@ class AuthMiddleware{
             return res.status(500).json({ error: err.message });
         }finally{
             release();
-            this.#mutexMap.delete(decoded.payload.id)
+            AuthMiddleware.#mutexMap.delete(decoded.payload.id)
         }
     }
 
