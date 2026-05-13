@@ -6,7 +6,7 @@ const options = {
     method,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    ...(body && {body: JSON.stringify(body)})
+    ...(body && {body: JSON.stringify(body)}),
   };
   
     const res = await fetch(url, options);

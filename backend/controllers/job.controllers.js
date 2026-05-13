@@ -3,7 +3,7 @@ import JobService from "../service/job.service.js";
 class JobControllers{
 
     async allJobData(req,res){
-        const user = req.user;    
+        const user = req.user;
         try{
             const [
                 completedJobs,

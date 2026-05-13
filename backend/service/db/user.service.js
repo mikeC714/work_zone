@@ -1,4 +1,5 @@
 import { encrypt } from "../../utils/encrypt.js";
+import bcrypt from "bcrypt";
 import db from "../../config/postgresql.config.js";
 
 class UserService{
@@ -16,6 +17,9 @@ class UserService{
                 "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
                 [firstName, lastName, email, password]
             );
+
+            console.log("NEW USER:", newUser.rows)
+
             return newUser.rows[0]; 
         }catch(err){
             throw new Error(err.message);
@@ -55,20 +59,19 @@ class UserService{
             throw new Error("Invalid user.");
         }
         try{
-            const user = await this.db.query(
+            const user = await this.#db.query(
                 `SELECT id FROM users WHERE id = $1`
                 ,[userId]
             );
             if(user.rows.length === 0){
                 throw new Error("Invalid user.");
             }
-
-            await this.db.query(
-                `DELETE FROM users WHERE userId = $1`,
+            await this.#db.query(
+                `DELETE FROM users WHERE id = $1`,
                 [user.rows[0].id]
             );
         }catch(err){
-            throw new Error("Failed to delete user.", err);
+            throw new Error(err.message);
         }
     }
 
@@ -87,6 +90,33 @@ class UserService{
            SET UP MESSAGING ONCE FLAG USER IS TRIGGERED SEND EMAIL TO USER ABOUT ACCOUNT BEING FLAGGED 
            FOR SUSPICIOUS ACITVITY 
         }*/
+    }
+
+    async validatePassword(userId, password){
+        if(!userId){
+            throw new Error("Invalid user.");
+        }
+        if(!password){
+            throw new Error("Failed to provide a valid password.");
+        }
+        try{
+            const pass = await this.#db.query(
+                `SELECT password FROM users WHERE id = $1`,
+                [userId]
+            );
+            if(pass.rows.length ===  0){
+                throw new Error("Invalid user");
+            }
+
+            const valid = await bcrypt.compare(password, pass.rows[0].password);
+            if(!valid){
+                throw new Error("Invalid credentials. Failed to provide a valid password.");
+            }
+
+            return true
+        }catch(err){
+            throw new Error(err.message);
+        }
     }
     
 }

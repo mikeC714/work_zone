@@ -41,10 +41,11 @@ export function useAuth() {
 
     const deleteMutation = useMutation({
         mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/delete`, `DELETE`, credentials),
-        onSuccess: () => console.log(`Successfully Deleted`),
+        onSuccess: () => navigate("/auth"),
         onError: (error) => console.error(error.message)
-
+        
     })
+    
 
     return { loginMutation, signupMutation, logoutMutation, deleteMutation };
 }

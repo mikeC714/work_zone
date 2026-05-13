@@ -83,7 +83,7 @@ function Overview() {
 }
 
 function Account(){
-    const [password, setPassword] = useState('')
+    const [password, setPassword] = useState("")
     const { deleteMutation } = useAuth();
 
     return (
@@ -100,7 +100,7 @@ function Account(){
                 />
                {deleteMutation.isError && <p>{deleteMutation.error.message}</p>}
                 <button 
-                    onClick={() => deleteMutation.mutate(password)}
+                    onClick={() => deleteMutation.mutate({ password })}
                     disabled={deleteMutation.isPending}
                 >
                     {deleteMutation.isPending ? 'DELETING...' : 'DELETE ACCOUNT'}

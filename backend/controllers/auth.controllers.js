@@ -73,8 +73,8 @@ class AuthController{
 
             const user = await UserService.storeNewUser(firstName, lastName, email, safePass);
 
-            const token = Auth.sign(user.id);
-            const refreshToken = Auth.signRefresh(user.id);
+            const token = Auth.sign({id: user.id });
+            const refreshToken = Auth.signRefresh({id: user.id});
 
             const encryptedRefresh = encrypt(refreshToken);
             await TokenService.storeRefreshToken(user.id, encryptedRefresh);
@@ -115,7 +115,7 @@ class AuthController{
             return res.status(401).json({ message: "User is unauthorized." });
         }
         try{
-            const decryptedRefresh = await decrypt(refresh);
+            const decryptedRefresh = decrypt(refresh);
             const verified = Auth.verifyRefresh(decryptedRefresh);
             if(!verified){
                 return res.status(401).json({
@@ -123,12 +123,12 @@ class AuthController{
                 });
             }
             
-            await TokenService.deleteRefreshToken(verified.payload.id, decryptedRefresh);
+            await TokenService.deleteRefreshToken(verified.payload.id, refresh);
 
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
 
-            return res.status(200).json({ message: `${verified.payload.id} has successfully logged out.` });
+            return res.status(200).json({ message: "Successful log out." });
 
         }catch(err){
             return res.status(500).json({
@@ -139,7 +139,11 @@ class AuthController{
     }
 
     async deleteUser(req, res){
-        const refresh = req.cookie.refresh_token;
+        const { password } = req.body;
+        if(!password){
+            return res.status(400).json({ message: "Failed to provide valid password. Please try again." })
+        }
+        const refresh = req.cookies.refresh_token;
         if(!refresh){
             return res.status(401).json({ message: "User is unauthorized." })
         }
@@ -149,29 +153,35 @@ class AuthController{
             if(!verified){
                 return res.status(401).json({ message: "User unauthorized do to invalid token." });
             }
+
+            const valid = await UserService.validatePassword(verified.payload.id, password);
+            if(!valid){
+                return res.status(401).json({ message: "Invalid credentials. Please try again." })
+            }
+
+            await UserService.deleteUser(verified.payload.id, refresh);
             
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
 
-            await UserService.deleteUser(verified.payload.id);
 
-            return res.status(200).json({ message: "Account successfully deleted." });
+            return res.status(200).json({ message: "User deleted" });
 
         }catch(err){
+            console.log(err.message)
             return res.status(500).json({ 
-                message: "Failed to delete user.",
                 error: err.message
              })
         }
     }
 
     async currUser(req,res){
-        const userId = req.user.payload.id;
-        if(!userId){
+        const user = req.user;
+        if(!user.payload.id){
             return res.status(401).json({ message: "Unauthorized user." });
         }
         try{
-            const results = await UserService.getUserById(userId);
+            const results = await UserService.getUserById(user.payload.id);
             if(!results){
                 return res.status(404).json({ message: "Invalid user credentials." });
             }
