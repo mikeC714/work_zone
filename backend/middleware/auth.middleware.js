@@ -2,7 +2,7 @@ import { decode } from "jsonwebtoken";
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
 import UserService from "../service/db/user.service.js";
-import Mutex from "async-mutex";
+import { Mutex } from "async-mutex";
 import { decrypt, encrypt } from "../utils/encrypt.js";
 
 
@@ -11,7 +11,6 @@ class AuthMiddleware{
 
     #mutex = new Mutex();
     static #mutexMap = new Map();
-
 
     verifyToken = async(req, res, next) => {
         const token = req.cookies.access_token;
@@ -59,6 +58,7 @@ class AuthMiddleware{
             throw new Error("Invalid refresh token.");
         }
         const release = await AuthMiddleware.getMutex(decoded.payload.id).acquire();
+        console.log("LOCKED")
         try{
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
@@ -109,6 +109,7 @@ class AuthMiddleware{
             // res.redirect("/auth");
             return res.status(500).json({ error: err.message });
         }finally{
+            console.log("RELEASE")
             release();
             AuthMiddleware.#mutexMap.delete(decoded.payload.id)
         }
@@ -120,8 +121,9 @@ class AuthMiddleware{
             throw new Error("Failed to provide user ID.");
         }
         if(!AuthMiddleware.#mutexMap.has(userId)){
-            AuthMiddleware.#mutexMap.set(userId, new Mutex())
+            AuthMiddleware.#mutexMap.set(userId, new Mutex());
         }
+        console.log(AuthMiddleware.#mutexMap.length);
         return AuthMiddleware.#mutexMap.get(userId)
 
     }
