@@ -2,10 +2,17 @@ import { decode } from "jsonwebtoken";
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
 import UserService from "../service/db/user.service.js";
+import Mutex from "async-mutex";
 import { decrypt, encrypt } from "../utils/encrypt.js";
 
 
+
 class AuthMiddleware{
+
+    #mutex = new Mutex();
+    static #mutexMap = new Map();
+
+
     verifyToken = async(req, res, next) => {
         const token = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
@@ -40,14 +47,19 @@ class AuthMiddleware{
         }
     }
 
+    
     #handleRefresh = async(req, res, next, refreshToken) => {
      //Query the db based using user.id the get the currently stored refresh token.
         //   Verify the token
         //   Next pass that curr token to deleteRefresh to rotate token
         //   Followed by storing the new refresh token after hashing it
         //   Lastly assign the newly generated tokens via cookie
+        const decoded = Auth.verifyRefresh(refreshToken);
+        if(!decoded){
+            throw new Error("Invalid refresh token.");
+        }
+        const release = await AuthMiddleware.getMutex(decoded.payload.id).acquire();
         try{
-            const decoded = Auth.verifyRefresh(refreshToken);
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
              if(!storedToken){
@@ -64,40 +76,15 @@ class AuthMiddleware{
                 res.clearCookie("refresh_token");
                 return res.status(401).json({ message: "User is unauthorized." });
             }
+
             // Once verified rotate token; Delete old token to then generate new token
-            /* TESTING CURRENTLY BELIEVE RUNNING INTO RACE CONDITION WITH WHAT I BELIEVE TO BE 
-                FROM REQUESTS COMING IN WHILE ATTEMPTING TO DELETE TOKEN
-                SO A CLAUSE WAS PUT IN PLACE VALIDATING IF THERE WERE ANY DELETED DATA
-                                        |
-                                        V
-            */
             const deleted = await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
-
-            if(!deleted.data){
-                const activeRefresh = await TokenService.getRefreshToken(decoded.payload.id);
-                const newAccess = Auth.sign({ id: decoded.payload.id });
-
-                res.cookie("access_token", newAccess, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 900000
-                })
-                res.cookie("refresh_token", activeRefresh.rows[0].token, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 604800000
-                })
-
-                req.user = decoded;
-            };
-
+            
             // new tokens are then signed
             const newToken = Auth.sign({ id: decoded.payload.id });
             const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
 
-            const encryptedRefresh = await encrypt(newRefreshToken);
+            const encryptedRefresh = encrypt(newRefreshToken);
 
             // Store new refresh token. Successfully rotating the refresh tokens.
             await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);            
@@ -121,7 +108,22 @@ class AuthMiddleware{
             // console.log('STACK:', err.stack);
             // res.redirect("/auth");
             return res.status(500).json({ error: err.message });
+        }finally{
+            release();
+            this.#mutexMap.delete(decoded.payload.id)
         }
+    }
+
+
+    static getMutex(userId){
+        if(!userId){
+            throw new Error("Failed to provide user ID.");
+        }
+        if(!AuthMiddleware.#mutexMap.has(userId)){
+            AuthMiddleware.#mutexMap.set(userId, new Mutex())
+        }
+        return AuthMiddleware.#mutexMap.get(userId)
+
     }
 }
 
