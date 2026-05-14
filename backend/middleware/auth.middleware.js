@@ -11,124 +11,116 @@ class AuthMiddleware{
 
     #mutex = new Mutex();
     static #mutexMap = new Map();
+    static
 
-    verifyToken = async(req, res, next) => {
-        const token = req.cookies.access_token;
+
+    async verifyToken(req, res, next){
+        const accessToken = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
-        
-        
-        if(!token && !refreshToken){
-            return res.status(401).json({ 
-                error: "Unauthorized user. Failed to provide token." 
-            })
+
+        if(!accessToken && !refreshToken){
+            return res.status(401).json({ error: "Unauthorized user. Failed to provide valid token." });
         }
-        
-        if(!token && refreshToken){
+
+        if(!accessToken && refreshToken){
             try{
-                await this.#handleRefresh(req, res, next, refreshToken);
-                return;
+                await this.handleRefresh(req, res, next, refreshToken);
             }catch(err){
-                return res.status(500).json({ error: err.message })
+                return res.status(500).json({ error: err.message });
             }
         }
-        
+
         try{
-            const decrypted = decrypt(refreshToken);
-            const decoded = Auth.verify(token);
-            req.user = decoded;
+            const valid = Auth.verify(accessToken);
+            if(!valid){
+                return res.status(401).json({ error: "Failed to provide valid token." });
+            }
+            req.user = valid.payload.id;
             next();
         }catch(err){
-             if(err.name === "TokenExpiredError" && refreshToken) {
-            return this.#handleRefresh(req, res, next, decrypted);
-        }
-        return res.status(401).json({ error: err.message });
+            return res.status(500).json({ error: err.message });
         }
     }
-
     
-    #handleRefresh = async(req, res, next, token) => {
-        const currRefresh = req.cookies.refresh_token;
-
-     //Query the db based using user.id the get the currently stored refresh token.
-        //   Verify the token
-        //   Next pass that curr token to deleteRefresh to rotate token
-        //   Followed by storing the new refresh token after hashing it
-        //   Lastly assign the newly generated tokens via cookie
-        
-        const refreshToken = decrypt(token);
-        const decoded = Auth.verifyRefresh(refreshToken);
-        if(!decoded){
-            throw new Error("Invalid refresh token.");
+    async handleRefresh(req, res, next, token){
+        if(!token){
+            return res.status(400).json({ error: "Failed to refresh token; was not provided token." });
         }
-        const release = await AuthMiddleware.getMutex(decoded.payload.id).acquire();
+
+        const rToken = decrypt(token);
+        const valid = Auth.verifyRefresh(rToken);
+        if(!valid){
+            return res.status(401).json({ error: "Failed to provided valid refresh token." });
+        }
+
+        const id = valid.payload.id;
+
+        const release = await AuthMiddleware.getMutex(id).acquire();
 
         try{
-            // Refresh tokens are stored encrypted
-            const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
-             if(!storedToken){
-                return res.status(401).json({ message: "Unauthorized. User failed to provided a valid token." });
+            const storedToken = await TokenService.getRefreshToken(id);
+            if(!storedToken){
+                return res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
             }
-            const decryptedStored = decrypt(storedToken.rows[0].token);
 
-            // Validate the tokens match
-            // If not end user session and flag their acc
-            if(decryptedStored !== refreshToken){
-                await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
-                await UserService.flagUser(decoded.payload.id);
+            const decryptedStored = decrypt(storedToken.rows[0].token);
+            
+
+            //TEST
+            /*
+                Monitoring for reuse abuse.
+                Validating whether the storedToken is equal to the current snapshot of the rToken.
+                The stored token is then decoded to gain it's payload to verify it belongs to said user.
+            */
+
+            if(decryptedStored !== rToken){
+                const validStored = Auth.verifyRefresh(decryptedStored);
+                if(validStored.payload.id === valid.payload.id){
+                    req.user = id;
+                    next();
+                }
+                await TokenService.deleteRefreshToken(id);
+                await UserService.flagUser(id);
                 res.clearCookie("access_token");
                 res.clearCookie("refresh_token");
-                return res.status(401).json({ message: "User is unauthorized." });
+                return res.status(401).json({ error: "Unauthorized. Token provided was not valid." });
             }
 
-            // TEST
+            await TokenService.deleteRefreshToken(id);
 
-            if(currRefresh !== refreshToken){
-                const newDecoded = Auth.verifyRefresh(decrypt(currRefresh));
-                req.user = newDecoded;
-                return next();
-            }
+            const newAccess = Auth.sign({ id });
+            const newRefresh = Auth.signRefresh({ id });
+            const encrypted = encrypt(newRefresh);
 
-            // Once verified rotate token; Delete old token to then generate new token
-            const deleted = await TokenService.deleteRefreshToken(decoded.payload.id, storedToken);
-            
-            // new tokens are then signed
-            const newToken = Auth.sign({ id: decoded.payload.id });
-            const newRefreshToken = Auth.signRefresh({ id: decoded.payload.id });
+            await TokenService.storeRefreshToken(id, encrypted);
 
-            const encryptedRefresh = encrypt(newRefreshToken);
-
-            // Store new refresh token. Successfully rotating the refresh tokens.
-            await TokenService.storeRefreshToken(decoded.payload.id, encryptedRefresh);            
-            
-            res.cookie("access_token", newToken,{
+            res.cookie("access_token", newAccess, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'strict',
                 maxAge: 900000 // 15M
             });
-            res.cookie("refresh_token", encryptedRefresh, {
-                httpOnly: true,
+
+            res.cookie("refresh_token", encrypted, {
+                httpOnly:true,
                 secure: true,
-                sameSite: "strict",
+                sameSite: 'strict',
                 maxAge: 604800000 // 7D
             });
-            req.user = decoded;
+            
+            req.user = id;
             next();
         }catch(err){
             return res.status(500).json({ error: err.message });
         }finally{
-            console.log("RELEASE")
             release();
-
-            // TEST 
-            // MULTIPLE REQUEST WHERE STUCK INDEFINITELY CAUSING MEMORY LEAK
-            const mutex = AuthMiddleware.#mutexMap.get(decoded.payload.id);
-            if(mutex && !mutex.isLocked()){
-                AuthMiddleware.#mutexMap.delete(decoded.payload.id)
+            
+            const mutex = AuthMiddleware.#mutexMap.get(id);
+            if(mutex && mutex.isLocked()){
+                AuthMiddleware.#mutexMap.delete(id);
             }
         }
     }
-
 
     static getMutex(userId){
         if(!userId){

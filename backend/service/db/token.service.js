@@ -35,14 +35,11 @@ export class TokenService{
         if(!userId){
             throw new Error("Invalid User.");
         }
-        if(!token){
-            throw new Error("Unauthorized.");
-        }
         try{
             
             const results = await this.#db.query(
-                "DELETE FROM tokens WHERE token = $1 AND user_id = $2",
-                [token, userId]
+                "DELETE FROM tokens WHERE user_id = $1",
+                [userId]
             );
 
             console.log(results);

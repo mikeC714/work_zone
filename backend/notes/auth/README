@@ -155,3 +155,15 @@ the topic
             but for not it works that's all that really matters currently.
             
  
+
+ # May 14, 2026 
+
+    Thought I had it all situated I thought wrong. Doing further testing requests were still coming in causing memory leaks.
+
+    ** THE FIX
+
+        I decided to try a locking system using a Mutex.
+        With JavaScript being a tank when it comes to treating concurrency once one protected route request comes in with an expired token 5 more come behind. 
+        Causing the verifyToken middelware to fire and notice that all 5 request come in with a valid refresh token. So what I am hoping for is by using a Mutex 
+        storing the a users token and using their Id as the key will lock any other requests coming from said key and processing them one by one. 
+        But since I don't want all of the request to generate a new token 
