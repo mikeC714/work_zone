@@ -25,8 +25,7 @@ class AuthMiddleware{
         
         if(!token && refreshToken){
             try{
-                const decrypted = decrypt(refreshToken);
-                await this.#handleRefresh(req, res, next, decrypted);
+                await this.#handleRefresh(req, res, next, refreshToken);
                 return;
             }catch(err){
                 return res.status(500).json({ error: err.message })
@@ -47,18 +46,22 @@ class AuthMiddleware{
     }
 
     
-    #handleRefresh = async(req, res, next, refreshToken) => {
+    #handleRefresh = async(req, res, next, token) => {
+        const currRefresh = req.cookies.refresh_token;
+
      //Query the db based using user.id the get the currently stored refresh token.
         //   Verify the token
         //   Next pass that curr token to deleteRefresh to rotate token
         //   Followed by storing the new refresh token after hashing it
         //   Lastly assign the newly generated tokens via cookie
+        
+        const refreshToken = decrypt(token);
         const decoded = Auth.verifyRefresh(refreshToken);
         if(!decoded){
             throw new Error("Invalid refresh token.");
         }
         const release = await AuthMiddleware.getMutex(decoded.payload.id).acquire();
-        console.log("LOCKED")
+
         try{
             // Refresh tokens are stored encrypted
             const storedToken = await TokenService.getRefreshToken(decoded.payload.id);
@@ -75,6 +78,14 @@ class AuthMiddleware{
                 res.clearCookie("access_token");
                 res.clearCookie("refresh_token");
                 return res.status(401).json({ message: "User is unauthorized." });
+            }
+
+            // TEST
+
+            if(currRefresh !== refreshToken){
+                const newDecoded = Auth.verifyRefresh(decrypt(currentEncryptedToken));
+                req.user = newDecoded;
+                return next();
             }
 
             // Once verified rotate token; Delete old token to then generate new token
