@@ -166,4 +166,20 @@ the topic
         With JavaScript being a tank when it comes to treating concurrency once one protected route request comes in with an expired token 5 more come behind. 
         Causing the verifyToken middelware to fire and notice that all 5 request come in with a valid refresh token. So what I am hoping for is by using a Mutex 
         storing the a users token and using their Id as the key will lock any other requests coming from said key and processing them one by one. 
-        But since I don't want all of the request to generate a new token 
+        But since I don't want all of the request to generate a new token another condition is set 
+
+    Using the reuse abuse monitor I am also verifying whether it's just a different token by verifying the given tokens payload to the currently stored one
+    hopefully how it's working in my brain the current stored token will be the used sort like the updated state, not too sure though.
+
+        if(decryptedStored !== rToken){
+                const validStored = Auth.verifyRefresh(decryptedStored);
+                if(validStored.payload.id === valid.payload.id){
+                    req.user = id;
+                    next();
+                }
+                await TokenService.deleteRefreshToken(id);
+                await UserService.flagUser(id);
+                res.clearCookie("access_token");
+                res.clearCookie("refresh_token");
+                return res.status(401).json({ error: "Unauthorized. Token provided was not valid." });
+            }
