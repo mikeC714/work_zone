@@ -83,7 +83,7 @@ class AuthMiddleware{
             // TEST
 
             if(currRefresh !== refreshToken){
-                const newDecoded = Auth.verifyRefresh(decrypt(currentEncryptedToken));
+                const newDecoded = Auth.verifyRefresh(decrypt(currRefresh));
                 req.user = newDecoded;
                 return next();
             }
@@ -115,14 +115,17 @@ class AuthMiddleware{
             req.user = decoded;
             next();
         }catch(err){
-            // console.log('FULL ERROR:', err);
-            // console.log('STACK:', err.stack);
-            // res.redirect("/auth");
             return res.status(500).json({ error: err.message });
         }finally{
             console.log("RELEASE")
             release();
-            AuthMiddleware.#mutexMap.delete(decoded.payload.id)
+
+            // TEST 
+            // MULTIPLE REQUEST WHERE STUCK INDEFINITELY CAUSING MEMORY LEAK
+            const mutex = AuthMiddleware.#mutexMap.get(decoded.payload.id);
+            if(mutex && !mutex.isLocked()){
+                AuthMiddleware.#mutexMap.delete(decoded.payload.id)
+            }
         }
     }
 
@@ -134,7 +137,6 @@ class AuthMiddleware{
         if(!AuthMiddleware.#mutexMap.has(userId)){
             AuthMiddleware.#mutexMap.set(userId, new Mutex());
         }
-        console.log(AuthMiddleware.#mutexMap.length);
         return AuthMiddleware.#mutexMap.get(userId)
 
     }

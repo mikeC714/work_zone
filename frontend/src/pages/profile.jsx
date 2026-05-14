@@ -6,6 +6,10 @@ import { useUserContext } from '../context/userContext.jsx';
 import { useNotiHook } from '../hooks/notifications.hooks.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
 import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank } from 'lucide-react';
+import dayjs from 'dayjs';
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const user = {
     name: 'Jordan Mitchell',
@@ -27,7 +31,7 @@ const user = {
 };
 
 function Overview() {
-    const { firstName, lastName } = useUserContext();
+    const { firstName, lastName, email } = useUserContext();
     const fullName = firstName + " " + lastName
 
     return (
@@ -41,7 +45,7 @@ function Overview() {
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Email Address</span>
-                        <span className='profileFieldValue'>{user.email}</span>
+                        <span className='profileFieldValue'>{email}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Phone Number</span>
@@ -179,16 +183,21 @@ const viewMap = {
 
 export function ProfilePage() {
     const [currView, setCurrView] = useState('overview');
-    const { firstName, lastName, nameInitials } = useUserContext()
-    const fullName = firstName + " " + lastName
-
-    // const quickAccessData = useQueries({ queries: quickAccessQueries })
-    // const [ monthlyRevenue, completedJobs, activeJobs, unpaidJobs ] = quickAccessData.map(data => data.data);
-    // const isLoading = quickAccessData.some(data => data.isLoading)
-    // const isError = quickAccessData.some(data => data.isError);
-    
-
     const { data, isLoading, isError } = useQuickAccess();
+    const { firstName, lastName, created_at, nameInitials } = useUserContext()
+    const fullName = firstName + " " + lastName
+    // console.log(created_at)
+    // const [h, m] = created_at?.split("T")[1].split(":");
+    // const ampm = h >= 12 ? "PM" : "AM";
+    // const currTime = `${h}:${m} ${ampm} `
+
+    const date = created_at?.split("T")[0];
+    console.log(date)
+
+
+
+
+    // localStorage.setItem() find a solution to be able to differentiate the users want to use user_id 
 
     return (
         <div className='profilePage'>
@@ -240,7 +249,7 @@ export function ProfilePage() {
                      />
                     <ProfileCard
                         icon={<Star />}
-                        value={0}
+                        value={dayjs(date).fromNow()}
                         isLoading={isLoading}
                         isError={isError}
                         label='MEMBER SINCE'

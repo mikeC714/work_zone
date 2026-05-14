@@ -46,7 +46,7 @@ class UserService{
         }
         try{
             return await this.#db.query(
-                "SELECT id, first_name, last_name FROM users WHERE id = $1",
+                "SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1",
                 [userId]
             );
         }catch(err){
