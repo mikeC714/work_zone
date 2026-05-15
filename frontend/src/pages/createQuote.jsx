@@ -46,9 +46,17 @@ export function CreateQuote(){
     function handleSaveQuote() {
       mutate({
         customer: customerInfo,
-        quote: {status: status ,markup: userMarkup, total },
-        labor: labor,
-        materials: materials,
+        quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
+        labor: labor.map(l => ({
+            ...l,
+            hours: Number(l.hours),
+            hourlyRate: Number(l.hourlyRate)
+        })),
+        materials: materials.map(m => ({
+            ...m,
+            quantity: Number(m.quantity),
+            unitCost: Number(m.unitCost)
+        })),
       })
         if(isSuccess){ 
             return(

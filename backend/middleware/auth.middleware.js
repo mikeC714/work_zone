@@ -73,8 +73,6 @@ class AuthMiddleware{
                 The stored token is then decoded to gain it's payload to verify it belongs to said user.
             */
 
-            console.log("STORED TOKEN:", storedToken.rows[0])
-
             if(decryptedStored !== rToken){
                 const validStored = Auth.verifyRefresh(decryptedStored);
                 if(validStored.payload.id === valid.payload.id){
@@ -93,9 +91,6 @@ class AuthMiddleware{
             const newAccess = Auth.sign({ id });
             const newRefresh = Auth.signRefresh({ id });
             const encrypted = encrypt(newRefresh);
-
-
-            console.log("ENCRYPTED:", encrypted)
 
             await TokenService.storeRefreshToken(id, encrypted);
 
@@ -119,7 +114,6 @@ class AuthMiddleware{
             return res.status(500).json({ error: err.message });
         }finally{
             release();
-            console.log("RESELEASED")
             const mutex = AuthMiddleware.#mutexMap.get(id);
             if(mutex && mutex.isLocked()){
                 AuthMiddleware.#mutexMap.delete(id);

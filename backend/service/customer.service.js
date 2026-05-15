@@ -129,19 +129,26 @@ class customerService{
     }
 
     async createQuote(user, customer, quote, labor, materials){
+
+        console.log("CUSTOMER:", customer)
+        console.log("QUOTE:", quote)
+        console.log("LABOR:", labor)
+        console.log("MATERIALS:", materials)
+
+
         try{
             const customerData = await this.db.query(
                 `INSERT INTO customers 
-                    (user_id, first_name, last_name, phone, email, address, created_at)
-                VALUES($1, $2, $3, $4, $5, $6, $7)
-                `, [user.id, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address, customer.createdAt]
+                    (user_id, first_name, last_name, phone, email, address)
+                VALUES($1, $2, $3, $4, $5, $6)
+                `, [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
             );
 
             const quoteData = await this.db.query(
                 `INSERT INTO quotes
                     (user_id, customer_id, status, markup, total)
-                VALUES($1, $2, $3, $4, $5, $6, $7)    
-                `, [user.id, customer.id, quote.status, quote.markup, quote.total]
+                VALUES($1, $2, $3, $4, $5)    
+                `, [user, customer.id, quote.status, quote.markup, quote.total]
             );
 
             const [
@@ -162,17 +169,22 @@ class customerService{
                 labor.map(labVals => 
                     this.db.query(
                     `INSERT INTO labor
-                        (quote_id, description, hourly_rate, total)
-                    VALUES($1, $2, $3, $4, $5)
+                        (quote_id, description)
+                    VALUES($1, $2)
                     `, [quote.id, JSON.stringify(labVals)]
                 )),
                 materials.map(matVals =>
                     this.db.query( 
-                    `INSERT INTO quote(quote_id, description, )
+                    `INSERT INTO quote(quote_id, description)
                     VALUES($1, $2, $3)
                     `, [quote.id, JSON.stringify(matVals)]
                 ))
             ]);
+
+            console.log("CUSTOMER:", customerData)
+            console.log("QUOTE:", quoteData)
+            console.log("LABOR:", laborData)
+            console.log("MATERAILS:", materialsData)
 
             return {
                 customerData,

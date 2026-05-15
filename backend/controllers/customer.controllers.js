@@ -132,6 +132,7 @@ class CustomerControllers{
             console.log(req.user)
             console.log("New Quote:", newQuote)
 
+            
             return res.status(200).json({
                 ...newQuote
             });
