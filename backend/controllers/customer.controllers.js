@@ -7,7 +7,7 @@ class CustomerControllers{
     async getCustomerInfo(req,res){
         const user = req.user;
         try{
-            const customerId = await CustomerInfo.getAllCustomerIds(user.payload.id);
+            const customerId = await CustomerInfo.getAllCustomerIds(user);
             const customerDetails = await CustomerService.customerDetails(customerId)
 
             return res.status(200).json({
@@ -30,7 +30,7 @@ class CustomerControllers{
             const limit = parseInt(req.query.limit) || 20;
             const offset = (page -1) * limit;
             
-            const { customers } = await CustomerInfo.getAllCustomerInfo(user.payload.id);
+            const { customers } = await CustomerInfo.getAllCustomerInfo(user);
             console.log("CUSTOMERS",customers)
 
             const totalCustomers = customers.length;
@@ -38,7 +38,7 @@ class CustomerControllers{
 
             console.log("PAGINATED CUSTOMERS:",paginatedCustomers);
             
-            const quoteDetails = await QuoteService.getQuoteInfo(paginatedCustomers, user.payload.id)
+            const quoteDetails = await QuoteService.getQuoteInfo(paginatedCustomers, user)
 
             
 
@@ -90,10 +90,10 @@ class CustomerControllers{
     async getCustomerQuoteInfo(req, res){
         const user = req.user;
         try{
-            const customerIds = await CustomerInfo.getAllCustomerIds(user.payload.id);
-            const quotes = await QuoteService.getQuoteInfo(customerIds, user.payload.id);
+            const customerIds = await CustomerInfo.getAllCustomerIds(user);
+            const quotes = await QuoteService.getQuoteInfo(customerIds, user);
             console.log("Quotes:", quotes);
-            const customerQuoteDetails = await CustomerService.customerQuoteInfo(quotes, user.payload.id)
+            const customerQuoteDetails = await CustomerService.customerQuoteInfo(quotes, user)
 
             return res.status(200).json({
                 customerQuoteDetails
@@ -108,8 +108,8 @@ class CustomerControllers{
     async getCustomerStatus(req, res){
         const user = req.user;
         try{
-            const customerIds = await CustomerService.getAllCustomerIds(user.payload.id);
-            const quotes = await QuoteService.getQuoteInfo(customerIds, user.payload.id)
+            const customerIds = await CustomerService.getAllCustomerIds(user);
+            const quotes = await QuoteService.getQuoteInfo(customerIds, user)
             const customStatus = await CustomerService.customerStatus(quotes);
 
             return res.status(200).json({
@@ -128,7 +128,7 @@ class CustomerControllers{
 
         try{
 
-            const newQuote = await CustomerService.createQuote(user.payload.id, customer, quote, labor, materials);
+            const newQuote = await CustomerService.createQuote(user, customer, quote, labor, materials);
             console.log(req.user)
             console.log("New Quote:", newQuote)
 
@@ -147,7 +147,7 @@ class CustomerControllers{
         const { quoteId } = req.parms;
         const user = req.user;
         try{
-            const deletedQuote = await CustomerService.deleteQuote(quoteId, user.payload.id);
+            const deletedQuote = await CustomerService.deleteQuote(quoteId, user);
 
             return res.status(200).json({
                 message: `Quote ${quoteId} was successfully deleted.`

@@ -5,8 +5,8 @@ import db from "../config/postgresql.config.js";
 export async function allNotifications(req,res){
     const user = req.user;
     try{
-        const customerIds = await CustomerInfo.getAllCustomerIds(user.id);
-        const customerInfo = await CustomerService.customerDetails(customerIds, user.id)
+        const customerIds = await CustomerInfo.getAllCustomerIds(user);
+        const customerInfo = await CustomerService.customerDetails(customerIds, user)
         const notifications = await Notis.getNotis(user, customerInfo)
 
         return res.status(200).json({

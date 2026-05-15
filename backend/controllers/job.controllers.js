@@ -11,10 +11,10 @@ class JobControllers{
                 activeJobs,
                 monthlyTotal 
             ] = await Promise.all([
-                JobService.allCompletedJobs(user.payload.id),
-                JobService.allUnpaidJobs(user.payload.id),
-                JobService.allActiveJobs(user.payload.id),
-                JobService.getMonthlyTotal(user.payload.id)
+                JobService.allCompletedJobs(user),
+                JobService.allUnpaidJobs(user),
+                JobService.allActiveJobs(user),
+                JobService.getMonthlyTotal(user)
             ]);
             return res.status(200).json({
                 completedJobs,
@@ -30,7 +30,7 @@ class JobControllers{
     async getAllCompletedJobs(req, res) {
         const user = req.user;
         try {
-            const data = await JobService.allCompletedJobs(user.payload.id);
+            const data = await JobService.allCompletedJobs(user);
             return res.status(200).json({
                  success: true, 
                  data
@@ -47,7 +47,7 @@ class JobControllers{
     async getUnpaidJobs(req,res){
         const user = req.user;
         try{
-            const data = await JobService.allUnpaidJobs(user.payload.id);  
+            const data = await JobService.allUnpaidJobs(user);  
             return res.status(200).json({
                 success: true,
                 data
@@ -64,7 +64,7 @@ class JobControllers{
     async getActiveJobs(req,res){
         const user = req.user;
         try{
-            const data = await JobService.allActiveJobs(user.payload.id);
+            const data = await JobService.allActiveJobs(user);
             return res.status(200).json({
                 success: true,
                 data
@@ -81,7 +81,7 @@ class JobControllers{
     async getMonthlyTotal(req,res){
         const user = req.user
         try{
-            const data = await JobService.getMonthlyTotal(user.payload.id)
+            const data = await JobService.getMonthlyTotal(user)
             return res.status(200).json({
                 success: true,
                 data

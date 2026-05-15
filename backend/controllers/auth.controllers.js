@@ -177,11 +177,11 @@ class AuthController{
 
     async currUser(req,res){
         const user = req.user;
-        if(!user.payload.id){
+        if(!user){
             return res.status(401).json({ message: "Unauthorized user." });
         }
         try{
-            const results = await UserService.getUserById(user.payload.id);
+            const results = await UserService.getUserById(user);
             if(!results){
                 return res.status(404).json({ message: "Invalid user credentials." });
             }

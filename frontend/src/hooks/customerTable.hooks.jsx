@@ -13,7 +13,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
     })
     
     console.log(data?.cusData);
-
+    
     const filteredData = useMemo(() => {
         // let result = data?.paginated?.paginatedCustomers ?? [];
 
@@ -45,7 +45,8 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
 
     console.log(data?.cusData, filteredData)
 
-    return { 
+    return {
+        data, 
         filteredData: filteredData || {},
         customers: data?.paginatedCustomers || [], 
         isLoading, 

@@ -11,10 +11,8 @@ class AuthMiddleware{
 
     #mutex = new Mutex();
     static #mutexMap = new Map();
-    static
 
-
-    async verifyToken(req, res, next){
+    verifyToken = async (req, res, next) => {
         const accessToken = req.cookies.access_token;
         const refreshToken = req.cookies.refresh_token;
 
@@ -24,7 +22,7 @@ class AuthMiddleware{
 
         if(!accessToken && refreshToken){
             try{
-                await this.handleRefresh(req, res, next, refreshToken);
+                return await this.handleRefresh(req, res, next, refreshToken);
             }catch(err){
                 return res.status(500).json({ error: err.message });
             }
@@ -36,13 +34,16 @@ class AuthMiddleware{
                 return res.status(401).json({ error: "Failed to provide valid token." });
             }
             req.user = valid.payload.id;
-            next();
+            return next();
         }catch(err){
+             if(err.name === "TokenExpiredError" && refreshToken){
+                return await this.handleRefresh(req, res, next, refreshToken);
+            }   
             return res.status(500).json({ error: err.message });
         }
     }
     
-    async handleRefresh(req, res, next, token){
+    handleRefresh = async (req, res, next, token) => {
         if(!token){
             return res.status(400).json({ error: "Failed to refresh token; was not provided token." });
         }
@@ -62,7 +63,6 @@ class AuthMiddleware{
             if(!storedToken){
                 return res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
             }
-
             const decryptedStored = decrypt(storedToken.rows[0].token);
             
 
@@ -73,24 +73,29 @@ class AuthMiddleware{
                 The stored token is then decoded to gain it's payload to verify it belongs to said user.
             */
 
+            console.log("STORED TOKEN:", storedToken.rows[0])
+
             if(decryptedStored !== rToken){
                 const validStored = Auth.verifyRefresh(decryptedStored);
                 if(validStored.payload.id === valid.payload.id){
                     req.user = id;
-                    next();
+                    return next();
                 }
-                await TokenService.deleteRefreshToken(id);
+                await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
                 await UserService.flagUser(id);
                 res.clearCookie("access_token");
                 res.clearCookie("refresh_token");
                 return res.status(401).json({ error: "Unauthorized. Token provided was not valid." });
             }
 
-            await TokenService.deleteRefreshToken(id);
+            await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
 
             const newAccess = Auth.sign({ id });
             const newRefresh = Auth.signRefresh({ id });
             const encrypted = encrypt(newRefresh);
+
+
+            console.log("ENCRYPTED:", encrypted)
 
             await TokenService.storeRefreshToken(id, encrypted);
 
@@ -109,16 +114,17 @@ class AuthMiddleware{
             });
             
             req.user = id;
-            next();
+            return next();
         }catch(err){
             return res.status(500).json({ error: err.message });
         }finally{
             release();
-            
+            console.log("RESELEASED")
             const mutex = AuthMiddleware.#mutexMap.get(id);
             if(mutex && mutex.isLocked()){
                 AuthMiddleware.#mutexMap.delete(id);
             }
+            return;
         }
     }
 

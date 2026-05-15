@@ -8,11 +8,11 @@ class EmailControllers{
         const user = req.user;
         const data = req.body;
         try{
-            const token = await Auth.signEmail({id: user.id, customerEmail: data.customer.email, quoteId: quoteData.id});
+            const token = await Auth.signEmail({id: user, customerEmail: data.customer.email, quoteId: quoteData.id});
             const safeToken = await encrypt(token);
             await TokensService.storeQuoteToken(quoteData.id ,safeToken);
 
-            await QuoteService.changeQuoteStatus(user.id, quoteData.id);
+            await QuoteService.changeQuoteStatus(user, quoteData.id);
 
             const link = `http://${process.env.PORT}/quote/accept?token=${token}`
 

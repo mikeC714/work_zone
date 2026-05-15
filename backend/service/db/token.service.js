@@ -38,8 +38,8 @@ export class TokenService{
         try{
             
             const results = await this.#db.query(
-                "DELETE FROM tokens WHERE user_id = $1",
-                [userId]
+                "DELETE FROM tokens WHERE user_id = $1 AND token = $2",
+                [userId, token]
             );
 
             console.log(results);
