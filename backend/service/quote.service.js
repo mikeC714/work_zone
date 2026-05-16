@@ -5,14 +5,18 @@ class QuoteService{
         this.db = db;
     }
     
-    async getQuoteInfo(customerIds, id){
-        if(!id){
+    async getQuoteInfo(customers, userId){
+        if(!userId){
             throw new Error("Invalid user, user id is not provided.");
         }
-        if (!customerIds || customerIds.length === 0) {
+
+        if (!customers || customers.length === 0) {
             return { data: [] };
         }
-        const cusIds = customerIds.map(customer => customer.id);
+        const cusIds = customers.map(c => c.id);
+
+        console.log(cusIds)
+
         try{
             const results = await this.db.query(
                 `SELECT
@@ -21,20 +25,20 @@ class QuoteService{
                     status,
                     total,
                     markup,
-                    material_id,
-                    labor_id,
                     created_at
                 FROM quotes
                 WHERE user_id = $1
-                AND customer_id = ANY ($2)
-                `, [id, cusIds]
-            ) 
+                AND customer_id = ANY ($2::uuid[])
+                `, [userId, cusIds]
+            )
+
+            console.log("RESULTS:", results)
 
             return {
-                data: results.rows
+                quoteDetails: results.rows
             }
         }catch(err){
-            throw new Error("Failed to fetch quote info.", err);
+            throw new Error(err.message);
         }
     }
 

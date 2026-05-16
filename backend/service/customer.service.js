@@ -26,7 +26,7 @@ class customerInfo{
         }
     }
 
-    async getAllCustomerInfo(userId){
+    async getAllCustomerInfo(userId, offset){
         if(!userId){
             throw new Error("Invalid user. Failed to fetch all customer info.");
         }
@@ -35,9 +35,10 @@ class customerInfo{
                 `SELECT * FROM customers 
                 WHERE user_id = $1
                 ORDER BY created_at
-                LIMIT 20 OFFSET 20
-                `,[userId]
+                LIMIT 20 OFFSET $2
+                `,[userId, offset]
             );
+
             if(!results){
                 return {
                     data: []
@@ -49,7 +50,7 @@ class customerInfo{
             }
             
         }catch(err){
-
+            throw new Error(err.message)
         }
     }
 }
@@ -175,8 +176,9 @@ class customerService{
                 )),
                 materials.map(matVals =>
                     this.db.query( 
-                    `INSERT INTO quote(quote_id, description)
-                    VALUES($1, $2, $3)
+                    `INSERT INTO quote
+                        (quote_id, description)
+                    VALUES($1, $2)
                     `, [quote.id, JSON.stringify(matVals)]
                 ))
             ]);

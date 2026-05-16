@@ -30,30 +30,19 @@ class CustomerControllers{
             const limit = parseInt(req.query.limit) || 20;
             const offset = (page -1) * limit;
             
-            const { customers } = await CustomerInfo.getAllCustomerInfo(user);
-            console.log("CUSTOMERS",customers)
+            const { customers } = await CustomerInfo.getAllCustomerInfo(user, offset);
 
             const totalCustomers = customers.length;
             const paginatedCustomers = customers.slice(offset, offset + limit);
-
-            console.log("PAGINATED CUSTOMERS:",paginatedCustomers);
             
-            const quoteDetails = await QuoteService.getQuoteInfo(paginatedCustomers, user)
-
-            
+            const { quoteDetails } = await QuoteService.getQuoteInfo(paginatedCustomers, user)
 
             console.log("QUOTE DETAILS:",quoteDetails);
 
             const jobDetails = await JobService.getJobInfo(quoteDetails);
 
-            // console.log("Page:" ,page)
-            // console.log("Limit:" ,limit)
-            // console.log("Offset:",offset)
-            // console.log("Customer Ids:", [customerIds]);
-            // console.log("Total Customers: ",totalCustomers);
-            // console.log("Chunk of customers:" ,paginatedCustomers);
-            // console.log("Job Data:", jobDetails.data);
-            
+            console.log(cusData)
+
             const cusData = customers.map(customer => {
                 console.log([...customer]);
                 return{
@@ -82,7 +71,7 @@ class CustomerControllers{
             });
         }catch(err){
             return res.status(500).json({
-                error: `Failed to fetch all customers: ${err.message}`
+                error:err.message
             });
         }
     }
