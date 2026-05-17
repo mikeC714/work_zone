@@ -12,17 +12,14 @@ export function CreateQuote(){
     const [userMarkup, setUserMarkup] = useState(0);
     const [materials, setMaterials] = useState([
         {
-            id: crypto.randomUUID(),
             description: "",
             quantity: 0,
             unitCost: 0,
-            metrics: 0,
             total: 0
         }
     ]);
     const [labor, setLabor] = useState([
         {
-            id: crypto.randomUUID(),
             description: "",
             hours: 0,
             hourlyRate: 0,

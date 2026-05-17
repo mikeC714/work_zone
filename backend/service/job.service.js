@@ -28,8 +28,10 @@ class JobService{
                 `, [quoteIds]
             );
 
+            console.log("JOB RES:",results.rows);
+
             return {
-                data: results.rows
+                data: results.rows || []
             };
         }catch(err){
             throw new Error(err.message);
@@ -38,14 +40,14 @@ class JobService{
 
     async allCompletedJobs(id){
         if(!id){
-            throw new Error("ID of user is unprovided. Failed to fetch all completed jobs.");
+            throw new Error("ID of user is unprovided. Failed to fetch all COMPLETED jobs.");
         }
         try{
             const results = await this.db.query(
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
-                    AND status = 'Completed'::status_type
+                    AND status = 'COMPLETED'::quote_status_type
                     AND created_at >= $2
                     AND created_at < $3
                 `, [id, startOfMonth, endOfMonth]
@@ -70,7 +72,7 @@ class JobService{
                     WHERE user_id = $1 
                     AND created_at >= $2
                     AND created_at < $3
-                    AND status != 'Completed'::status_type
+                    AND status != 'COMPLETED'::quote_status_type
                 `, [id, startOfMonth, endOfMonth]
             );
 
@@ -91,7 +93,7 @@ class JobService{
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
-                    AND status = 'Accepted'::status_type
+                    AND status = 'APPROVED'::quote_status_type
                     AND created_at >= $2
                     AND created_at < $3
                 `,[id, startOfMonth, endOfMonth] 

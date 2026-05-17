@@ -37,7 +37,7 @@ class customerInfo{
                 WHERE user_id = $1
                 ORDER BY created_at
                 LIMIT $2 OFFSET $3
-                `,[userId, limit ,offset]
+                `,[userId, limit, offset]
             );
 
             if(!results){
@@ -131,64 +131,71 @@ class customerService{
         }, {})        
     }
 
+    /*
+    function handleSaveQuote() {
+      mutate({
+        customer: customerInfo,
+        quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
+        labor: labor.map(l => ({
+            ...l,
+            hours: Number(l.hours),
+            hourlyRate: Number(l.hourlyRate)
+        })),
+        materials: materials.map(m => ({
+            ...m,
+            quantity: Number(m.quantity),
+            unitCost: Number(m.unitCost)
+        })),
+      })
+        if(isSuccess){ 
+            return(
+                <div className="cqPageOverlay">
+                    <p className="cqSuccessMsg">Successfully Created Quote.</p>
+                </div>
+            )
+        } 
+    }
+ */
+
     async createQuote(user, customer, quote, labor, materials){
-
-        console.log("CUSTOMER:", customer)
-        console.log("QUOTE:", quote)
-        console.log("LABOR:", labor)
-        console.log("MATERIALS:", materials)
-
-
         try{
             const customerData = await this.db.query(
                 `INSERT INTO customers 
                     (user_id, first_name, last_name, phone, email, address)
                 VALUES($1, $2, $3, $4, $5, $6)
-                `, [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
+                RETURNING id`, 
+                [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
             );
 
             const quoteData = await this.db.query(
                 `INSERT INTO quotes
                     (user_id, customer_id, status, markup, total)
                 VALUES($1, $2, $3, $4, $5)    
-                `, [user, customer.id, quote.status, quote.markup, quote.total]
+                RETURNING id`, 
+                [user, customerData?.rows[0]?.id, quote.status, quote.markup, quote.total]
             );
 
             const [
                 laborData,
                 materialsData
             ] = await Promise.all([
-
-                /* ## DESCRIPTION row for both labor and materials will look like
-
-                        FOR LABOR
-                    [{ desc, hours }]
-
-                        FOR MATERIALS
-                    [{ desc, quantity, unit_cost }]
-                */
-
-
-                labor.map(labVals => 
-                    this.db.query(
-                    `INSERT INTO labor
-                        (quote_id, description)
-                    VALUES($1, $2)
-                    `, [quote.id, JSON.stringify(labVals)]
-                )),
-                materials.map(matVals =>
-                    this.db.query( 
-                    `INSERT INTO quote
-                        (quote_id, description)
-                    VALUES($1, $2)
-                    `, [quote.id, JSON.stringify(matVals)]
-                ))
+                    labor.map(labVals => 
+                        this.db.query(
+                        `INSERT INTO labor
+                            (quote_id, description, hours, hourly_rate, total)
+                        VALUES($1, $2, $3, $4, $5)
+                        `, [quoteData?.rows[0]?.id, labVals.description, labVals.hours, labVals.hourlyRate, labVals.total]
+                    )),
+                    materials.map(matVals =>
+                        this.db.query( 
+                        `INSERT INTO materials
+                            (quote_id, description, quantity, unit_cost, total)
+                        VALUES($1, $2, $3, $4, $5)
+                        `, [quoteData?.rows[0]?.id, matVals.description, matVals.quantity, matVals.unitCost, matVals.total]
+                    ))
             ]);
-
-            console.log("CUSTOMER:", customerData)
-            console.log("QUOTE:", quoteData)
-            console.log("LABOR:", laborData)
-            console.log("MATERAILS:", materialsData)
+            
+            // NOTHING NEEDS TO BE RETURNED SINCE THIS IS ONLY INSERTING DATA
 
             return {
                 customerData,

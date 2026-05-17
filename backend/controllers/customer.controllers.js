@@ -32,12 +32,11 @@ class CustomerControllers{
 
             const { customers, total } = await CustomerInfo.getAllCustomerInfo(user, limit, offset);
 
-            const totalCustomers = customers.length;
-            const paginatedCustomers = customers.slice(offset, offset + limit);
+            const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user);
 
-            const { quoteDetails } = await QuoteService.getQuoteInfo(paginatedCustomers, user);
+            const { data } = await JobService.getJobInfo(quoteDetails); 
 
-            const jobDetails = await JobService.getJobInfo(quoteDetails);
+            console.log(Array.isArray(data));
 
             const cusData = customers.map(cus => {
                 return{
@@ -45,7 +44,7 @@ class CustomerControllers{
                     quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
                         return{
                             ...qts,
-                            job: jobDetails.filter(job => job.quote_id === qts.id)
+                            job: data.filter(job => job.quote_id === qts.id)
                         }
                     })
                 }
@@ -61,8 +60,8 @@ class CustomerControllers{
                     total,
                     page,
                     limit,
-                    totalPages : Math.ceil(totalCustomers / limit),
-                    nextPage: page < Math.ceil(totalCustomers / limit),
+                    totalPages : Math.ceil(total / limit),
+                    nextPage: page < Math.ceil(total / limit),
                     prevPage: page > 1
                 }
             });

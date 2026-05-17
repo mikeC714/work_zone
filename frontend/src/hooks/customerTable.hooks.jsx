@@ -12,13 +12,10 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
         retry: false
     })
     
-    console.log("PAGE",data?.paginated);
     console.log("CUSTOMER", data?.cusData);
+
     const filteredData = useMemo(() => {
-        // let result = data?.paginated?.paginatedCustomers ?? [];
-
         let result = data?.cusData ?? [];
-
 
         if (activeFilter !== 'ALL') {
             result = result.map(cus => ({
@@ -27,6 +24,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
                         qt.status === activeFilter.toLowerCase().replace(' ', '_')
                     )
                 }))
+                .filter(cus => cus.quote.length > 0) 
         }
 
         if (searchFilter.trim() !== '') {

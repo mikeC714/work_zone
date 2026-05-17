@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 
 export function CustomerTable({ filteredData }) {
 
+    console.log(filteredData)
     dayjs.extend(calendar);
 
     function QuoteStatus({ status }){
@@ -50,11 +51,11 @@ export function CustomerTable({ filteredData }) {
                                 <div className="trRight">
                                     <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
                                     <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
-                                    <div className="quoteStatusCell"><QuoteStatus status={quote.status} /></div>
-                                    <div className="quoteCreatedAtTxt">{dayjs(quote.created_at).calendar(null, calendarConfig)}</div>
+                                    <div className="quoteStatusCell"><QuoteStatus status={quote?.status} /></div>
+                                    <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                 </div>
                             </div>
-                    )) : <p> No Customers.</p> }
+                    )) :<p> No Customers.</p> }
                 </div>
             </div>
         </div>
