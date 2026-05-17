@@ -26,28 +26,23 @@ class CustomerControllers{
     async getAllUserCustomers(req, res){
         const user = req.user;
         try{
-            const page = parseInt(req.query.page) || 1;
+            const page  = parseInt(req.query.page)  || 1;
             const limit = parseInt(req.query.limit) || 20;
-            const offset = (page -1) * limit;
-            
-            const { customers } = await CustomerInfo.getAllCustomerInfo(user, offset);
+            const offset = (page - 1) * limit;
+
+            const { customers, total } = await CustomerInfo.getAllCustomerInfo(user, limit, offset);
 
             const totalCustomers = customers.length;
             const paginatedCustomers = customers.slice(offset, offset + limit);
-            
-            const { quoteDetails } = await QuoteService.getQuoteInfo(paginatedCustomers, user)
 
-            console.log("QUOTE DETAILS:",quoteDetails);
+            const { quoteDetails } = await QuoteService.getQuoteInfo(paginatedCustomers, user);
 
             const jobDetails = await JobService.getJobInfo(quoteDetails);
 
-            console.log(cusData)
-
-            const cusData = customers.map(customer => {
-                console.log([...customer]);
+            const cusData = customers.map(cus => {
                 return{
-                    ...customer,
-                    quote: quoteDetails.map(qt => qt.customer.id === customer.id).map(qts => {
+                    ...cus,
+                    quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
                         return{
                             ...qts,
                             job: jobDetails.filter(job => job.quote_id === qts.id)
@@ -56,12 +51,14 @@ class CustomerControllers{
                 }
             });
 
+
+            const totalPages = Math.ceil(total / limit);
+
             return res.status(200).json({
                 success: true,
                 cusData,
                 paginated: {
-                    paginatedCustomers,
-                    totalCustomers,
+                    total,
                     page,
                     limit,
                     totalPages : Math.ceil(totalCustomers / limit),

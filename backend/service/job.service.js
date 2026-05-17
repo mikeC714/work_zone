@@ -14,7 +14,7 @@ class JobService{
             return { data: [] };
         }
         try{
-            const quoteIds = quotes.data.map(qts => qts.id);
+            const quoteIds = quotes.map(qts => qts.id);
             console.log("Quote Ids:", quoteIds)
 
             const results = await this.db.query(

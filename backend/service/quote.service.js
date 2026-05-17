@@ -15,8 +15,6 @@ class QuoteService{
         }
         const cusIds = customers.map(c => c.id);
 
-        console.log(cusIds)
-
         try{
             const results = await this.db.query(
                 `SELECT
