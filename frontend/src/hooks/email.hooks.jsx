@@ -1,18 +1,14 @@
-import { useMutation } from '@tanstack/react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { Loader } from 'lucide-react'; 
 import config from '../config.js';
 
-export async function sendQuote(){
-    useMutation({
+export async function useEmailHook(){
+    const {mutate: sendEmail, isPending: isSendingEmail, isError: isEmailErr} = useMutation({
         mutationFn: async (quote) => await apiFetch(`http://${config.SERVER}/api/quote/send`, "POST", quote),
         retry: true,
         onSuccess: () => {
-            return (
-                <div className="sendQuoteOverlay">
-                    <p className="sendQuoteSuccess">Quote Sent!</p>
-                </div>
-            )
+            QueryClient.invalidateQueries("customers")
         },
         isPending: () => {
             return (
@@ -29,4 +25,10 @@ export async function sendQuote(){
             )
         }   
     })
+
+    return{
+        sendEmail,
+        isSendingEmail,
+        isEmailErr
+    }
 }

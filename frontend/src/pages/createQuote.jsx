@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
+import { useEmailHook } from '../hooks/email.hooks.jsx';
 import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
-import { sendQuote } from "../hooks/email.hooks.jsx";
 import { CreateQuoteForm } from '../comps/createQuote.form.jsx';
 import { CqNavBar } from '../comps/navBar.jsx'
-import { Send } from 'lucide-react';
+import { Send, Loader, Check } from 'lucide-react';
 
 export function CreateQuote(){
-    const {mutate, isPending, isError, error, isSuccess} = useCreateQuote();
+    const {mutate, isPending, isError, isSuccess} = useCreateQuote();
+    const {sendEmail, isSendingEmail, isEmailErr, emailSent} = useEmailHook();
     const [userMarkup, setUserMarkup] = useState(0);
     const [materials, setMaterials] = useState([
         {
@@ -39,6 +40,25 @@ export function CreateQuote(){
     function handleStatusChange(e){
         setStatus(e.target.value);
     }
+
+    function handleSendEmail(){
+        sendEmail({
+            customer: customerInfo,
+            quote: {markup: Number(userMarkup), total: Number(total.toFixed(2))},
+            labor: labor.map(l => ({
+                ...l,
+                hours: Number(l.hours),
+                hourlyRate: Number(l.hourlyRate)
+            })),
+            materials: materials.map(m => ({
+                ...m,
+                quantity: Number(m.quantity),
+                unitCost: Number(m.unitCost)
+            }))
+        })
+    }
+
+
 
     function handleSaveQuote() {
       mutate({
@@ -138,6 +158,23 @@ export function CreateQuote(){
 
     return (
         <div className='createQuotePage'>
+
+            {isSendingEmail && (
+                <div className='overlay'>
+                    <Loader />
+                </div>
+            )}
+            {emailSent && (
+                <div className='overlay'>
+                    <p className='sendQuoteSuccess'>Quote Sent!</p>
+                </div>
+            )}
+            {isEmailErr && (
+                <div className='overlay'>
+                    <p>Failed to send quote.</p>
+                </div>
+            )}
+
             <CqNavBar 
                 handleSaveQuote={handleSaveQuote}
                 handleStatusChange={handleStatusChange}
@@ -189,9 +226,9 @@ export function CreateQuote(){
 
                     <button 
                         className='cqSendToCustomerBtn'
-                        onClick={(e) => {
-                            handleSaveQuote(),
-                            sendQuote()
+                        onClick={() => {
+                            handleSaveQuote();
+                            handleSendQuote();
                         }}
                     >
                         SEND TO CUSTOMER <Send size={14} />

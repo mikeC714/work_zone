@@ -21,7 +21,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
             result = result.map(cus => ({
                     ...cus,
                     quote: cus.quote.filter(qt => 
-                        qt.status === activeFilter.toLowerCase().replace(' ', '_')
+                        qt.status === activeFilter
                     )
                 }))
                 .filter(cus => cus.quote.length > 0) 
