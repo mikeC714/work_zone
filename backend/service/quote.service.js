@@ -32,8 +32,6 @@ class QuoteService{
                 `, [userId, cusIds]
             )
 
-            console.log("RESULTS:", results)
-
             return {
                 quoteDetails: results.rows
             }
