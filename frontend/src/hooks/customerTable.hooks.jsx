@@ -27,15 +27,19 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
                 .filter(cus => cus.quote.length > 0) 
         }
 
-        if (searchFilter.trim() !== '') {
+       if (searchFilter.trim() !== '') {
             const search = searchFilter.toLowerCase().trim();
-            result = result.filter(cus => 
-                cus.first_name?.toLowerCase().includes(search) ||
-                cus.last_name?.toLowerCase().includes(search) ||
-                cus.quote.some(qt => qt.job_id?.toLowerCase().includes(search))||
-                cus.quote.some(qt => qt.job?.some(job => job.description.toLowerCase().includes(search)))
-            );
+            result = result.filter((cus, i) =>{
+                const cusId = `qt-${String(i + 1).padStart(3, '0')}`;
+                return(
+                    cus.first_name?.toLowerCase().includes(search) ||
+                    cus.last_name?.toLowerCase().includes(search) ||
+                    `qt-${String(i + 1).padStart(3, '0')}`.includes(search.toLowerCase())||
+                    cus.quote.some(qt => qt.job?.some(job => job.description?.toLowerCase().includes(search)))
+            )
         }
+    );
+}
 
         return result;
 
