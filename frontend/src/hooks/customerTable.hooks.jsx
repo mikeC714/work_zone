@@ -11,8 +11,6 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
         placeholderData: keepPreviousData,
         retry: false
     })
-    
-    console.log("CUSTOMER", data?.cusData);
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];

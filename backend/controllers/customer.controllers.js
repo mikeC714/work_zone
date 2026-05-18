@@ -124,7 +124,8 @@ class CustomerControllers{
 
             return res.status(200).json({
                 success: true,
-                message: "Successfully created a new quote."
+                token: safeEmailToken,
+                id: quoteId
             });
 
         }catch(err){

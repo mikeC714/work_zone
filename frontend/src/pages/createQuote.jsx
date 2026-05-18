@@ -40,11 +40,11 @@ export function CreateQuote(){
     function handleStatusChange(e){
         setStatus(e.target.value);
     }
-
-    function handleSendEmail(){
-        sendEmail({
+    
+    function handleSendQuote() {
+        saveQuote({
             customer: customerInfo,
-            quote: {markup: Number(userMarkup), total: Number(total.toFixed(2))},
+            quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
             labor: labor.map(l => ({
                 ...l,
                 hours: Number(l.hours),
@@ -55,9 +55,19 @@ export function CreateQuote(){
                 quantity: Number(m.quantity),
                 unitCost: Number(m.unitCost)
             }))
-        })
+        }, {
+            onSuccess: (data) => {
+                sendEmail({
+                    id: data.id,
+                    token: data.token,
+                    customer: customerInfo,
+                    quote: { markup: Number(userMarkup), total: Number(total.toFixed(2)) },
+                    labor: labor.map(l => ({ ...l, hours: Number(l.hours), hourlyRate: Number(l.hourlyRate) })),
+                    materials: materials.map(m => ({ ...m, quantity: Number(m.quantity), unitCost: Number(m.unitCost) }))
+                });
+            }
+        });
     }
-
 
 
     function handleSaveQuote() {
@@ -226,11 +236,7 @@ export function CreateQuote(){
 
                     <button 
                         className='cqSendToCustomerBtn'
-                        onClick={() => {
-                            handleSaveQuote();
-                            handleSendQuote();
-                        }}
-                    >
+                        onClick={() => handleSendQuote()}>
                         SEND TO CUSTOMER <Send size={14} />
                     </button>
                 </div>

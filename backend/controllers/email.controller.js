@@ -4,29 +4,38 @@ import { encrypt, decrypt } from "../utils/encrypt.js";
 import QuoteService from "../service/quote.service.js";
 
 class EmailControllers{
+    //  sendEmail({
+    //                 id: data.id,
+    //                 token: data.token,
+    //                 customer: customerInfo,
+    //                 quote: { markup: Number(userMarkup), total: Number(total.toFixed(2)) },
+    //                 labor: labor.map(l => ({ ...l, hours: Number(l.hours), hourlyRate: Number(l.hourlyRate) })),
+    //                 materials: materials.map(m => ({ ...m, quantity: Number(m.quantity), unitCost: Number(m.unitCost) }))
+    //             });
+    //         }
+    // { id: user, quoteId, customerId }
     async handleSending(req, res){
         const user = req.user;
         const data = req.body;
-        console.log(data);
 
         if(!data){
-            return res.send()
+            return res.status(400).json({ message: "Missing data feild. Cannot " })
         }
+
+        const decrypted = decrypt(data.token);
+        const valid = Auth.verifyEmail(decrypted);
+        if(!valid){
+            return res.status(400).json({ message: "Token provided is invalid." });
+        }
+
         try{
-            const token = await Auth.signEmail({id: user, customerEmail: data.customer.email, quoteId: quoteData.id});
-            const safeToken = await encrypt(token);
-            await TokensService.storeQuoteToken(quoteData.id ,safeToken);
-
-            await QuoteService.changeQuoteStatus(user, quoteData.id);
-
-            const link = `http://${process.env.PORT}/quote/accept?token=${token}`
-
-            const status = "Sent";
-
-            await EmailService.send(user, data, link);
-            await QuoteService.changeQuoteStatus(data.quote.id, status);
+            const link = `http://${process.env.PORT}/quote/accept?token=${data.token}`
+            const status = "SENT";
             
-            return res.send("Email Successfully Sent!")
+            await QuoteService.changeQuoteStatus(data.id, status);
+            await EmailService.send(user, data, link);
+
+            return res.status(200).json({ success: true, message: "Successfully sent quote." });
         }catch(err){
             return res.send("Failed to send email. Please try again.")
         }
@@ -37,25 +46,20 @@ class EmailControllers{
         if(!token){
            return res.status(400).json({ message: "Invalid token, token may have expired." });
         }
+
+        const decrypted = decrypt(token);
+        const valid = Auth.verifyEmail(decrypted);
+        if(!valid){
+            return res.status(400).json({ message: "Token provided is invalid." });
+        }
+
         try{
-            const verified = await Auth.verifyEmail(token)
-            const decoded = await Auth.decode(verified);
-
-            const storedToken = await QuoteService.getQuoteToken(decoded.payload.id, decoded.payload.quoteId);
-            const decrypted = await decrypt(storedToken);
-        
-            const decodedStored = await Auth.decode(decrypted);
             const status = "Approved";
-
-            if(decoded.payload.id === decodedStored.payload.id &&
-                decoded.payload.customerEmail === decodedStored.payload.customerEmail
-            ){
-                await QuoteService.changeQuoteStatus(decoded.payload.id, status);
-                return res.sendFle(path.join(__dirname, 'public/thank-you.html'));
-            }
-            return res.sendFile(path.join(__dirname, 'public/failed.html'))
+            await QuoteService.changeQuoteStatus(valid.payload.quoteId, status);
+            return res.sendFile(path.join(__dirname, 'public/thank-you.html'));
         }catch(err){
             throw new Error("Failed to accept quote.");
+            return res.sendFile(path.join(__dirname, 'public/failed.html'))
         }
     }
 }

@@ -4,24 +4,24 @@ import dayjs from 'dayjs';
 
 export function CustomerTable({ filteredData }) {
 
-    console.log(filteredData)
     dayjs.extend(calendar);
 
     function QuoteStatus({ status }){
         switch(status){
-            case 'sent' :
+            case 'SENT' :
                 return <div className='quoteStatus sentStatusStyle'>SENT</div>
-            case 'pending' :
+            case 'PENDING' :
                 return <div className='quoteStatus pendingStatusStyle'>PENDING</div> 
-            case 'approved' :
+            case 'APPROVED' :
                 return <div className='quoteStatus approvedStatusStyle'>APPROVED</div>
-            case 'completed' :
+            case 'COMPLETED' :
                 return <div className='quoteStatus completedStatusStyle'>COMPLETED</div>
             default:
                 return <div className='quoteStatus draftStatusStyle'>DRAFT</div>
         
         }
     }
+
 
     return(
         <div>
@@ -39,23 +39,26 @@ export function CustomerTable({ filteredData }) {
                     </div>
                 </div>
                 <div className="tableBody">
-                    { filteredData?.length > 0 ? filteredData.map((customer, customerIndex ) =>
-                        customer.quote.map(quote =>
-                            <div key={quote.id} className="customerDataRow">
-                                <div className="trLeft">
-                                    <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
-                                    <div className="customerNameNAdd">
-                                        <span className="customerAddressTxt"> {customer.name}{customer.address}</span>
+                    { filteredData?.length > 0 ? 
+                    filteredData.map((customer, customerIndex ) =>
+                        [...customer.quote]
+                            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                            .map(quote =>
+                                <div key={quote.id} className="customerDataRow">
+                                    <div className="trLeft">
+                                        <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
+                                        <div className="customerNameNAdd">
+                                            <span className="customerAddressTxt"> {customer.name}{customer.address}</span>
+                                        </div>
+                                    </div>
+                                    <div className="trRight">
+                                        <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
+                                        <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
+                                        <div className="quoteStatusCell"><QuoteStatus status={quote?.status} /></div>
+                                        <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                     </div>
                                 </div>
-                                <div className="trRight">
-                                    <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
-                                    <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
-                                    <div className="quoteStatusCell"><QuoteStatus status={quote?.status} /></div>
-                                    <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
-                                </div>
-                            </div>
-                    )) :<p> No Customers.</p> }
+                        )) :<p> No Customers.</p> }
                 </div>
             </div>
         </div>

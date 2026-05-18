@@ -2,8 +2,6 @@ import { useQuickAccess} from "../../hooks/quickAccess.hooks.jsx";
 
 export function QuickAccess(){
     const { data, isLoading, isError } = useQuickAccess();
-
-    console.log("QUICK ACCESS:", data);
     
     return (
         <div className='statCardsGrid'>
