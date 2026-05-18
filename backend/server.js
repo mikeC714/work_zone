@@ -26,9 +26,6 @@ app.use('/api', emailRouter)
 app.use('/api', jobRouter)
 app.use('/api', notiRouter)
 
-app.get("/", AuthMiddleware.verifyToken, (req, res) => {
-    res.redirect("/dashboard");
-})
 
 
 app.listen(PORT, () => {

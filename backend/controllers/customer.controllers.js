@@ -38,9 +38,7 @@ class CustomerControllers{
             const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user);
 
             const { data } = await JobService.getJobInfo(quoteDetails); 
-
-            console.log(Array.isArray(data));
-
+            
             const cusData = customers.map(cus => {
                 return{
                     ...cus,
@@ -80,7 +78,6 @@ class CustomerControllers{
         try{
             const customerIds = await CustomerInfo.getAllCustomerIds(user);
             const quotes = await QuoteService.getQuoteInfo(customerIds, user);
-            console.log("Quotes:", quotes);
             const customerQuoteDetails = await CustomerService.customerQuoteInfo(quotes, user)
 
             return res.status(200).json({

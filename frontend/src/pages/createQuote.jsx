@@ -35,13 +35,13 @@ export function CreateQuote(){
         address: "",
     });
 
-    const [status, setStatus] = useState('Draft');
+    const [status, setStatus] = useState('DRAFT');
 
     function handleStatusChange(e){
         setStatus(e.target.value);
     }
     
-    function handleSendQuote() {
+    async function handleSendQuote() {
         saveQuote({
             customer: customerInfo,
             quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
@@ -71,7 +71,7 @@ export function CreateQuote(){
 
 
     function handleSaveQuote() {
-      mutate({
+      saveQuote({
         customer: customerInfo,
         quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
         labor: labor.map(l => ({

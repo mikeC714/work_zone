@@ -76,6 +76,7 @@ class AuthMiddleware{
             if(decryptedStored !== rToken){
                 const validStored = Auth.verifyRefresh(decryptedStored);
                 if(validStored.payload.id === valid.payload.id){
+                    console.log("USING EXISTING TOKEN")
                     req.user = id;
                     return next();
                 }
@@ -113,6 +114,7 @@ class AuthMiddleware{
         }catch(err){
             return res.status(500).json({ error: err.message });
         }finally{
+            console.log("RELEASE")
             release();
             const mutex = AuthMiddleware.#mutexMap.get(id);
             if(mutex && mutex.isLocked()){

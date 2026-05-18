@@ -15,7 +15,6 @@ class JobService{
         }
         try{
             const quoteIds = quotes.map(qts => qts.id);
-            console.log("Quote Ids:", quoteIds)
 
             const results = await this.db.query(
                 `SELECT 
@@ -27,8 +26,6 @@ class JobService{
                 WHERE quote_id = ANY ($1)
                 `, [quoteIds]
             );
-
-            console.log("JOB RES:",results.rows);
 
             return {
                 data: results.rows || []

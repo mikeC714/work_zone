@@ -4,7 +4,7 @@ import { Loader } from 'lucide-react';
 import config from '../config.js';
 
 export async function useEmailHook(){
-    const {mutate: sendEmail, isPending: isSendingEmail, isError: isEmailErr} = useMutation({
+    const {mutate, isPending: isSendingEmail, isError: isEmailErr} = useMutation({
         mutationFn: async (quote) => await apiFetch(`http://${config.SERVER}/api/quote/send`, "POST", quote),
         retry: true,
         onSuccess: () => {
@@ -27,7 +27,7 @@ export async function useEmailHook(){
     })
 
     return{
-        sendEmail,
+        mutate,
         isSendingEmail,
         isEmailErr
     }

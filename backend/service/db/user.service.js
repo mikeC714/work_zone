@@ -17,9 +17,7 @@ class UserService{
                 "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
                 [firstName, lastName, email, password]
             );
-
-            console.log("NEW USER:", newUser.rows)
-
+            
             return newUser.rows[0]; 
         }catch(err){
             throw new Error(err.message);

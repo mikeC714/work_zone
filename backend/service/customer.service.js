@@ -97,7 +97,6 @@ class customerService{
             }
         }
         try{
-            console.log("Quotes From Service:", quotes);
             const quotedJobs = await Promise.all(
                 quotes.map(async quote => {
                     const jobInfo = await JobService.getJobInfo([quote]);
