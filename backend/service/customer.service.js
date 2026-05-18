@@ -131,32 +131,6 @@ class customerService{
         }, {})        
     }
 
-    /*
-    function handleSaveQuote() {
-      mutate({
-        customer: customerInfo,
-        quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
-        labor: labor.map(l => ({
-            ...l,
-            hours: Number(l.hours),
-            hourlyRate: Number(l.hourlyRate)
-        })),
-        materials: materials.map(m => ({
-            ...m,
-            quantity: Number(m.quantity),
-            unitCost: Number(m.unitCost)
-        })),
-      })
-        if(isSuccess){ 
-            return(
-                <div className="cqPageOverlay">
-                    <p className="cqSuccessMsg">Successfully Created Quote.</p>
-                </div>
-            )
-        } 
-    }
- */
-
     async createQuote(user, customer, quote, labor, materials){
         try{
             const customerData = await this.db.query(
@@ -198,10 +172,8 @@ class customerService{
             // NOTHING NEEDS TO BE RETURNED SINCE THIS IS ONLY INSERTING DATA
 
             return {
-                customerData,
-                quoteData,
-                laborData,
-                materialsData
+                customerId: customerData.rows[0].id,
+                quoteId: quoteData.rows[0].id
             };
         }catch(err){
             throw new Error(`Failed to insert quote: ${err.message}`);

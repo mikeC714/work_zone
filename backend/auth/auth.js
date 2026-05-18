@@ -15,7 +15,7 @@ class Auth{
         this.#expiry = process.env.JWT_EXPIRY || "15m"; 
         this.#refreshExpiry = process.env.JWT_REFRESH_EXPIRY || "1d";
         this.#refreshSecret = process.env.JWT_REFRESH_SECRET;
-        this.#emailSecret = process.env.EMAIL_TOKEN
+        this.#emailSecret = process.env.JWT_EMAIL_SECRET
         this.#emailExpiry = "2d"
     }
     

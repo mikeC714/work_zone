@@ -61,10 +61,10 @@ export function NavBar(){
 export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
     const navigate = useNavigate()
     const options= [
-        {label: 'Draft', value: 'draft'},
-        {label: 'Pending', value: 'pending'},
-        {label: 'Approved', value: 'approved'},
-        {label: 'Completed', value: 'completed'}
+        {label: 'Draft', value: 'DRAFT'},
+        {label: 'Pending', value: 'PENDING'},
+        {label: 'Approved', value: 'APPROVED'},
+        {label: 'Completed', value: 'Completed'}
     ]
 
     return(

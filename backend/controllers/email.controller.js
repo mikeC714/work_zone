@@ -7,6 +7,11 @@ class EmailControllers{
     async handleSending(req, res){
         const user = req.user;
         const data = req.body;
+        console.log(data);
+
+        if(!data){
+            return res.send()
+        }
         try{
             const token = await Auth.signEmail({id: user, customerEmail: data.customer.email, quoteId: quoteData.id});
             const safeToken = await encrypt(token);

@@ -77,12 +77,13 @@ export class TokenService{
             throw new Error("Quote token is unprovided.");
         }
         try{
+            
             await this.#db.query(
                 "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2)",
                 [id, token]
             );
         }catch(err){
-            throw new Error("Failed to store quote token.", err.message);
+            throw new Error(err.message);
         }
     }
 

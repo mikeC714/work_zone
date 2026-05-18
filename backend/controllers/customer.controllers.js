@@ -1,6 +1,9 @@
 import { CustomerInfo, CustomerService } from "../service/customer.service.js";
-import JobService from "../service/job.service.js";
 import QuoteService from "../service/quote.service.js";
+import JobService from "../service/job.service.js";
+import Auth from "../auth/auth.js";
+import TokenService from "../service/db/token.service.js"
+import { encrypt } from "../utils/encrypt.js";
 
 class CustomerControllers{
     
@@ -113,13 +116,15 @@ class CustomerControllers{
 
         try{
 
-            const newQuote = await CustomerService.createQuote(user, customer, quote, labor, materials);
-            console.log(req.user)
-            console.log("New Quote:", newQuote)
-
+            const { customerId, quoteId } = await CustomerService.createQuote(user, customer, quote, labor, materials);
             
+            const emailToken = await Auth.signEmail({ id: user, quoteId, customerId })
+            const safeEmailToken = encrypt(emailToken);
+            await TokenService.storeQuoteToken( quoteId, safeEmailToken);
+
             return res.status(200).json({
-                ...newQuote
+                success: true,
+                message: "Successfully created a new quote."
             });
 
         }catch(err){
