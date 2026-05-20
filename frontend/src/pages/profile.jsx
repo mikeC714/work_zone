@@ -186,14 +186,12 @@ export function ProfilePage() {
     const { data, isLoading, isError } = useQuickAccess();
     const { firstName, lastName, created_at, nameInitials } = useUserContext()
     const fullName = firstName + " " + lastName
-    // console.log(created_at)
-    // const [h, m] = created_at?.split("T")[1].split(":");
-    // const ampm = h >= 12 ? "PM" : "AM";
-    // const currTime = `${h}:${m} ${ampm} `
-
+  
     const date = created_at?.split("T")[0];
-    console.log(date)
+    console.log(isLoading)
 
+    console.log(created_at)
+    console.log(data)
 
 
 
@@ -228,7 +226,7 @@ export function ProfilePage() {
                 <div className='profileStatsRow'>
                     <ProfileCard
                         icon={<Briefcase />}
-                        value={data?.activeJobs?.data}
+                        value={data?.activeJobs?.data.length}
                         isLoading={isLoading}
                         isError={isError}
                         label='ACTIVE JOBS'

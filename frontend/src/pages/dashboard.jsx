@@ -7,7 +7,8 @@ import { NavBar } from '../comps/navBar.jsx';
 export function Dashboard(){
     const [activeFilter, setActiveFilter] = useState('ALL');
     const [searchFilter, setSearchFilter] = useState('');
-    const { filteredData, pagination, isLoading, isError, error } = useCustomerTableHook({activeFilter, searchFilter});
+    const [page, setPage] = useState(1);
+    const { filteredData, paginated, isLoading, isError, error } = useCustomerTableHook({activeFilter, searchFilter, page});
     const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED']
 
     function handleSearchChange(e){
@@ -46,7 +47,9 @@ export function Dashboard(){
                 <div className='customerTableContainer'>
                     <CustomerTable 
                         filteredData={filteredData}
-                        pagination={pagination}
+                        page={paginated}
+                        currPage={page}
+                        setPage={setPage}
                     />
                 </div>
             </div>

@@ -1,9 +1,11 @@
 import { calendarConfig } from '../../../config/calender.config.js';
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
-export function CustomerTable({ filteredData }) {
+export function CustomerTable({ filteredData, page, currPage, setPage }) {
 
+    console.log(page)
     dayjs.extend(calendar);
 
     function QuoteStatus({ status }){
@@ -21,7 +23,6 @@ export function CustomerTable({ filteredData }) {
         
         }
     }
-
 
     return(
         <div>
@@ -59,6 +60,20 @@ export function CustomerTable({ filteredData }) {
                                     </div>
                                 </div>
                         )) :<p> No Customers.</p> }
+                        <div className=''>
+                            <button
+                                disabled = {page?.prevPage ? false : true}
+                                onClick={() => setPage(p => p -1)}
+                            >
+                                <ArrowLeft />
+                            </button>
+                            <button 
+                                disabled = {page?.nextPage ? false : true }
+                                onClick={() => setPage(p => p +1)}
+                            >
+                                <ArrowRight />
+                            </button>
+                        </div>
                 </div>
             </div>
         </div>

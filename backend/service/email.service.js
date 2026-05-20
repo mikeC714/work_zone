@@ -28,66 +28,17 @@ class EmailService{
             const { data, error } = await resend.emails.send({
                 from: user.email,
                 to: quoteData.customer.email,
-                subject: `Quote from ${user.name}`,
+                subject: `Quote from ${user.email}`,
                 html: `${quoteData}`,
                 html: `<a href="${link}"> Click the link to accept your quote!`
                 
             });
             if(error){
-                throw new Error("Failed to create email.");
+                throw new Error(error.message);
             }
-            console.log(data)
-
-            return {
-                data
-            }
+            console.log(data);
         }catch(err){
             throw new Error(err.message);
-        }
-    }
-
-
-
-    async quoteResponse(req,res){
-    const { token, action } = req.query;
-    
-        try{
-            const { data, error } = await supabase
-                .from('quotes')
-                .select('token')
-                .eq('token', token)
-                .single()
-        
-        
-            if(error || !data){
-                return res.status(500).json({
-                    success: false,
-                    error: `Quote not found ${error.message}`
-                })
-            }
-        
-            const { error: updateQuoteStatusError } = await supabase
-                .from('quotes')
-                .update({ status: action })
-                .eq('token', token)
-        
-            if(updateQuoteStatusError){
-                return res.status(500).json({
-                    success: false,
-                    error: `Failed to Update Quote Status ${updateQuoteStatusError.message}`
-                })
-            }
-        
-            return res.status(200).json({
-                success: true,
-                message: 'Quote status has successfully been updated '
-            })
-        
-        }catch(error){
-            return res.status(500).json({
-                success: false,
-                error: error.message
-            })
         }
     }
 }

@@ -1,5 +1,6 @@
 import Auth from "../auth/auth.js";
 import EmailService from "../service/email.service.js";
+import UserService from "../service/db/user.service.js";
 import { encrypt, decrypt } from "../utils/encrypt.js";
 import QuoteService from "../service/quote.service.js";
 
@@ -21,6 +22,7 @@ class EmailControllers{
         if(!data){
             return res.status(400).json({ message: "Missing data feild. Cannot " })
         }
+        console.log(data)
 
         const decrypted = decrypt(data.token);
         const valid = Auth.verifyEmail(decrypted);
@@ -30,14 +32,16 @@ class EmailControllers{
 
         try{
             const link = `http://${process.env.PORT}/quote/accept?token=${data.token}`
-            const status = "SENT";
-            
-            await QuoteService.changeQuoteStatus(data.id, status);
-            await EmailService.send(user, data, link);
+
+            const userCred = await UserService.getUserById(user);
+            console.log("USER:",userCred.rows[0])
+            await QuoteService.changeQuoteStatus(data.id) ;
+            await EmailService.send(userCred.rows[0], data, link);
 
             return res.status(200).json({ success: true, message: "Successfully sent quote." });
         }catch(err){
-            return res.send("Failed to send email. Please try again.")
+            return res.send(err.message);
+            // return res.send("Failed to send email. Please try again.")
         }
     }
 

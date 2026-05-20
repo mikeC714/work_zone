@@ -3,7 +3,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
 
-export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 20}){
+export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 15}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?page=${page}&limit=${limit}`),
@@ -11,6 +11,7 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
         placeholderData: keepPreviousData,
         retry: false
     })
+
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];
@@ -45,9 +46,8 @@ export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', pa
 
 
     return {
-        data, 
+        paginated: data?.paginated, 
         filteredData: filteredData || {},
-        customers: data?.paginated?.paginatedCustomers || [], 
         isLoading, 
         isError, 
         error 

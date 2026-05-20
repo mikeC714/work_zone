@@ -9,7 +9,7 @@ import { Send, Loader, Check } from 'lucide-react';
 
 export function CreateQuote(){
     const {mutate, isPending, isError, isSuccess} = useCreateQuote();
-    const {sendEmail, isSendingEmail, isEmailErr, emailSent} = useEmailHook();
+    const {mutate:sendEmail, isSendingEmail, isEmailErr, emailSent} = useEmailHook();
     const [userMarkup, setUserMarkup] = useState(0);
     const [materials, setMaterials] = useState([
         {
@@ -42,7 +42,7 @@ export function CreateQuote(){
     }
     
     async function handleSendQuote() {
-        saveQuote({
+        mutate({
             customer: customerInfo,
             quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
             labor: labor.map(l => ({
@@ -71,7 +71,7 @@ export function CreateQuote(){
 
 
     function handleSaveQuote() {
-      saveQuote({
+      mutate({
         customer: customerInfo,
         quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
         labor: labor.map(l => ({
