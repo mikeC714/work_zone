@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
-export function CustomerTable({ filteredData, page, currPage, setPage }) {
+export function CustomerTable({ data, page, currPage, setPage }) {
 
     console.log(page)
     dayjs.extend(calendar);
@@ -40,8 +40,8 @@ export function CustomerTable({ filteredData, page, currPage, setPage }) {
                     </div>
                 </div>
                 <div className="tableBody">
-                    { filteredData?.length > 0 ? 
-                    filteredData.map((customer, customerIndex ) =>
+                    { data?.length > 0 ? 
+                    data.map((customer, customerIndex ) =>
                         [...customer.quote]
                             .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
                             .map(quote =>

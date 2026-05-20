@@ -5,7 +5,7 @@ import config from "../config.js"
 
 export function useCustomerTableHook({activeFilter= 'ALL', searchFilter = '', page = 1, limit = 15}){
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['customers', page, limit], 
+        queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,

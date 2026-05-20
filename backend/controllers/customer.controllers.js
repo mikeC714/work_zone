@@ -28,14 +28,16 @@ class CustomerControllers{
 
     async getAllUserCustomers(req, res){
         const user = req.user;
-        try{
+        try{    
+            const filter = req.query.activeFilter;
+
             const page  = parseInt(req.query.page)  || 1;
             const limit = parseInt(req.query.limit) || 20;
             const offset = (page - 1) * limit;
 
             const { customers, total } = await CustomerInfo.getAllCustomerInfo(user, limit, offset);
 
-            const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user);
+            const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user, filter);
 
             const { data } = await JobService.getJobInfo(quoteDetails); 
             

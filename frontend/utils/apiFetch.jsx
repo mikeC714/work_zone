@@ -11,7 +11,13 @@ const options = {
   
     const res = await fetch(url, options);
 
-    if (!res.ok) {
+    if (!res.ok) {      
+    
+      if(res.status === 401){
+        window.location.href = '/auth'
+        return;
+      }
+
       let message;
 
       const contentType = res.headers.get('content-type');
@@ -25,6 +31,7 @@ const options = {
 
     throw new Error(message);
   }
+
 
   return await res.json()
 };

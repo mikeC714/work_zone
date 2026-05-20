@@ -31,9 +31,11 @@ const user = {
 };
 
 function Overview() {
-    const { firstName, lastName, email } = useUserContext();
+    const { firstName, lastName, email, created_at } = useUserContext();
     const fullName = firstName + " " + lastName
-
+    const date = created_at?.split("T")[0];
+    dayjs(date).format('MMMM D, YYYY')
+    
     return (
         <div className='profileOverviewCard'>
             <section className='profileInfoSection'>
@@ -77,7 +79,7 @@ function Overview() {
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Joined</span>
-                        <span className='profileFieldValue'>{user.joined}</span>
+                        <span className='profileFieldValue'>{date}</span>
                     </div>
                 </div>
             </section>
@@ -186,14 +188,8 @@ export function ProfilePage() {
     const { data, isLoading, isError } = useQuickAccess();
     const { firstName, lastName, created_at, nameInitials } = useUserContext()
     const fullName = firstName + " " + lastName
-  
     const date = created_at?.split("T")[0];
-    console.log(isLoading)
-
-    console.log(created_at)
-    console.log(data)
-
-
+   
 
     // localStorage.setItem() find a solution to be able to differentiate the users want to use user_id 
 
