@@ -5,7 +5,7 @@ class QuoteService{
         this.db = db;
     }
     
-    async getQuoteInfo(customers, userId, filter){
+    async getQuoteInfo(customers, userId, filter, limit, offset){
         if(!userId){
             throw new Error("Invalid user, user id is not provided.");
         }
@@ -25,12 +25,15 @@ class QuoteService{
                     status,
                     total,
                     markup,
-                    created_at
+                    created_at,
+                    COUNT(*) OVER() AS total_count
                 FROM quotes
                 WHERE user_id = $1
                 AND status = $2
                 AND customer_id = ANY ($3::uuid[])
-                `, [userId, filter, cusIds]
+                ORDER BY created_at
+                LIMIT 14 OFFSET $4
+                `, [userId, filter, cusIds, offset]
             )
             ):(
                 await this.db.query(
@@ -44,12 +47,17 @@ class QuoteService{
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY ($2::uuid[])
-                    `, [userId, cusIds]
+                    ORDER BY created_at
+                    LIMIT 14 OFFSET $3
+                    `, [userId, cusIds, offset]
                 ) 
             )
 
+
+
             return {
-                quoteDetails: results.rows
+                quoteDetails: results.rows,
+                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count) : 0
             }
         }catch(err){
             throw new Error(err.message);

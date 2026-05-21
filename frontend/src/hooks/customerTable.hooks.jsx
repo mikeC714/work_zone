@@ -3,28 +3,20 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
 
-export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 15}){
+export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 12}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
-        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?page=${page}&limit=${limit}`),
+        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?activeFilter=${activeFilter}&page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 5,
         placeholderData: keepPreviousData,
         retry: false
     })
 
+    console.log(data?.paginated)
+
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];
-
-        if (activeFilter !== 'ALL') {
-            result = result.map(cus => ({
-                    ...cus,
-                    quote: cus.quote.filter(qt => 
-                        qt.status === activeFilter
-                    )
-                }))
-                .filter(cus => cus.quote.length > 0) 
-        }
 
        if (searchFilter.trim() !== '') {
             const search = searchFilter.toLowerCase().trim();

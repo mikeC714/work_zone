@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 export function CustomerTable({ data, page, currPage, setPage }) {
 
-    console.log(page)
+    
     dayjs.extend(calendar);
 
     function QuoteStatus({ status }){

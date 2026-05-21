@@ -32,12 +32,12 @@ class CustomerControllers{
             const filter = req.query.activeFilter;
 
             const page  = parseInt(req.query.page)  || 1;
-            const limit = parseInt(req.query.limit) || 20;
-            const offset = (page - 1) * limit;
+            const limit = parseInt(req.query.limit) || 12;
+            const offset = (page-1) * limit;
 
-            const { customers, total } = await CustomerInfo.getAllCustomerInfo(user, limit, offset);
+            const { customers } = await CustomerInfo.getAllCustomerInfo(user);
 
-            const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user, filter);
+            const { quoteDetails } = await QuoteService.getQuoteInfo(customers, user, filter, limit, offset);
 
             const { data } = await JobService.getJobInfo(quoteDetails); 
             
@@ -53,8 +53,13 @@ class CustomerControllers{
                 }
             });
 
+            console.log(quoteDetails.length)
 
-            const totalPages = Math.ceil(total / limit);
+            const totalPages = Math.ceil(cusData.length / limit);
+            const total = cusData.length;
+
+            console.log(Math.floor(totalPages));
+            console.log(total);
 
             return res.status(200).json({
                 success: true,
@@ -63,7 +68,7 @@ class CustomerControllers{
                     total,
                     page,
                     limit,
-                    totalPages : Math.ceil(total / limit),
+                    totalPages,
                     nextPage: page < Math.ceil(total / limit),
                     prevPage: page > 1
                 }

@@ -46,7 +46,7 @@ export function Dashboard(){
 
                 <div className='customerTableContainer'>
                     <CustomerTable 
-                        filteredData={filteredData}
+                        data={filteredData}
                         page={paginated}
                         currPage={page}
                         setPage={setPage}

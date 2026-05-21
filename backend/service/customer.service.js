@@ -26,18 +26,15 @@ class customerInfo{
         }
     }
 
-    async getAllCustomerInfo(userId, limit, offset){
+    async getAllCustomerInfo(userId){
         if(!userId){
             throw new Error("Invalid user. Failed to fetch all customer info.");
         }
         try{
             const results = await this.db.query(
-                `SELECT customers.*, COUNT(*) OVER() AS total_count
-                FROM customers 
+                `SELECT * FROM customers 
                 WHERE user_id = $1
-                ORDER BY created_at
-                LIMIT $2 OFFSET $3
-                `,[userId, limit, offset]
+                `,[userId]
             );
 
             if(!results){
@@ -48,7 +45,6 @@ class customerInfo{
             
             return{
                 customers: results.rows,
-                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count) : 0
             }
             
         }catch(err){
