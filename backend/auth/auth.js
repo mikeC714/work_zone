@@ -21,7 +21,6 @@ class Auth{
     
     sign(payload){
         try{
-            console.log(this.#expiry)
             return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
         }catch(err){
             throw err;

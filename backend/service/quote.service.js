@@ -5,7 +5,7 @@ class QuoteService{
         this.db = db;
     }
     
-    async getQuoteInfo(customers, userId){
+    async getQuoteInfo(customers, userId, filter){
         if(!userId){
             throw new Error("Invalid user, user id is not provided.");
         }
@@ -16,18 +16,36 @@ class QuoteService{
         const cusIds = customers.map(c => c.id);
 
         try{
-            const results = await this.db.query(
+            const results = filter !== "ALL" ? 
+            (
+                await this.db.query(
                 `SELECT
                     id,
-                    customer_id, 
+                    customer_id,
                     status,
                     total,
                     markup,
                     created_at
                 FROM quotes
                 WHERE user_id = $1
-                AND customer_id = ANY ($2::uuid[])
-                `, [userId, cusIds]
+                AND status = $2
+                AND customer_id = ANY ($3::uuid[])
+                `, [userId, filter, cusIds]
+            )
+            ):(
+                await this.db.query(
+                    `SELECT
+                        id,
+                        customer_id, 
+                        status,
+                        total,
+                        markup,
+                        created_at
+                    FROM quotes
+                    WHERE user_id = $1
+                    AND customer_id = ANY ($2::uuid[])
+                    `, [userId, cusIds]
+                ) 
             )
 
             return {
