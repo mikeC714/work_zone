@@ -3,7 +3,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
 
-export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 12}){
+export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 15}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?activeFilter=${activeFilter}&page=${page}&limit=${limit}`),

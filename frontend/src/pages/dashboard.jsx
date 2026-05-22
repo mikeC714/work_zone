@@ -31,7 +31,10 @@ export function Dashboard(){
                             <button 
                                 className={`statusBtns ${activeFilter === btns ? 'active' : ''}`}
                                 key={btns} 
-                                onClick={() => setActiveFilter(btns)}>
+                                onClick={() => {
+                                    setActiveFilter(btns);
+                                    setPage(1);
+                                }}>
                                 {btns}
                             </button>
                         ))}

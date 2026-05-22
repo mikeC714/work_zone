@@ -26,14 +26,14 @@ class QuoteService{
                     total,
                     markup,
                     created_at,
-                    COUNT(*) OVER() AS total_count
+                COUNT(*) OVER() AS total_count
                 FROM quotes
                 WHERE user_id = $1
                 AND status = $2
                 AND customer_id = ANY ($3::uuid[])
-                ORDER BY created_at
-                LIMIT 14 OFFSET $4
-                `, [userId, filter, cusIds, offset]
+                ORDER BY created_at DESC
+                LIMIT $4 OFFSET $5
+                `, [userId, filter, cusIds, limit, offset]
             )
             ):(
                 await this.db.query(
@@ -43,21 +43,22 @@ class QuoteService{
                         status,
                         total,
                         markup,
-                        created_at
+                        created_at,
+                    COUNT(*) OVER() AS total_count
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY ($2::uuid[])
-                    ORDER BY created_at
-                    LIMIT 14 OFFSET $3
-                    `, [userId, cusIds, offset]
+                    ORDER BY created_at DESC
+                    LIMIT $3 OFFSET $4
+                    `, [userId, cusIds, limit, offset]
                 ) 
             )
 
-
+            console.log(results.rows[0].total_count)
 
             return {
                 quoteDetails: results.rows,
-                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count) : 0
+                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count): 0
             }
         }catch(err){
             throw new Error(err.message);
