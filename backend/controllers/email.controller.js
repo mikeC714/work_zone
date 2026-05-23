@@ -35,6 +35,7 @@ class EmailControllers{
 
             const userCred = await UserService.getUserById(user);
             console.log("USER:",userCred.rows[0])
+            const status = 
             await QuoteService.changeQuoteStatus(data.id) ;
             await EmailService.send(userCred.rows[0], data, link);
 

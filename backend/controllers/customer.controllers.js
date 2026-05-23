@@ -29,7 +29,7 @@ class CustomerControllers{
     async getAllUserCustomers(req, res){
         const user = req.user;
         try{    
-            const filter = req.query.activeFilter
+            const filter = req.query.filter
 
             const page  = parseInt(req.query.page)  || 1;
             const limit = parseInt(req.query.limit) || 15;
@@ -113,7 +113,7 @@ class CustomerControllers{
 
         try{
 
-            const { customerId, quoteId } = await CustomerService.createQuote(user, customer, quote, labor, materials);
+            const { customerId, quoteId } = await QuoteService.createQuote(user, customer, quote, labor, materials);
             
             const emailToken = await Auth.signEmail({ id: user, quoteId, customerId })
             const safeEmailToken = encrypt(emailToken);
@@ -138,7 +138,7 @@ class CustomerControllers{
         const user = req.user;
 
         try{
-            const deletedQuote = await CustomerService.deleteQuote(quoteId, user);
+            const deletedQuote = await QuoteService.deleteQuote(quoteId, user);
 
             return res.status(200).json({
                 message: `Quote ${quoteId} was successfully deleted.`

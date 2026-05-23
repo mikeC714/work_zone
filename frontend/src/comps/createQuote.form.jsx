@@ -26,22 +26,24 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                             placeholder='Last Name' 
                         />
                     </div>
-                    <input 
-                        className='cqInput' 
-                        value={customerInfo.email} 
-                        onChange={(e) => handleCustomerForm(e)} 
-                        name='email' 
-                        type="text" 
-                        placeholder='Email' 
-                    />
-                    <input 
-                        className='cqInput' 
-                        value={customerInfo.phone} 
-                        onChange={(e) => handleCustomerForm(e)} 
-                        name='phone' 
-                        type="text" 
-                        placeholder='Phone' 
-                    />
+                    <div className='cqCustomerContact'>
+                        <input 
+                            className='cqInput' 
+                            value={customerInfo.email} 
+                            onChange={(e) => handleCustomerForm(e)} 
+                            name='email' 
+                            type="text" 
+                            placeholder='Email' 
+                        />
+                        <input 
+                            className='cqInput' 
+                            value={customerInfo.phone} 
+                            onChange={(e) => handleCustomerForm(e)} 
+                            name='phone' 
+                            type="text" 
+                            placeholder='Phone' 
+                        />
+                    </div>
                     <input 
                         className='cqInput cqInputWide' 
                         value={customerInfo.address} 

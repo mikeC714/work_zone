@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
-import { Bell, Settings, LogOut, User } from 'lucide-react';
+import { Bell, LogOut, User } from 'lucide-react';
 
 export function NavBar(){
     const { logoutMutation } = useAuth();
@@ -34,7 +34,6 @@ export function NavBar(){
                             >
                                 alerts
                             </button>
-                        <button className='navPopBtns'>settings</button>
                         <button
                             onClick={() => logoutMutation.mutate()}
                             // disabled={logoutMutation.isPending}
@@ -115,14 +114,6 @@ function NavHoverPopUp({children, content}){
         >
             { children }
             {isVisible && <div className='navPopUpContent'>{ content }</div>}
-        </div>
-    )
-}
-
-export function SettingsPage(){
-    return(
-        <div>
-
         </div>
     )
 }

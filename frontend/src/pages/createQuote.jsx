@@ -139,11 +139,11 @@ export function CreateQuote(){
 
 
     function handleAddMaterialInputs() {
-        setMaterials(prev => [...prev, { id: crypto.randomUUID(), description: "", quantity: 0, unitCost: 0, total: 0 }])
+        setMaterials(prev => [...prev, { description: "", quantity: 0, unitCost: 0, total: 0 }])
     }
 
     function handleAddLaborInputs() {
-        setLabor(prev => [...prev, { id: crypto.randomUUID(), description: "", hours: 0, hourlyRate: 0, total: 0 }])
+        setLabor(prev => [...prev, { description: "", hours: 0, hourlyRate: 0, total: 0 }])
     }
 
     function limitNum(val, limit){

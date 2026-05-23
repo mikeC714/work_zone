@@ -80,6 +80,68 @@ class QuoteService{
             throw new Error(err.message);
         }
     }
+
+    async createQuote(user, customer, quote, labor, materials){
+        try{
+            const customerData = await this.db.query(
+                `INSERT INTO customers 
+                    (user_id, first_name, last_name, phone, email, address)
+                VALUES($1, $2, $3, $4, $5, $6)
+                RETURNING id`, 
+                [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
+            );
+
+            const quoteData = await this.db.query(
+                `INSERT INTO quotes
+                    (user_id, customer_id, status, markup, total)
+                VALUES($1, $2, $3, $4, $5)    
+                RETURNING id`, 
+                [user, customerData?.rows[0]?.id, quote.status, quote.markup, quote.total]
+            );
+
+            const [
+                laborData,
+                materialsData
+            ] = await Promise.all([
+                    labor.map(labVals => 
+                        this.db.query(
+                        `INSERT INTO labor
+                            (quote_id, description, hours, hourly_rate, total)
+                        VALUES($1, $2, $3, $4, $5)
+                        `, [quoteData?.rows[0]?.id, labVals.description, labVals.hours, labVals.hourlyRate, labVals.total]
+                    )),
+                    materials.map(matVals =>
+                        this.db.query( 
+                        `INSERT INTO materials
+                            (quote_id, description, quantity, unit_cost, total)
+                        VALUES($1, $2, $3, $4, $5)
+                        `, [quoteData?.rows[0]?.id, matVals.description, matVals.quantity, matVals.unitCost, matVals.total]
+                    ))
+            ]);
+            
+            // NOTHING NEEDS TO BE RETURNED SINCE THIS IS ONLY INSERTING DATA
+
+            return {
+                customerId: customerData.rows[0].id,
+                quoteId: quoteData.rows[0].id
+            };
+        }catch(err){
+            throw new Error(`Failed to insert quote: ${err.message}`);
+        }
+    }
+
+
+    async deleteQuote(quoteId, userId){
+        try{
+            return await this.db.query(
+                `DELETE FROM quotes WHERE user_id = $1 AND id = $2`,
+                [userId, quoteId]
+            );
+        }catch(err){
+            throw new Error(`Failed to delete quote: ${err.message}`);
+        }
+        
+    }
 }
 
 export default new QuoteService(db);

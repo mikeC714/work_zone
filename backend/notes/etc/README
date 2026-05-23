@@ -1,2 +1,4 @@
+## May 23, 2026
 
-Left off working on the email
+- Trying something new, decided to add a cron schedule on postgreSQL db in an attempt to monitor for unpaid quotes. The scheduler is set to an interval of 7 days after the quote has been approved.
+Although it doens't allow the user flexibility it gets the job done which is solving the pains of manually monitoring and keeping up with what customers paid and which ones didn't.

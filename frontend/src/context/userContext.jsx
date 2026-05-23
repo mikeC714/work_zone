@@ -20,6 +20,7 @@ export function UserProvider({children}){
     const lastName = data?.data?.last_name ?? "";
     const email = data?.data?.email;
     const created_at = data?.data?.created_at;
+    const userId = data?.data?.id;
 
     const nameInitials = useMemo(() => {
         if(!firstName || !lastName) return '';
@@ -31,10 +32,11 @@ export function UserProvider({children}){
         email,
         firstName,
         lastName,
+        userId,
         created_at,
         nameInitials, 
         isLoading 
-    }), [firstName, lastName, email, created_at, nameInitials, isLoading])
+    }), [firstName, lastName, userId, email, created_at, nameInitials, isLoading])
 
     
     return(

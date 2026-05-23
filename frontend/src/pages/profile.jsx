@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { NavBar } from '../comps/navBar.jsx';
 import { useQuickAccess } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
@@ -30,12 +29,25 @@ const user = {
     }
 };
 
-function Overview() {
-    const { firstName, lastName, email, created_at } = useUserContext();
+function Overview({ edit, userConf, setUserConf, firstName, lastName, email, createdAt, userId }) {
     const fullName = firstName + " " + lastName
-    const date = created_at?.split("T")[0];
+    const date = createdAt.split("T")[0];
     dayjs(date).format('MMMM D, YYYY')
     
+
+    useEffect(() => {
+        const saved = localStorage.getItem(`userConfig: ${userId}`);
+        if(saved){
+            const { phoneNumber, location, department, role } = JSON.parse(saved);
+            setUserConf({
+                phoneNumber,
+                location,
+                department,
+                role
+            })
+        }
+    }, [userId])
+
     return (
         <div className='profileOverviewCard'>
             <section className='profileInfoSection'>
@@ -51,11 +63,11 @@ function Overview() {
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Phone Number</span>
-                        <span className='profileFieldValue'>{user.phone}</span>
+                        <span className='profileFieldValue'>{userConf.phoneNumber}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Department</span>
-                        <span className='profileFieldValue'>{user.department}</span>
+                        <span className='profileFieldValue'>{userConf.department}</span>
                     </div>
                 </div>
             </section>
@@ -71,11 +83,11 @@ function Overview() {
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Role</span>
-                        <span className='profileFieldValue'>{user.role}</span>
+                        <span className='profileFieldValue'>{userConf.role}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Primary Location</span>
-                        <span className='profileFieldValue'>{user.location}</span>
+                        <span className='profileFieldValue'>{userConf.location}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Joined</span>
@@ -177,19 +189,37 @@ function Notifications() {
     )
 } 
 
-const viewMap = {
-    overview: <Overview />,
-    notifications: <Notifications />,
-    account: <Account />,
-};
 
 export function ProfilePage() {
+    const [isEditing, setIsEditing] = useState(false);
+    const [userConfig, setUserConfig] = useState({
+        phoneNumber: "",
+        location: "",
+        department: "",
+        role: ""
+    });
     const [currView, setCurrView] = useState('overview');
     const { data, isLoading, isError } = useQuickAccess();
-    const { firstName, lastName, created_at, nameInitials } = useUserContext()
+    const { firstName, lastName, created_at, nameInitials, userId, email } = useUserContext()
     const fullName = firstName + " " + lastName
     const date = created_at?.split("T")[0];
    
+    const viewMap = {
+        overview: <Overview edit={isEditing} userConf={userConfig} setUserConf={setUserConfig} userId={userId} firstName={firstName} lastName={lastName} createdAt={created_at} email={email}/>,
+        notifications: <Notifications />,
+        account: <Account />,
+    };
+
+
+    function handleSave(){
+        localStorage.setItem(`userConfig: ${userId}`, JSON.stringify(userConfig));
+        setIsEditing(false);
+    }
+
+    function handleEdit(){
+        setIsEditing(true);
+    }
+
 
     // localStorage.setItem() find a solution to be able to differentiate the users want to use user_id 
 
@@ -217,7 +247,12 @@ export function ProfilePage() {
                             </p>
                         </div>
                     </div>
-                    <button className='editProfileBtn'>✏ Edit Profile</button>
+                    <button 
+                        className='editProfileBtn'
+                        onClick={() => {isEditing ? handleSave : handleEdit}}
+                    >
+                        {isEditing ? "Save" : "✏ Edit Profile"}
+                    </button>
                 </div>
                 <div className='profileStatsRow'>
                     <ProfileCard

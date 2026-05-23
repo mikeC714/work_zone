@@ -69,20 +69,20 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                                     </div>
                                 </div>
                         )) :<p> No Customers.</p> }
-                        <div className=''>
-                            <button
-                                disabled = {page?.prevPage ? false : true}
-                                onClick={() => setPage(p => p -1)}
-                            >
-                                <ArrowLeft />
-                            </button>
-                            <button 
-                                disabled = {page?.nextPage ? false : true }
-                                onClick={() => setPage(p => p +1)}
-                            >
-                                <ArrowRight />
-                            </button>
-                        </div>
+                </div>
+                <div className='pageBtnContainer'>
+                    <button
+                        disabled = {page?.prevPage ? false : true}
+                        onClick={() => setPage(p => p -1)}
+                    >
+                        <ArrowLeft />
+                    </button>
+                    <button 
+                        disabled = {page?.nextPage ? false : true }
+                        onClick={() => setPage(p => p +1)}
+                    >
+                        <ArrowRight />
+                    </button>
                 </div>
             </div>
         </div>

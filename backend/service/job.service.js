@@ -69,7 +69,7 @@ class JobService{
                     WHERE user_id = $1 
                     AND created_at >= $2
                     AND created_at < $3
-                    AND status != 'COMPLETED'::quote_status_type
+                    AND status = 'UNPAID'::quote_status_type
                 `, [id, startOfMonth, endOfMonth]
             );
 
