@@ -178,11 +178,10 @@ class customerService{
 
     async deleteQuote(quoteId, userId){
         try{
-            const results = await this.db.query(
-                `DELETE FROM quotes WHERE user_id = $1 AND quote_id = $2`,
+            return await this.db.query(
+                `DELETE FROM quotes WHERE user_id = $1 AND id = $2`,
                 [userId, quoteId]
             );
-            return { success: true };
         }catch(err){
             throw new Error(`Failed to delete quote: ${err.message}`);
         }

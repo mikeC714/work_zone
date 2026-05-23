@@ -10,6 +10,6 @@ customerRouter.get('/customer-info', CustomerControllers.getCustomerInfo);
 customerRouter.get('/customer-status', CustomerControllers.getCustomerStatus);
 customerRouter.get('/customer-quote', CustomerControllers.getCustomerQuoteInfo);
 customerRouter.post('/create-quote', CustomerControllers.createCustomerQuote);
-customerRouter.delete('/delete-quote/:quoteId', CustomerControllers.deleteCustomerQuote);
+customerRouter.delete('/delete-quote', CustomerControllers.deleteCustomerQuote);
 
 export default customerRouter;

@@ -1,10 +1,9 @@
 import { calendarConfig } from '../../../config/calender.config.js';
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
 import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
-export function CustomerTable({ data, page, currPage, setPage }) {
-
+export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
     
     dayjs.extend(calendar);
 
@@ -47,6 +46,12 @@ export function CustomerTable({ data, page, currPage, setPage }) {
                             .map(quote =>
                                 <div key={quote.id} className="customerDataRow">
                                     <div className="trLeft">
+                                        <button 
+                                            className='customerDeleteBtn'
+                                            onClick={() => handleDelete({ quoteId: quote.id }) }
+                                            >
+                                                <Trash2 className='customerDeleteIcon' />
+                                            </button>
                                         <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
                                         <div className="customerNameNAdd">
                                             <span className="customerAddressTxt"> {customer.name}{customer.address}</span>
@@ -55,7 +60,11 @@ export function CustomerTable({ data, page, currPage, setPage }) {
                                     <div className="trRight">
                                         <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
                                         <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
-                                        <div className="quoteStatusCell"><QuoteStatus status={quote?.status} /></div>
+                                        <div 
+                                            className="quoteStatusCell"
+                                        >
+                                            <QuoteStatus status={quote?.status} />
+                                        </div>
                                         <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                     </div>
                                 </div>

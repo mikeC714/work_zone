@@ -4,7 +4,7 @@ import config from "../config.js";
 
 export function useQuickAccess(){
     const { data, isLoading, isSuccess, isError, error } = useQuery({
-        queryKey: ["quick_access"],
+        queryKey: ["quickAccess"],
         queryFn: async () => await apiFetch(`http://${config.SERVER}/api/quick-access`, "GET"),
         staleTime: 1000 * 60 * 20,
     })

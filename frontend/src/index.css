@@ -910,6 +910,7 @@ Link{
     border-bottom: 1px solid var(--border);
     cursor: pointer;
     transition: background 0.1s;
+    position: relative;
 }
 
 .customerDataRow:last-child {
@@ -921,6 +922,38 @@ Link{
 }
 
 /* Cell widths — must match header label widths above */
+.customerDeleteBtn {
+    width: 24px;
+    height: 22px;
+    position: absolute;
+    left: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s ease, visibility .3s ease;
+}  
+
+.customerDeleteIcon {
+    height: 18px; 
+    width: 18px;
+    color: red;
+    opacity: 1;
+    font-weight: 2px;
+    transition: opacity .5s ease;
+}
+
+.customerDeleteIcon:hover {
+    opacity: .7;
+}
+
+
+.customerDataRow:hover .customerDeleteBtn {
+    opacity: 1;
+    visibility: visible;
+}
+
 .cusomterJobId {
     width: 90px;
     flex-shrink: 0;

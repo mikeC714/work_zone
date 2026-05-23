@@ -65,16 +65,16 @@ class QuoteService{
         }
     }
 
-    async changeQuoteStatus(quoteId){
+    async changeQuoteStatus(quoteId, status){
         if(!quoteId){
             throw new Error("Quote id not provided. Cannot alter quote status without it's id.");
         }
         try{    
             await this.db.query(
                 `UPDATE quotes 
-                SET status = 'SENT'
-                WHERE id = $1
-                `, [quoteId]
+                SET status = $1
+                WHERE id = $2
+                `, [status, quoteId]
             )
         }catch(err){
             throw new Error(err.message);

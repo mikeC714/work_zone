@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
+import { QuickAccess } from "../comps/dashboard/quickAccess.jsx";
 
 export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 15}){
     const { data, isLoading, isError, error } = useQuery({
@@ -46,6 +47,17 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
     }
 }
 
+export function useCustomerDelete(){
+    const queryClient = useQueryClient();
 
+    return useMutation({
+        mutationFn: (quoteID) => apiFetch(`http://${config.SERVER}/api/delete-quote`, 'DELETE', quoteID),
+        onSuccess:() => {
+            queryClient.invalidateQueries({ queryKey: ['customers'] })
+            queryClient.invalidateQueries({ queryKey: ['quickAccess'] })
+        },
+        onError: (err) => console.log(err.message)
+    })
+}
 
 

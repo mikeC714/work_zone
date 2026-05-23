@@ -133,8 +133,10 @@ class CustomerControllers{
     }
 
     async deleteCustomerQuote(req,res){
-        const { quoteId } = req.parms;
+        const { quoteId } = req.body;
+        console.log("REQUEST",req.body);
         const user = req.user;
+
         try{
             const deletedQuote = await CustomerService.deleteQuote(quoteId, user);
 
