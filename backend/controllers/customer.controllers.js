@@ -29,7 +29,7 @@ class CustomerControllers{
     async getAllUserCustomers(req, res){
         const user = req.user;
         try{    
-            const filter = req.query.activeFilter;
+            const filter = req.query.activeFilter
 
             const page  = parseInt(req.query.page)  || 1;
             const limit = parseInt(req.query.limit) || 15;
