@@ -142,6 +142,55 @@ class QuoteService{
         }
         
     }
+
+    async monitorQuotes(userId){
+        if(!userId){
+            throw new Error("Failed to provide user Id");
+        }
+        if(!quotes){
+            throw new Error("Failed to provide quotes to monitor");
+        }
+
+        try{
+            const { rows: quotes } = await this.db.query(
+                `SELECT 
+                    id,
+                    status,
+                    created_at
+                    FROM quotes
+                    WHERE user_id = $1
+                `, [userId]
+            );
+
+
+            const overDueQuotes = quotes.filter((qt) => {
+
+                if(qt.status !== "APPRVOED") return;
+
+                const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                const createdAt = qt.created_at.split("T");
+                const createdMs = new Date(createdAt).getTime();
+                const now = Date().now();
+                const diff = now - createdMs;
+
+                return diff >= sevenDays;
+            }).map(qt => qt.id);
+
+            // IF NO OVERDUE QUOTES RETURN
+
+            if(!overDueQuotes.length) return ;
+
+            await this.db.query(
+                `UPDATE quotes
+                    SET status = 'UNPAID'
+                    WHERE id = ANY($1::uuid[])
+                `, [overDueQuotes]
+            );
+
+        }catch(err){
+            throw new Error(err.message);
+        }
+    }
 }
 
 export default new QuoteService(db);
