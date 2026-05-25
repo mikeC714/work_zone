@@ -1,4 +1,3 @@
-import { decode } from "jsonwebtoken";
 import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js";
 import UserService from "../service/db/user.service.js";

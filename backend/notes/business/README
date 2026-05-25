@@ -7,3 +7,9 @@ in the way I did.
 # SERVICE
 
 
+
+
+## Planning to add caching to the user quotes
+  - Get a snapshot of the current user's quotes
+  if the quotes have not been changed or updated then
+  any refetch would come from the cache instead of querying the database  
