@@ -1064,6 +1064,12 @@ Link{
     color: #b0b3b5;
     font-weight: 480;
 }
+.unpaidStatusStyle{
+    background: rgba(220, 20, 20, .24);
+    color: #FF1744;
+    font-weight: 480;
+}
+
 .quoteCreatedAtTxt {
     width: 92px;
     flex-shrink: 0;

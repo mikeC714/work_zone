@@ -17,6 +17,8 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                 return <div className='quoteStatus approvedStatusStyle'>APPROVED</div>
             case 'COMPLETED' :
                 return <div className='quoteStatus completedStatusStyle'>COMPLETED</div>
+            case 'UNPAID' :
+                return <div className='quoteStatus unpaidStatusStyle'>UNPAID</div>
             default:
                 return <div className='quoteStatus draftStatusStyle'>DRAFT</div>
         
