@@ -4,46 +4,72 @@ class Notis {
     constructor(db) {
         this.db = db
     }
-    async getNotis(user, customerInfo, quotes){
-        try{
-            const notis = [];
-            const now = new Date();
-            const daysSinceSent = (now - new Date(qt.createdAt)) / (1000 * 60 * 60 * 24)
+    async getNotis(user, customerDetails){
+        try{ 
+            const customerMap = new Map();
+
+            customerDetails.forEach(cus => customerMap.set(cus.id, cus));
+
+            const customers = customerDetails.map(cus => cus.id);
+
+
+            const notis = []
+
+            const results = await this.db.query(
+                `SELECT 
+                    id,
+                    status,
+                    created_at,
+                    customer_id
+                    FROM quotes
+                    WHERE user_id = $1
+                    AND customer_id = ANY($2::uuid[])
+                `,[user, customers.id]
+            )
+
+            if(results.rows.length === 0) return { notis: [] };
+
+            const quotes = results.rows;
 
             quotes.forEach(qt => {
-                if(qt.status === "approved"){
+                    console.log("qt.customer_id:", qt.customer_id);
+                    console.log("customerMap keys:", [...customerMap.keys()]);
+
+                    const customer = customerMap.get(qt.customer_id);
+                    console.log("customer found:", customer);
+
+                if(qt.status === 'APPROVED'){
                     notis.push({
                         type: "Approved",
-                        message: `Quote for ${customerInfo.first_name}, ${customerInfo.last_name} has been approved.`,
-                        customerId: customerInfo.id,
+                        message: `Quote for ${customer.first_name}, ${customer.last_name} has been approved.`,
                         quoteId: qt.id,
                         read: false
                     })
                 }
 
-                if((qt.status === "pending") && daysSinceSent > 7){
-                    notifications.push({
+                if((qt.status === 'PENDING')){
+                    notis.push({
                         type: "Follow up",
-                        message: `Quote for ${customerInfo.first_name} hasn't accepted thier quote in ${Math.floor(daysSinceSent)} days.`,
-                        customerId: customerInfo.id,
+                        message: `Quote for ${customer.first_name} hasn't accepted thier quote.`,
                         quoteId: qt.id,
                         read: false
                     })
                 }
 
-                if((qt.status === "approved") && daysSinceSent > 7){
-                    notifications.push({
+                if((qt.status === 'UNPAID')){
+                    notis.push({
                         type: "Unpaid",
-                        message: `Quote ${qt.id} for ${customerInfo.first_name} hasn't paid their quote in ${Math.floor(daysSinceSent)}. Consider reaching out.`,
-                        customerId: customerInfo.id,
+                        message: `Quote ${qt.id} for ${customer.first_name} hasn't paid their quote.`,
                         quoteId: qt.id,
                         read: false
                     })
                 }
             })
 
+            console.log(notis)
+
             return {
-                notifications
+                notis
             }
         }catch(err){
             throw new Error(`Failed to fetch notis: ${err.message}`);

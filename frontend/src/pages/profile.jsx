@@ -29,24 +29,12 @@ const user = {
     }
 };
 
-function Overview({ edit, userConf, setUserConf, firstName, lastName, email, createdAt, userId }) {
+function Overview({ edit, userConfig, setUserConfig, firstName, lastName, email, createdAt, userId, isEditing }) {
     const fullName = firstName + " " + lastName
-    const date = createdAt.split("T")[0];
-    dayjs(date).format('MMMM D, YYYY')
-    
 
-    useEffect(() => {
-        const saved = localStorage.getItem(`userConfig: ${userId}`);
-        if(saved){
-            const { phoneNumber, location, department, role } = JSON.parse(saved);
-            setUserConf({
-                phoneNumber,
-                location,
-                department,
-                role
-            })
-        }
-    }, [userId])
+    const date = createdAt?.split("T")[0];
+    dayjs(date).format('MMMM D, YYYY')
+
 
     return (
         <div className='profileOverviewCard'>
@@ -63,11 +51,31 @@ function Overview({ edit, userConf, setUserConf, firstName, lastName, email, cre
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Phone Number</span>
-                        <span className='profileFieldValue'>{userConf.phoneNumber}</span>
+                        <span className='profileFieldValue'>
+                            {isEditing ? (
+                              <input
+                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                value={userConfig.phoneNumber || ""}
+                                onChange={(e) => setUserConfig({...userConfig, phoneNumber: e.target.value})}
+                                autoFocus
+                              />
+                            ) : (
+                              userConfig.phoneNumber || ""
+                            )}
+                        </span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Department</span>
-                        <span className='profileFieldValue'>{userConf.department}</span>
+                        <span className='profileFieldValue'>
+                            {isEditing ? (
+                              <input
+                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                value={userConfig.department || ""}
+                                onChange={(e) => setUserConfig({...userConfig, department: e.target.value})}
+                              />
+                            ) : (
+                              userConfig.department || ""
+                            )}</span>
                     </div>
                 </div>
             </section>
@@ -83,11 +91,29 @@ function Overview({ edit, userConf, setUserConf, firstName, lastName, email, cre
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Role</span>
-                        <span className='profileFieldValue'>{userConf.role}</span>
+                        <span className='profileFieldValue'>
+                            {isEditing ? (
+                              <input
+                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                value={userConfig.role || ""}
+                                onChange={(e) => setUserConfig({...userConfig, role: e.target.value})}
+                              />
+                            ) : (
+                              userConfig.role || ""
+                            )}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Primary Location</span>
-                        <span className='profileFieldValue'>{userConf.location}</span>
+                        <span className='profileFieldValue'>
+                            {isEditing ? (
+                              <input
+                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                value={userConfig.location || ""}
+                                onChange={(e) => setUserConfig({...userConfig, location: e.target.value})}
+                              />
+                            ) : (
+                              userConfig.location || ""
+                            )}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Joined</span>
@@ -192,30 +218,50 @@ function Notifications() {
 
 export function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
-    const [userConfig, setUserConfig] = useState({
-        phoneNumber: "",
-        location: "",
-        department: "",
-        role: ""
-    });
     const [currView, setCurrView] = useState('overview');
     const { data, isLoading, isError } = useQuickAccess();
     const { firstName, lastName, created_at, nameInitials, userId, email } = useUserContext()
+    const [userConfig, setUserConfig] = useState({})
+
+    useEffect(() => {
+        if (!userId) return;
+        const saved = localStorage.getItem(`userConf:${userId}`);
+        setUserConfig(saved ? JSON.parse(saved) : {
+          phoneNumber: "",
+          location: "",
+          department: "",
+          role: ""
+        });
+    }, [userId]);
+
     const fullName = firstName + " " + lastName
     const date = created_at?.split("T")[0];
    
     const viewMap = {
-        overview: <Overview edit={isEditing} userConf={userConfig} setUserConf={setUserConfig} userId={userId} firstName={firstName} lastName={lastName} createdAt={created_at} email={email}/>,
+        overview: <Overview 
+                        edit={isEditing} 
+                        userConfig={userConfig} 
+                        setUserConfig={setUserConfig} 
+                        userId={userId} 
+                        firstName={firstName} 
+                        lastName={lastName} 
+                        createdAt={created_at} 
+                        email={email}
+                        isEditing={isEditing}
+                    />,
         notifications: <Notifications />,
         account: <Account />,
     };
 
 
     function handleSave(){
-        localStorage.setItem(`userConfig: ${userId}`, JSON.stringify(userConfig));
+        console.log("handleSave called");
+        console.log("userId:", userId);
+        console.log("userConfig:", userConfig);
+        localStorage.setItem(`userConf:${userId}`, JSON.stringify(userConfig));
+        console.log("saved!", localStorage.getItem(`userConf:${userId}`));
         setIsEditing(false);
     }
-
     function handleEdit(){
         setIsEditing(true);
     }
@@ -249,7 +295,10 @@ export function ProfilePage() {
                     </div>
                     <button 
                         className='editProfileBtn'
-                        onClick={() => {isEditing ? handleSave : handleEdit}}
+                        onClick={() => {
+                            setIsEditing((prev) => !prev);
+                            isEditing ? handleSave() : handleEdit()
+                        }}
                     >
                         {isEditing ? "Save" : "✏ Edit Profile"}
                     </button>

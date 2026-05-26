@@ -17,10 +17,7 @@ class customerInfo{
                 `SELECT id FROM customers WHERE user_id = $1`,
                 [userId]
             );
-
-            return {
-                customerIds: results.rows
-            };
+            return results.rows;
         }catch(err){
             throw new Error(`Failed to fetch all customer ids:${err.message}.`)
         }
@@ -61,7 +58,9 @@ class customerService{
         if(!userId){ 
             throw new Error("Invalid user. Failed to fetch customer detials.");
         }
-        const cusIds = customerIds.map(customer => customer.id)
+
+        const cusIds = customerIds.map(customer => customer.id);
+
         if(!cusIds || customerIds === 0) return { customerInfo: [] };
         try{
             const results = await this.db.query(
@@ -78,9 +77,7 @@ class customerService{
                 AND id = ANY($2)
                 `, [userId, cusIds]
             );
-            return {
-                customerInfo: results.rows
-            };
+            return results.rows;
         }catch(err){
             throw new Error(`Failed to fetch customer info: ${err.message}`);
         }

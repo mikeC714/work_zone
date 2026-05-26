@@ -54,8 +54,6 @@ class QuoteService{
                 ) 
             )
 
-            console.log(results.rows[0].total_count)
-
             return {
                 quoteDetails: results.rows,
                 total: results.rows[0].total_count ? parseInt(results.rows[0].total_count): 0
@@ -64,6 +62,7 @@ class QuoteService{
             throw new Error(err.message);
         }
     }
+
 
     async changeQuoteStatus(quoteId, status){
         if(!quoteId){
@@ -82,6 +81,9 @@ class QuoteService{
     }
 
     async createQuote(user, customer, quote, labor, materials){
+        if(!quote.length && !customer.length && !labor.length && !materials.length){
+            return;
+        }
         try{
             const customerData = await this.db.query(
                 `INSERT INTO customers 
