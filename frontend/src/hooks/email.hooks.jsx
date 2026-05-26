@@ -9,25 +9,7 @@ export function useEmailHook(){
         retry: true,
         onSuccess: () => {
             QueryClient.invalidateQueries("customers")
-        },
-        isPending: () => {
-            return (
-                <div className="sendQuoteOverlay">
-                    <p className="sendQuoteLoad"><Loader /></p>
-                </div>
-            )
-        },
-        onError: (error) => {
-            return(
-                <div className='sendQuoteOverlay'>
-                    <p className="sendQuoteFail">Failed to send quote.</p>
-                </div>
-            )
-        },
-        onSuccess: () => {
-            console.log("successfully sent")
         }
-        
     })
 
     return{

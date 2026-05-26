@@ -63,14 +63,6 @@ class AuthMiddleware{
                 return res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
             }
             const decryptedStored = decrypt(storedToken.rows[0].token);
-            
-
-            //TEST
-            /*
-                Monitoring for reuse abuse.
-                Validating whether the storedToken is equal to the current snapshot of the rToken.
-                The stored token is then decoded to gain it's payload to verify it belongs to said user.
-            */
 
             if(decryptedStored !== rToken){
                 const validStored = Auth.verifyRefresh(decryptedStored);
