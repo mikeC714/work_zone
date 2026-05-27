@@ -4,7 +4,7 @@ import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
 import { QuickAccess } from "../comps/dashboard/quickAccess.jsx";
 
-export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 12}){
+export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 15}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),

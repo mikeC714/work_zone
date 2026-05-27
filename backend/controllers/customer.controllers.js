@@ -51,8 +51,7 @@ class CustomerControllers{
                 }
             });
             
-            const totalPages = Math.ceil(total / limit);
-            console.log("TOTAL PAGES:", totalPages)            
+            const totalPages = Math.ceil(total / limit);      
 
             return res.status(200).json({
                 success: true,

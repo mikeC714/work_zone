@@ -86,8 +86,17 @@ function Overview({ edit, userConfig, setUserConfig, firstName, lastName, email,
                 <h4 className='profileSectionLabel'>Work Details</h4>
                 <div className='profileInfoGrid'>
                     <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>USER ID</span>
-                        <span className='profileFieldValue profileMonospace'>{user.employeeId}</span>
+                        <span className='profileFieldLabel'>EMPLOYEE ID</span>
+                        <span className='profileFieldValue profileMonospace'>
+                            {isEditing ? (
+                              <input
+                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                value={userConfig.employeeId || ""}
+                                onChange={(e) => setUserConfig({...userConfig, employeeId: e.target.value})}
+                              />
+                            ) : (
+                              userConfig.employeeId || ""
+                            )}</span>
                     </div>
                     <div className='profileInfoField'>
                         <span className='profileFieldLabel'>Role</span>
@@ -161,12 +170,6 @@ const notiConfig = {
         style: 'notiApproved',
         color: '#abf7b1'
     },
-    // 'Complete': {
-    //     icon,
-    //     style,
-    //     color
-    // }
-    // ,
     'Follow Up': {
         icon: <Clock />,
         style: 'notiFollowup',
@@ -182,7 +185,7 @@ const notiConfig = {
 
 function Notifications() {
     const { notifications, isLoading, isError, error } = useNotiHook();
-    console.log(notifications)
+
     return(
         <div className="pNotiContainer">
             <div className="pNotiBtns">
@@ -195,10 +198,10 @@ function Notifications() {
                     notifications.map((noti, i) => {
                         const { icon, style, color } = notiConfig[noti.type]
                         return(
-                            <div key={i} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
+                            <div key={noti.quoteId} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
                                 <span className="pNotiIcon" style={{color, background: `${color}20`}}>{icon}</span>
                                 <div className="pNotiContent">
-                                    <div className="pNotiHead">Filler Title </div>
+                                    <div className="pNotiHead">{noti.type}</div>
                                     <div className="pNotiMid">
                                         <p className='pNotiMsg'>{noti.message}</p>
                                     </div>
@@ -230,9 +233,11 @@ export function ProfilePage() {
           phoneNumber: "",
           location: "",
           department: "",
-          role: ""
+          role: "",
+          employeeId: ""
         });
     }, [userId]);
+
 
     const fullName = firstName + " " + lastName
     const date = created_at?.split("T")[0];
@@ -282,15 +287,15 @@ export function ProfilePage() {
                                 <span className='profileActiveBadge'>● ACTIVE</span>
                             </div>
                             <p className='profileSubtitle'>
-                                {user.title}
+                                {userConfig.role}
                                 <span className='profileSubDot'>·</span>
-                                {user.department}
+                                {userConfig.department}
                                 <span className='profileSubDash'>—</span>
-                                {user.location}
+                                {userConfig.location}
                             </p>
-                            <p className='profileLastLogin'>
+                            {/* <p className='profileLastLogin'>
                                 Last login: <span>{user.lastLogin}</span>
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                     <button 

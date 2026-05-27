@@ -7,7 +7,7 @@ class Notis {
     async getNotis(user, customerDetails){
         try{ 
             const customerMap = new Map();
-
+            
             customerDetails.forEach(cus => customerMap.set(cus.id, cus));
 
             const customers = customerDetails.map(cus => cus.id);
@@ -24,19 +24,18 @@ class Notis {
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY($2::uuid[])
-                `,[user, customers.id]
+                `,[user, customers]
             )
+
 
             if(results.rows.length === 0) return { notis: [] };
 
             const quotes = results.rows;
 
             quotes.forEach(qt => {
-                    console.log("qt.customer_id:", qt.customer_id);
-                    console.log("customerMap keys:", [...customerMap.keys()]);
+                const customer = customerMap.get(qt.customer_id);
 
-                    const customer = customerMap.get(qt.customer_id);
-                    console.log("customer found:", customer);
+                if(!customer) return  notis = [];
 
                 if(qt.status === 'APPROVED'){
                     notis.push({
@@ -49,7 +48,7 @@ class Notis {
 
                 if((qt.status === 'PENDING')){
                     notis.push({
-                        type: "Follow up",
+                        type: "Follow Up",
                         message: `Quote for ${customer.first_name} hasn't accepted thier quote.`,
                         quoteId: qt.id,
                         read: false
@@ -66,11 +65,8 @@ class Notis {
                 }
             })
 
-            console.log(notis)
+            return notis;
 
-            return {
-                notis
-            }
         }catch(err){
             throw new Error(`Failed to fetch notis: ${err.message}`);
         }

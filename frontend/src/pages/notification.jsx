@@ -35,13 +35,13 @@ const filterMap = {
 }
 
 export function NotificationsPage(){
-    const [activeFilter, setActiveFilter] = useState('ALL')
-    const { notifications, isLoading, isError, error } = useNotiHook();
-    const notiFilter = ['ALL', 'APPROVED', 'FOLLOW UP', 'UNPAID']
-
-    const notiData = activeFilter === 'ALL'
-    ? notifications :
-    notifications.filter(n => n.type == filterMap[activeFilter])
+    const [activeFilter, setActiveFilter] = useState('ALL');
+    const [clear, setClear] = useState(false);
+    const [notiPage, setNotiPage] = useState(1); 
+    const notiLimit = 12;
+    const { notifications, isLoading, isError, error } = useNotiHook({notiPage, notiLimit, clear});
+    const notiFilter = ['ALL', 'APPROVED', 'FOLLOW UP', 'UNPAID'];
+    const notiData = activeFilter === 'ALL' ? notifications : notifications.filter(n => n.type == filterMap[activeFilter])
 
     return(
         <div className='notiPage'>
@@ -52,7 +52,7 @@ export function NotificationsPage(){
                         <h2>Notifications</h2>
                         <div className='notiActionBtns'>
                             <button>Mark All Seen </button>
-                            <button>Clear</button>
+                            <button onClick={() => setClear(true)}>Clear</button>
                         </div>
                     </div>
                     <div className="notiFilterContainer">
@@ -70,14 +70,14 @@ export function NotificationsPage(){
                 <div className='notiList'>
                     {notifications.length === 0 ?
                         <p>No Notifications</p> :
-                        notiData.map(noti => {
+                        notifications.map(noti => {
                             const { icon, style, color } = notiConfig[noti.type]
                             return(
                                 <div key={noti.quoteId} className={`notiContent ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
                                     <span className='notiIcon' style={{color, background: `${color}20`}}>{icon}</span>
                                     <div className="notiContent">
                                         <div className="notiConTop">
-                                            <p>{noti.title}</p>
+                                            <p>{noti.type}</p>
                                         </div>
                                         <div className="notiConCen">
                                             <p className='notiMsg'>{noti.message}</p>
