@@ -1983,8 +1983,35 @@ input::-webkit-inner-spin-button {
     border-radius: 14px;
     height: 22em;
     padding: 20px 18px ;
+    position: relative;
 
 }
+
+.notiPageBtnContainer{
+    position: absolute;
+    right: 16px;
+    bottom: 14px;
+}
+
+.notiPageBtnContainer > button {
+    color: black;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    opacity: .8;
+    cursor: pointer;
+    transition: opacity 1s ease, background 1s ease;
+}
+
+.notiPageBtnContainer > button:hover {
+    opacity: .5;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+
 
 .pNotiBtns{
     display: flex;

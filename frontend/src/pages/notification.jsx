@@ -52,7 +52,10 @@ export function NotificationsPage(){
                         <h2>Notifications</h2>
                         <div className='notiActionBtns'>
                             <button>Mark All Seen </button>
-                            <button onClick={() => setClear(true)}>Clear</button>
+                            <button onClick={() => {
+                                console.log("CLEARING");
+                                setClear(true)
+                                }}>clear</button>
                         </div>
                     </div>
                     <div className="notiFilterContainer">

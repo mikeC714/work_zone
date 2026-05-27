@@ -4,7 +4,7 @@ import config from "../config.js";
 
 export function useNotiHook({notiPage = 1, notiLimit, clear = false}){
     const { data, isLoading, isError, error } = useQuery({
-        queryKey: ['notifications', notiPage, notiLimit],
+        queryKey: ['notifications', notiPage, notiLimit, clear],
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/notifications?notiPage=${notiPage}&notiLimit=${notiLimit}&clear=${clear}`),
         staleTime: 1000 * 60 * 5,
         refetchInterval: 1800000,

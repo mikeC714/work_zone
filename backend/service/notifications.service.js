@@ -4,7 +4,7 @@ class Notis {
     constructor(db) {
         this.db = db
     }
-    async getNotis(user, customerDetails){
+    async getNotis(user, customerDetails, limit, offset){
         try{ 
             const customerMap = new Map();
             
@@ -20,17 +20,23 @@ class Notis {
                     id,
                     status,
                     created_at,
-                    customer_id
+                    customer_id,
+                    total,
+                    COUNT(*) OVER() AS total_count
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY($2::uuid[])
-                `,[user, customers]
+                    AND status IN ('APPROVED', 'PENDING', 'UNPAID')
+                    ORDER BY created_at DESC
+                    LIMIT $3 OFFSET $4
+                `,[user, customers, limit, offset]
             )
-
 
             if(results.rows.length === 0) return { notis: [] };
 
             const quotes = results.rows;
+
+            console.log(quotes.length)
 
             quotes.forEach(qt => {
                 const customer = customerMap.get(qt.customer_id);
@@ -40,8 +46,9 @@ class Notis {
                 if(qt.status === 'APPROVED'){
                     notis.push({
                         type: "Approved",
-                        message: `Quote for ${customer.first_name}, ${customer.last_name} has been approved.`,
+                        message: `${customer.first_name}, ${customer.last_name} has been approved.`,
                         quoteId: qt.id,
+                        total:qt.total,
                         read: false
                     })
                 }
@@ -49,8 +56,9 @@ class Notis {
                 if((qt.status === 'PENDING')){
                     notis.push({
                         type: "Follow Up",
-                        message: `Quote for ${customer.first_name} hasn't accepted thier quote.`,
+                        message: `${customer.first_name} hasn't accepted thier quote.`,
                         quoteId: qt.id,
+                        total:qt.total,
                         read: false
                     })
                 }
@@ -58,14 +66,18 @@ class Notis {
                 if((qt.status === 'UNPAID')){
                     notis.push({
                         type: "Unpaid",
-                        message: `Quote ${qt.id} for ${customer.first_name} hasn't paid their quote.`,
+                        message: `${customer.first_name} hasn't paid their quote.`,
                         quoteId: qt.id,
+                        total:qt.total,
                         read: false
                     })
                 }
             })
 
-            return notis;
+            return {
+                notis,
+                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count) : 0
+            };
 
         }catch(err){
             throw new Error(`Failed to fetch notis: ${err.message}`);

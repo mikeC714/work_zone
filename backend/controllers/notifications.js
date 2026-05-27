@@ -9,23 +9,22 @@ export async function allNotifications(req,res){
     const limit = parseInt(req.query.notiLimit);
     const clear = req.query.clear;
 
-    console.log("NOTI LIMIT:", limit);
 
     const offset = (page - 1) * limit;
     try{
         const customerIds = await CustomerInfo.getAllCustomerIds(user);
         const customerDetails = await CustomerService.customerDetails(customerIds, user);
-        const notifications = await Notis.getNotis(user,  customerDetails);
+        const { notis, total } = await Notis.getNotis(user,  customerDetails, limit, offset);
 
         if(clear === "true"){
-            notifications.forEach(noti => {
+            notis.forEach(noti => {
+                console.log("TRIGGERED")
                 noti.read = true;
             })
         }
 
-        const nonRead = notifications.filter((noti) => noti.read !== true);
+        const nonRead = notis.filter((noti) => noti.read !== true);
 
-        const total = nonRead.length;
         const totalPages = Math.ceil(total/limit);
 
         return res.status(200).json({

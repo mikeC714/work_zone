@@ -4,7 +4,7 @@ import { useQuickAccess } from '../hooks/quickAccess.hooks.jsx';
 import { useUserContext } from '../context/userContext.jsx';
 import { useNotiHook } from '../hooks/notifications.hooks.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
-import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank } from 'lucide-react';
+import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank, ChevronLeft, ChevronRight } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -184,7 +184,12 @@ const notiConfig = {
 
 
 function Notifications() {
-    const { notifications, isLoading, isError, error } = useNotiHook();
+    const [clear, setClear] = useState(false);
+    const [notiPage, setNotiPage] = useState(1);
+    const notiLimit = 4;
+    const { notifications, paginated, isLoading, isError, error } = useNotiHook({notiPage, notiLimit, clear});
+
+    console.log(notifications);
 
     return(
         <div className="pNotiContainer">
@@ -206,13 +211,27 @@ function Notifications() {
                                         <p className='pNotiMsg'>{noti.message}</p>
                                     </div>
                                     <div className='pNotiLow'>
-                                        <p className='pNotiPrice'>$1,200</p>
+                                        <p className='pNotiPrice'>${noti.total}</p>
                                     </div>
                                 </div>
                             </div>
                         )
                     })
                 }
+            </div>
+            <div className='notiPageBtnContainer'>
+                <button
+                        disabled = {paginated?.prevPage ? false : true}
+                        onClick={() => setNotiPage(p => p -1)}
+                    >
+                        <ChevronLeft />
+                    </button>
+                    <button 
+                        disabled = {paginated?.nextPage ? false : true }
+                        onClick={() => setNotiPage(p => p +1)}
+                    >
+                        <ChevronRight />
+                    </button>
             </div>
         </div>
     )
