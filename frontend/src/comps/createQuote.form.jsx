@@ -81,7 +81,8 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                                 <input 
                                     className='cqInput cqColSmall'
                                     name='quantity' 
-                                    type="number" placeholder='0'
+                                    type="number" 
+                                    placeholder='0'
                                     value={mats.quantity} 
                                     onChange={(e) => handleMaterialForm(e, matIndex)} 
                                 />
@@ -89,6 +90,7 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                                     className='cqInput cqColSmall'
                                     name='unitCost' 
                                     type='number'
+                                    placeholder='0'
                                     value={mats.unitCost} 
                                     onChange={(e) => handleMaterialForm(e, matIndex)} 
                                 />
@@ -117,19 +119,22 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                             <input 
                                 className='cqInput cqColDesc'
                                 name='description' 
-                                type="text" placeholder='Description'
+                                type="text" 
+                                placeholder='Description'
                                 value={lab.description} 
                                 onChange={(e) => handleLaborForm(e, labIndex)} 
                             />
                             <input className='cqInput cqColSmall'
                                 name='hours' 
                                 type="number"
+                                placeholder='0'
                                 value={lab.hours} 
                                 onChange={(e) => handleLaborForm(e, labIndex)} 
                             />
                             <input className='cqInput cqColSmall'
                                 name='hourlyRate' 
                                 type="number"
+                                placeholder='0'
                                 value={lab.hourlyRate} 
                                 onChange={(e) => handleLaborForm(e, labIndex)} 
                             />

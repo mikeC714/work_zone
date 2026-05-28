@@ -33,7 +33,7 @@ class AuthMiddleware{
                 return res.status(401).json({ error: "Failed to provide valid token." });
             }
             req.user = valid.payload.id;
-            return next();
+            next();
         }catch(err){
              if(err.name === "TokenExpiredError" && refreshToken){
                 return await this.handleRefresh(req, res, next, refreshToken);

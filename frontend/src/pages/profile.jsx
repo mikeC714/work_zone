@@ -198,7 +198,7 @@ function Notifications() {
                 <button>Clear</button>
             </div>
             <div className={`pNotiList ${notifications.length === 0 ? 'pNotiEmpty' : ''}`}>
-                { notifications.length === 0 ? 
+                { notifications?.length === 0 ? 
                     <p>No Notifications</p> :
                     notifications.map((noti, i) => {
                         const { icon, style, color } = notiConfig[noti.type]

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useEmailHook } from '../hooks/email.hooks.jsx';
@@ -10,20 +10,21 @@ import { Send, Loader, Check } from 'lucide-react';
 export function CreateQuote(){
     const {mutate, isPending, isError, isSuccess} = useCreateQuote();
     const {mutate:sendEmail, isSendingEmail, isEmailErr, emailSent} = useEmailHook();
-    const [userMarkup, setUserMarkup] = useState(0);
+    const idRef = useRef(0);
+    const [userMarkup, setUserMarkup] = useState("");
     const [materials, setMaterials] = useState([
         {
             description: "",
-            quantity: 0,
-            unitCost: 0,
+            quantity: "",
+            unitCost: "",
             total: 0
         }
     ]);
     const [labor, setLabor] = useState([
         {
             description: "",
-            hours: 0,
-            hourlyRate: 0,
+            hours: "",
+            hourlyRate: "",
             total: 0
         }
     ]);
@@ -34,14 +35,35 @@ export function CreateQuote(){
         phone: "",
         address: "",
     });
-
     const [status, setStatus] = useState('DRAFT');
+   
 
     function handleStatusChange(e){
         setStatus(e.target.value);
     }
+
+
+    function validateInputFields(){
+        for(const mat of materials){
+            if(!mat.description.trim()) return false;
+            if(!mat.quantity.trim()) return false;
+            if(!mat.unitCost.trim()) return false;
+        }
+
+        for(const lab of labor){
+            if(!lab.description.trim()) return false;
+            if(!lab.hours.trim()) return false;
+            if(!lab.hourlyRate.trim()) return false;
+        }
+
+        for(const [_, val] of Object.entries(customerInfo)){
+            if(!val.trim()) return false;
+        }
+        return true;
+    }
     
     async function handleSendQuote() {
+    
         mutate({
             customer: customerInfo,
             quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
@@ -139,11 +161,25 @@ export function CreateQuote(){
 
 
     function handleAddMaterialInputs() {
-        setMaterials(prev => [...prev, { description: "", quantity: 0, unitCost: 0, total: 0 }])
+        setMaterials(prev => 
+            [...prev, { 
+                id: idRef.current++ ,
+                description: "", 
+                quantity: "", 
+                unitCost: "", 
+                total: 0 
+            }])
     }
 
     function handleAddLaborInputs() {
-        setLabor(prev => [...prev, { description: "", hours: 0, hourlyRate: 0, total: 0 }])
+        setLabor(prev => 
+            [...prev, {
+                id: idRef.current++, 
+                description: "", 
+                hours: "", 
+                hourlyRate: "", 
+                total: 0 
+            }])
     }
 
     function limitNum(val, limit){
@@ -222,6 +258,7 @@ export function CreateQuote(){
                                 className='cqMarkupInput'
                                 type='number'
                                 value={userMarkup}
+                                placeholder='0'
                                 onChange={(e) => setUserMarkup(e.target.value)}
                             />
                             <span className='cqMarkupPct'>%</span>
@@ -236,7 +273,9 @@ export function CreateQuote(){
 
                     <button 
                         className='cqSendToCustomerBtn'
-                        onClick={() => handleSendQuote()}>
+                        onClick={() => {
+                            handleSendQuote()
+                        }}>
                         SEND TO CUSTOMER <Send size={14} />
                     </button>
                 </div>

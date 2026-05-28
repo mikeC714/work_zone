@@ -1374,6 +1374,7 @@ Link{
     color: var(--text-muted);
 }
 
+
 /* Material / Labor sections */
 .cqSection {
     display: flex;
@@ -1494,7 +1495,7 @@ input::-webkit-inner-spin-button {
     -moz-appearance: textfield;
 }
 
-.cqTableRow .cqColSmall {
+.cqTableRow  {
     text-align: left;
 }
 

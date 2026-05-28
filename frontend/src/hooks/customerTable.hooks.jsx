@@ -1,20 +1,32 @@
-import { useMemo } from "react";
-import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js"
 import { QuickAccess } from "../comps/dashboard/quickAccess.jsx";
 
-export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 15}){
+export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 13}){
+    const queryClient = useQueryClient();
+
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
-        staleTime: 1000 * 60 * 5,
-        placeholderData: keepPreviousData,
-        retry: false
+        staleTime: 1000 * 60 * 10,
+        retry: 3
     })
 
-    console.log(data?.paginated)
 
+    useEffect(() => {
+        queryClient.prefetchQuery({
+            queryKey: ['customers', activeFilter, page, limit],
+            queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
+            staleTime: 1000 * 60 * 10,
+            retry: 3
+        })
+    }, [activeFilter, page, limit])
+
+
+
+    console.log(data?.paginated)
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];
