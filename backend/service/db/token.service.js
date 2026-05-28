@@ -21,7 +21,7 @@ export class TokenService{
             throw new Error("Unauthorized user.");
         }
         try{
-            await this.#db.query(
+            return await this.#db.query(
                 `INSERT INTO tokens(user_id, token) 
                 VALUES($1, $2)`,
                 [id, token]
