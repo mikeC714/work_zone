@@ -614,8 +614,9 @@ Link{
 }
 
 .navLogoIcon {
-    color: var(--orange);
-    font-size: 18px;
+    background: none;
+    height: 60px;
+    width:60px;
 }
 
 .navLinks {

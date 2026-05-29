@@ -13,7 +13,7 @@ export function UserProvider({children}){
         queryFn: async() => {
             return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
         },
-        staleTime: Infinity,
+        staleTime: 0,
         refetchOnMount: true
     });
 
