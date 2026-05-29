@@ -109,19 +109,23 @@ class JobService{
         if(!id){
             throw new Error("ID of user is unprovided. Failed to fetch monthly revenue.");
         }
+
+
         try{
             const results = await this.db.query(
-                `SELECT SUM(total) AS totalValue, status, created_at
-                    FROM quotes
-                    WHERE user_id = $1
-                    AND created_at >= $2
-                    AND created_at < $3
-                    GROUP BY status, created_at
-                `, [id, startOfMonth, endOfMonth]
+                  `SELECT SUM(total) AS total_value
+                     FROM quotes
+                     WHERE user_id = $1
+                     AND created_at >= $2
+                     AND created_at < $3
+                     AND status = 'COMPLETED'`,
+                    [id, startOfMonth, endOfMonth]
             );
 
+
+
             return {
-                data: results.rows[0]?.totalValue ?? 0
+                data: results.rows[0]?.total_value ?? 0
             };
         }catch(err){
             throw new Error(err.message);

@@ -37,101 +37,98 @@ function Overview({ edit, userConfig, setUserConfig, firstName, lastName, email,
 
 
     return (
-        <div className='profileOverviewCard'>
-            <section className='profileInfoSection'>
-                <h4 className='profileSectionLabel'>Personal Information</h4>
-                <div className='profileInfoGrid'>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Full Name</span>
-                        <span className='profileFieldValue'>{fullName}</span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Email Address</span>
-                        <span className='profileFieldValue'>{email}</span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Phone Number</span>
-                        <span className='profileFieldValue'>
-                            {isEditing ? (
-                              <input
-                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
-                                value={userConfig.phoneNumber || ""}
-                                onChange={(e) => setUserConfig({...userConfig, phoneNumber: e.target.value})}
-                                autoFocus
-                              />
-                            ) : (
-                              userConfig.phoneNumber || ""
-                            )}
-                        </span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Department</span>
-                        <span className='profileFieldValue'>
-                            {isEditing ? (
-                              <input
-                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
-                                value={userConfig.department || ""}
-                                onChange={(e) => setUserConfig({...userConfig, department: e.target.value})}
-                              />
-                            ) : (
-                              userConfig.department || ""
-                            )}</span>
-                    </div>
-                </div>
-            </section>
-
-            <div className='profileSectionDivider' />
-
-            <section className='profileInfoSection'>
-                <h4 className='profileSectionLabel'>Work Details</h4>
-                <div className='profileInfoGrid'>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>EMPLOYEE ID</span>
-                        <span className='profileFieldValue profileMonospace'>
-                            {isEditing ? (
-                              <input
-                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
-                                value={userConfig.employeeId || ""}
-                                onChange={(e) => setUserConfig({...userConfig, employeeId: e.target.value})}
-                              />
-                            ) : (
-                              userConfig.employeeId || ""
-                            )}</span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Role</span>
-                        <span className='profileFieldValue'>
-                            {isEditing ? (
-                              <input
-                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
-                                value={userConfig.role || ""}
-                                onChange={(e) => setUserConfig({...userConfig, role: e.target.value})}
-                              />
-                            ) : (
-                              userConfig.role || ""
-                            )}</span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Primary Location</span>
-                        <span className='profileFieldValue'>
-                            {isEditing ? (
-                              <input
-                                style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
-                                value={userConfig.location || ""}
-                                onChange={(e) => setUserConfig({...userConfig, location: e.target.value})}
-                              />
-                            ) : (
-                              userConfig.location || ""
-                            )}</span>
-                    </div>
-                    <div className='profileInfoField'>
-                        <span className='profileFieldLabel'>Joined</span>
-                        <span className='profileFieldValue'>{date}</span>
-                    </div>
-                </div>
-            </section>
-
-        </div>
+         <div className='profileOverviewCard'>
+             <section className='profileInfoSection'>
+                 <h4 className='profileSectionLabel'>Personal Information</h4>
+                 <div className='profileInfoGrid'>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Full Name</span>
+                         <span className='profileFieldValue'>{fullName}</span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Email Address</span>
+                         <span className='profileFieldValue'>{email}</span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Phone Number</span>
+                         <span className='profileFieldValue'>
+                             {isEditing ? (
+                               <input
+                                 style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                 value={userConfig.phoneNumber || ""}
+                                 onChange={(e) => setUserConfig({...userConfig, phoneNumber: e.target.value})}
+                                 autoFocus
+                               />
+                             ) : (
+                               userConfig.phoneNumber || ""
+                             )}
+                         </span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Department</span>
+                         <span className='profileFieldValue'>
+                             {isEditing ? (
+                               <input
+                                 style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                 value={userConfig.department || ""}
+                                 onChange={(e) => setUserConfig({...userConfig, department: e.target.value})}
+                               />
+                             ) : (
+                               userConfig.department || ""
+                             )}</span>
+                     </div>
+                 </div>
+             </section>
+             <div className='profileSectionDivider' />
+             <section className='profileInfoSection'>
+                 <h4 className='profileSectionLabel'>Work Details</h4>
+                 <div className='profileInfoGrid'>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>EMPLOYEE ID</span>
+                         <span className='profileFieldValue profileMonospace'>
+                             {isEditing ? (
+                               <input
+                                 style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                 value={userConfig.employeeId || ""}
+                                 onChange={(e) => setUserConfig({...userConfig, employeeId: e.target.value})}
+                               />
+                             ) : (
+                               userConfig.employeeId || ""
+                             )}</span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Role</span>
+                         <span className='profileFieldValue'>
+                             {isEditing ? (
+                               <input
+                                 style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                 value={userConfig.role || ""}
+                                 onChange={(e) => setUserConfig({...userConfig, role: e.target.value})}
+                               />
+                             ) : (
+                               userConfig.role || ""
+                             )}</span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Primary Location</span>
+                         <span className='profileFieldValue'>
+                             {isEditing ? (
+                               <input
+                                 style={{ background: "none", border: "none", color: "white", outline:"none", fontSize: "14px"}}
+                                 value={userConfig.location || ""}
+                                 onChange={(e) => setUserConfig({...userConfig, location: e.target.value})}
+                               />
+                             ) : (
+                               userConfig.location || ""
+                             )}</span>
+                     </div>
+                     <div className='profileInfoField'>
+                         <span className='profileFieldLabel'>Joined</span>
+                         <span className='profileFieldValue'>{date}</span>
+                     </div>
+                 </div>
+             </section>
+         </div>
     );
 }
 
@@ -337,7 +334,7 @@ export function ProfilePage() {
                     /> 
                     <ProfileCard
                         icon={<BookCheck />}
-                        value={data?.completedJobs?.data}
+                        value={data?.completedJobs?.data.length}
                         isLoading={isLoading}
                         isError={isError}
                         label='COMPLETED JOBS'
@@ -387,7 +384,7 @@ function ProfileCard({ icon, value, label, isLoading, isError }){
             ): isError ? (
                 <span className="profileStatValue">—</span>
             ): (
-                <span className="profileStatValue">{value.length === 0 ? 0 : value}</span>
+                <span className="profileStatValue">{value}</span>
             )}
             {label && <span className='profileStatLabel'>{label}</span>}
         </div>

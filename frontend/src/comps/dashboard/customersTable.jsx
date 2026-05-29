@@ -4,7 +4,9 @@ import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
 export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
-    
+
+    console.log(data);
+
     dayjs.extend(calendar);
 
     function QuoteStatus({ status }){
@@ -24,6 +26,22 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
         
         }
     }
+
+    function showCustomerCard(customer, quote){
+        return (
+            <CustomerCard
+                firstName={customer.first_name}
+                lastName={customer.last_name}
+                address={customer.address}
+                total={quote.total}
+                desc={quote.job[0].description}
+                status={quote.status}
+                createdAt={quote.createdAt}
+
+            />
+        )
+    }
+
 
     return(
         <div>
@@ -47,28 +65,30 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                             .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
                             .map(quote =>
                                 <div key={quote.id} className="customerDataRow">
-                                    <div className="trLeft">
-                                        <button 
-                                            className='customerDeleteBtn'
-                                            onClick={() => handleDelete({ quoteId: quote?.id }) }
+                                    <div onClick={() => showCustomerCard(customer, quote)}>
+                                        <div className="trLeft">
+                                            <button 
+                                                className='customerDeleteBtn'
+                                                onClick={() => handleDelete({ quoteId: quote?.id }) }
+                                                >
+                                                    <Trash2 className='customerDeleteIcon' />
+                                                </button>
+                                            <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
+                                            <div className="customerNameNAdd">
+                                                <span className='customerNameTxt'>{customer?.first_name}  {customer?.last_name}</span>
+                                                <span className="customerAddressTxt">{customer?.address}</span>
+                                            </div>
+                                        </div>
+                                        <div className="trRight">
+                                            <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
+                                            <div className="quoteTotalTxt">${quote?.total.toLocaleString()}</div>
+                                            <div 
+                                                className="quoteStatusCell"
                                             >
-                                                <Trash2 className='customerDeleteIcon' />
-                                            </button>
-                                        <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
-                                        <div className="customerNameNAdd">
-                                            <span className='customerNameTxt'>{customer?.first_name}  {customer?.last_name}</span>
-                                            <span className="customerAddressTxt">{customer?.address}</span>
+                                                <QuoteStatus status={quote?.status} />
+                                            </div>
+                                            <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                         </div>
-                                    </div>
-                                    <div className="trRight">
-                                        <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
-                                        <div className="quoteTotalTxt">${quote?.total.toLocaleString()}</div>
-                                        <div 
-                                            className="quoteStatusCell"
-                                        >
-                                            <QuoteStatus status={quote?.status} />
-                                        </div>
-                                        <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                     </div>
                                 </div>
                         )) :<p> No Customers.</p> }
@@ -87,6 +107,22 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                         <ArrowRight />
                     </button>
                 </div>
+            </div>
+        </div>
+    )
+}
+
+
+function CustomerCard({firstName, lastName, quoteId, address, jobDescription, }){
+    return(
+        <div>
+            <span>{quoteId}</span>
+            <div>
+                {firstName} {lastName}
+                <span>{address}</span>
+            </div>
+            <div>
+                {jobDescription}
             </div>
         </div>
     )

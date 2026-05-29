@@ -16,6 +16,8 @@ class JobControllers{
                 JobService.allActiveJobs(user),
                 JobService.getMonthlyTotal(user)
             ]);
+            
+
             return res.status(200).json({
                 completedJobs,
                 unpaidJobs,

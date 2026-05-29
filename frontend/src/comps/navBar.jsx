@@ -64,7 +64,7 @@ export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
         {label: 'Draft', value: 'DRAFT'},
         {label: 'Pending', value: 'PENDING'},
         {label: 'Approved', value: 'APPROVED'},
-        {label: 'Completed', value: 'Completed'}
+        {label: 'Completed', value: 'COMPLETED'}
     ]
 
     return(
