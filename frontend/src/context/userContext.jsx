@@ -13,7 +13,8 @@ export function UserProvider({children}){
         queryFn: async() => {
             return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
         },
-        staleTime: Infinity
+        staleTime: Infinity,
+        refetchOnMount: true
     });
 
     const firstName = data?.data?.first_name ?? "";
@@ -23,10 +24,9 @@ export function UserProvider({children}){
     const userId = data?.data?.id;
 
     const nameInitials = useMemo(() => {
-        if(!firstName || !lastName) return '';
-        return `${firstName[0]}${lastName[0]}`;
-    }, [firstName, lastName]);
-
+        return `${firstName[0]}${lastName[0]}` 
+    }, [firstName, lastName]) 
+    
 
     const value = useMemo(() => ({
         email,

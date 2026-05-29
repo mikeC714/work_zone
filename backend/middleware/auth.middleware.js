@@ -19,10 +19,15 @@ import { decrypt, encrypt } from "../utils/encrypt.js";
     * If access is valid req.user is set 
 
     @handleRefresh 
-
+    ** THE BIGGEST PAIN IN THE ASS. TRULY HUMBLING THOUGH SHOWING HOW STUPID I STILL AM
     * Called by verifyToken if access_token is expired but refresh_token is active
     * Token is decrypted and validated
-    * 
+    * Since the main issue when rotating tokens is concurrency a lock (redlock/redis) is put into play
+    * lock is initialized using the users id from token payload
+    * A validation is ran based on the cached data receieved from the winner condition
+    * If token is cached req.user is set to id and return is called stopping other concurrent requests attempting to rotate refresh token
+    * Reuse abuse is monitored using the winner conditoins refresh token comparing the value to the currently stored token if they don't match user account is flagged and session is ended
+    * after everything refresh token is deleted and successfully rotated generating new credentials and setting cookies
 
 
 */
@@ -80,8 +85,8 @@ class AuthMiddleware{
         if(!valid){
             return res.status(401).json({ error: "Failed to provided valid refresh token." });
         }
+        
         const decode = Auth.decode(rToken);
-
         const id = decode.payload.id;
         
         try{
@@ -90,11 +95,9 @@ class AuthMiddleware{
 
                    const alreadyRotated = await cache.get(`rotated:${id}`);
                     if(alreadyRotated){
-                        console.log(alreadyRotated);
                         req.user = id;
                         return;
                     }
-
 
                 const storedToken = await TokenService.getRefreshToken(id);
                 if(!storedToken.rows.length){
@@ -119,9 +122,7 @@ class AuthMiddleware{
                 const encrypted = encrypt(newRefresh);
 
                 await TokenService.storeRefreshToken(id, encrypted);
-                await cache.set(`rotated:${id}`, newAccess, 'EX', 5)
-
-                console.log("CACHE SET");
+                await cache.set(`rotated:${id}`, newAccess, 'EX', 5);
 
                 res.cookie("access_token", newAccess, {
                     httpOnly: true,
