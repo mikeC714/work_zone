@@ -27,49 +27,45 @@ class CustomerControllers{
     }
 
     async getAllUserCustomers(req, res){
-        const user = req.user;
-        try{    
-            const filter = req.query.filter
-
-            const page  = parseInt(req.query.page)  || 1;
-            const limit = parseInt(req.query.limit) || 15;
-            const offset = (page - 1) * limit;
+        const user = req.user; 
+        const filter = req.query.filter
+        const page  = parseInt(req.query.page)  || 1;
+        const limit = parseInt(req.query.limit) || 15;
+        const offset = (page - 1) * limit;
             
+        try{
             const { customers} = await CustomerInfo.getAllCustomerInfo(user);
             const { quoteDetails, total } = await QuoteService.getQuoteInfo(customers, user, filter, limit, offset);
             const { data } = await JobService.getJobInfo(quoteDetails); 
-            
-            const cusData = customers.map(cus => {
-                return{
-                    ...cus,
-                    quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
-                        return{
-                            ...qts,
-                            job: data.filter(job => job.quote_id === qts.id)
-                        }
-                    })
-                }
-            });
-            
-            const totalPages = Math.ceil(total / limit);      
-
-            return res.status(200).json({
-                success: true,
-                cusData,
-                paginated: {
-                    total,
-                    page,
-                    limit,
-                    totalPages,
-                    nextPage: page < Math.ceil(total / limit),
-                    prevPage: page > 1
-                }
-            });
         }catch(err){
-            return res.status(500).json({
-                error:err.message
-            });
+            return res.status(500).json({ error:err.message });
         }
+
+        const cusData = customers.map(cus => {
+            return{
+                ...cus,
+                quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
+                    return{
+                        ...qts,
+                        job: data.filter(job => job.quote_id === qts.id)
+                    }
+                })
+            }
+        });
+        
+        const totalPages = Math.ceil(total / limit);      
+        return res.status(200).json({
+            success: true,
+            cusData,
+            paginated: {
+                total,
+                page,
+                limit,
+                totalPages,
+                nextPage: page < Math.ceil(total / limit),
+                prevPage: page > 1
+            }
+        });
     }
  
     async getCustomerQuoteInfo(req, res){
@@ -114,7 +110,7 @@ class CustomerControllers{
 
             const { customerId, quoteId } = await QuoteService.createQuote(user, customer, quote, labor, materials);
             
-            const emailToken = await Auth.signEmail({ id: user, quoteId, customerId })
+            const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
             const safeEmailToken = encrypt(emailToken);
             await TokenService.storeQuoteToken( quoteId, safeEmailToken);
 
