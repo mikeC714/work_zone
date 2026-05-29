@@ -42,9 +42,7 @@ export class TokenService{
                 [userId, token]
             );
 
-            console.log(results);
-            console.log("DELETE ROWS",results.rows);
-            console.log("DELETE COUNT",results.rowCount)
+            console.log("DELETING");
 
             return{
                 data: results.rowCount > 0 

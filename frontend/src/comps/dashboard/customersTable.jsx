@@ -50,18 +50,19 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                                     <div className="trLeft">
                                         <button 
                                             className='customerDeleteBtn'
-                                            onClick={() => handleDelete({ quoteId: quote.id }) }
+                                            onClick={() => handleDelete({ quoteId: quote?.id }) }
                                             >
                                                 <Trash2 className='customerDeleteIcon' />
                                             </button>
                                         <div className="cusomterJobId">QT-{String(customerIndex + 1).padStart(3,0)}</div>
                                         <div className="customerNameNAdd">
-                                            <span className="customerAddressTxt"> {customer.name}{customer.address}</span>
+                                            <span className='customerNameTxt'>{customer?.first_name}  {customer?.last_name}</span>
+                                            <span className="customerAddressTxt">{customer?.address}</span>
                                         </div>
                                     </div>
                                     <div className="trRight">
                                         <div className="quoteJobDescriptionTxt">{quote?.job[0]?.description}</div>
-                                        <div className="quoteTotalTxt">${quote.total.toLocaleString()}</div>
+                                        <div className="quoteTotalTxt">${quote?.total.toLocaleString()}</div>
                                         <div 
                                             className="quoteStatusCell"
                                         >

@@ -55,6 +55,7 @@ class Auth{
         try{
             return jwt.verify(token, this.#refreshSecret);
         }catch(err){
+            console.log(err.message)
             throw err;
         }
     }
@@ -66,6 +67,7 @@ class Auth{
             throw err;
         }
     }
+
 
     decode(token){
         try{

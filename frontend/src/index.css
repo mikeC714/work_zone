@@ -992,18 +992,24 @@ Link{
     white-space: nowrap;
 }
 
-.customerNameTxt {
-    flex: 1;
+.customerNameNAdd{
     display: flex;
+    justify-content: center;
     flex-direction: column;
+    height: fit-content;
     gap: 3px;
-    font-weight: 600;
-    font-size: 14px;
+}
+
+.customerNameTxt {
+    display: block;
+    font-weight: 420;
+    color: var(--orange);
+    font-size: 13px;
 }
 
 .customerAddressTxt {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-muted);
     font-weight: 400;
 }

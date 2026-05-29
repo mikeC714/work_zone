@@ -11,7 +11,6 @@ export const redLockRedis = new Redis({
 },{
     noDelay: true,
     connectionName: "redlock",
-    username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASS,
 });
 
@@ -23,7 +22,6 @@ export const cache = new Redis({
     retryStrategy: (times) => times > 5 ? null : Math.min(times * 100, 2000),
     lazyConnect: true
 },{
-    username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASS,
     connectionName: "cache",
     noDelay: true,
