@@ -27,7 +27,8 @@ import { decrypt, encrypt } from "../utils/encrypt.js";
     * A validation is ran based on the cached data receieved from the winner condition
     * If token is cached req.user is set to id and return is called stopping other concurrent requests attempting to rotate refresh token
     * Reuse abuse is monitored using the winner conditoins refresh token comparing the value to the currently stored token if they don't match user account is flagged and session is ended
-    * after everything refresh token is deleted and successfully rotated generating new credentials and setting cookies
+    * Refresh token is deleted successfully rotating and generating new credentials 
+    * sets winner condition with expiration of 5s
 
 
 */
