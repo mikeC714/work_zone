@@ -32,26 +32,24 @@ class CustomerControllers{
         const page  = parseInt(req.query.page)  || 1;
         const limit = parseInt(req.query.limit) || 15;
         const offset = (page - 1) * limit;
-            
-        try{
-            const { customers} = await CustomerInfo.getAllCustomerInfo(user);
-            const { quoteDetails, total } = await QuoteService.getQuoteInfo(customers, user, filter, limit, offset);
-            const { data } = await JobService.getJobInfo(quoteDetails); 
-        }catch(err){
-            return res.status(500).json({ error:err.message });
-        }
+        
 
-        const cusData = customers.map(cus => {
-            return{
-                ...cus,
-                quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
-                    return{
-                        ...qts,
-                        job: data.filter(job => job.quote_id === qts.id)
-                    }
-                })
-            }
-        });
+        try{
+	    const { customers } = await CustomerInfo.getAllCustomerInfo(user);
+	    const { quoteDetails, total } = await QuoteService.getQuoteInfo(customers, user, filter, limit, offset);
+            const { data } = await JobService.getJobInfo(quoteDetails); 
+
+	    const cusData = customers.map(cus => {
+		return{
+		    ...cus,
+		    quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
+			return{
+			    ...qts,
+			    job: data.filter(job => job.quote_id === qts.id)
+			}
+		    })
+		}
+	    });
         
         const totalPages = Math.ceil(total / limit);      
         return res.status(200).json({
@@ -63,9 +61,11 @@ class CustomerControllers{
                 limit,
                 totalPages,
                 nextPage: page < Math.ceil(total / limit),
-                prevPage: page > 1
-            }
-        });
+		}
+	});
+	}catch(err){
+	    return res.status(500).json({error: err.message})
+	}
     }
  
     async getCustomerQuoteInfo(req, res){
@@ -129,7 +129,6 @@ class CustomerControllers{
 
     async deleteCustomerQuote(req,res){
         const { quoteId } = req.body;
-        console.log("REQUEST",req.body);
         const user = req.user;
 
         try{

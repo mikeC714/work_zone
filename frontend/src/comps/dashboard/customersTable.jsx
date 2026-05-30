@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
 import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
-export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
+export function CustomerTable({ data, page, currPage, setPage, handleDelete, visible, setVisible }) {
 
     console.log(data);
 
@@ -27,6 +27,9 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
         }
     }
 
+
+
+
     function showCustomerCard(customer, quote){
         return (
             <CustomerCard
@@ -37,14 +40,12 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                 desc={quote.job[0].description}
                 status={quote.status}
                 createdAt={quote.createdAt}
-
             />
-        )
+	)
     }
-
-
+    
     return(
-        <div>
+        <div className="customerTableContainer">
             <div className="customerTable">
                 <div className="tableHead">
                     <div className="trLeft">
@@ -65,7 +66,7 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                             .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
                             .map(quote =>
                                 <div key={quote.id} className="customerDataRow">
-                                    <div onClick={() => showCustomerCard(customer, quote)}>
+                                    <div className="customerCard" onClick={() => setVisible(true)}></div>
                                         <div className="trLeft">
                                             <button 
                                                 className='customerDeleteBtn'
@@ -89,7 +90,6 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete }) {
                                             </div>
                                             <div className="quoteCreatedAtTxt">{dayjs(quote?.created_at).calendar(null, calendarConfig)}</div>
                                         </div>
-                                    </div>
                                 </div>
                         )) :<p> No Customers.</p> }
                 </div>

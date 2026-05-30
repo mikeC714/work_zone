@@ -23,7 +23,7 @@ class customerInfo{
         }
     }
 
-    async getAllCustomerInfo(userId, limit, offset){
+    async getAllCustomerInfo(userId){
         if(!userId){
             throw new Error("Invalid user. Failed to fetch all customer info.");
         }

@@ -9,6 +9,7 @@ export function Dashboard(){
     const [searchFilter, setSearchFilter] = useState('');
     const [page, setPage] = useState(1);
     const { filteredData, paginated, isLoading, isError, error } = useCustomerTableHook({activeFilter, searchFilter, page});
+    const [visible, setVisible] = useState(false); 
     const { mutate, isPending: deletePending, isError: deleteFail } = useCustomerDelete();
     const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED', 'UNPAID'];
     const statusArr = ['DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED', 'UNPAID'];
@@ -57,6 +58,8 @@ export function Dashboard(){
                         currPage={page}
                         setPage={setPage}
                         handleDelete={mutate}
+			visible={visible}
+			setVisible={setVisible}
                     />
                 </div>
             </div>

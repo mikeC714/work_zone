@@ -839,6 +839,10 @@ Link{
     display: flex;
     flex-direction: column;
 }
+    
+.customerCard{
+    position: absolute;
+}
 
 /* Header */
 .tableHead {
