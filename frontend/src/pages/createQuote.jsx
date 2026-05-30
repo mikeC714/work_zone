@@ -1,6 +1,4 @@
 import { useState, useRef } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { apiFetch } from '../../utils/apiFetch.jsx';
 import { useEmailHook } from '../hooks/email.hooks.jsx';
 import { useCreateQuote } from "../hooks/createQuote.hook.jsx";
 import { CreateQuoteForm } from '../comps/createQuote.form.jsx';
@@ -43,27 +41,13 @@ export function CreateQuote(){
     }
 
 
-    function validateInputFields(){
-        for(const mat of materials){
-            if(!mat.description.trim()) return false;
-            if(!mat.quantity.trim()) return false;
-            if(!mat.unitCost.trim()) return false;
-        }
-
-        for(const lab of labor){
-            if(!lab.description.trim()) return false;
-            if(!lab.hours.trim()) return false;
-            if(!lab.hourlyRate.trim()) return false;
-        }
-
-        for(const [_, val] of Object.entries(customerInfo)){
-            if(!val.trim()) return false;
-        }
-        return true;
-    }
-    
     async function handleSendQuote() {
-    
+		for(const [_, val] of Object.entries(customerInfo)){
+			if(!val.trim()) throw new Error("Missing Customer Input. Please fill all input fields.");
+		}
+		if(!materials.description.trim() || !materials.quantity.trim() || !materials.unitCost.trim()) throw new Error("Missing Field. Please fill all input fields.");
+		if(!labor.description.trim() || !labor.hours.trim() || !labor.hourlyRate.trim()) throw new Error("Missing Feild. Please fill all input fields.");
+
         mutate({
             customer: customerInfo,
             quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
@@ -96,7 +80,7 @@ export function CreateQuote(){
       mutate({
         customer: customerInfo,
         quote: {status: status ,markup: Number(userMarkup), total: Number(total.toFixed(2)) },
-        labor: labor.map(l => ({
+        labo: labor.map(l => ({
             ...l,
             hours: Number(l.hours),
             hourlyRate: Number(l.hourlyRate)
@@ -139,7 +123,7 @@ export function CreateQuote(){
     }
 
   function handleLaborForm(e, index) {
-        const { name, value } = e.target
+        const { name, value } = e.target;
             setLabor((prevLabor) =>
                 prevLabor.map((lab, i) =>{
                     if(i === index){

@@ -1,8 +1,8 @@
 import { useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from "../../utils/apiFetch.jsx";
+import { Loader } from "lucide-react";
 import config from "../config.js"
-import { QuickAccess } from "../comps/dashboard/quickAccess.jsx";
 
 export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 10}){
     const queryClient = useQueryClient();
@@ -22,11 +22,7 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
             staleTime: 1000 * 60 * 10,
             retry: 3
         })
-    }, [activeFilter, page, limit])
-
-
-
-    console.log(data?.paginated)
+    }, [queryClient, activeFilter, page, limit])
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];
@@ -39,19 +35,22 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
                     cus.first_name?.toLowerCase().includes(search) ||
                     cus.last_name?.toLowerCase().includes(search) ||
                     `qt-${String(i + 1).padStart(3, '0')}`.includes(search.toLowerCase())||
-                    cus.quote.some(qt => qt.job?.some(job => job.description?.toLowerCase().includes(search)))
+                    cus.quote.some(qt => qt.job?.some(job => job.description?.toLowerCase().includes(search)),
+					cusId
+				)
             )
         }
     );
 }
-
         return result;
+    }, [data, searchFilter]);
 
-    }, [data, activeFilter, searchFilter]);
+		
+	if(isLoading) return <Loader />
 
 
     return {
-        paginated: data?.paginated, 
+		paginated: data?.paginated, 
         filteredData: filteredData || {},
         isLoading, 
         isError, 

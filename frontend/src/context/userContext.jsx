@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useEffect, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { apiFetch } from '../../utils/apiFetch';
 import { useQuery } from "@tanstack/react-query";
 import config from '../config.js';
@@ -13,8 +13,10 @@ export function UserProvider({children}){
         queryFn: async() => {
             return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
         },
-        staleTime: 0,
-        refetchOnMount: true
+		staleTime: 0, 
+    		retry: true,             
+    		refetchOnMount: true,
+    		refetchOnWindowFocus: true
     });
 
     const firstName = data?.data?.first_name ?? "";
@@ -24,6 +26,7 @@ export function UserProvider({children}){
     const userId = data?.data?.id;
 
     const nameInitials = useMemo(() => {
+		if(!firstName || !lastName) return "";
         return `${firstName[0]}${lastName[0]}` 
     }, [firstName, lastName]) 
     

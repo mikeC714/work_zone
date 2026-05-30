@@ -47,23 +47,14 @@ class AuthMiddleware{
         if(!accessToken && !refreshToken){
             return res.status(401).json({ error: "Unauthorized user. Failed to provide valid token." });
         }
+		
         const valid = Auth.verify(accessToken);
         if(!valid){
+			if (refreshToken) {
+            	return await this.handleRefresh(req, res, next);
+        	}
             return res.status(401).json({ error: "Failed to provide valid token." });
         }
-        const decode = Auth.decode(accessToken);
-        const now = Math.floor(Date.now() / 1000) // current time in seconds
-        const timeRemaining = decode.exp - now // seconds left until expiry
-        const grace = 10 * 60
-
-        if(timeRemaining <= grace && refreshToken){
-            try{
-                return await this.handleRefresh(req, res, next);
-            }catch(err){
-                return res.status(500).json({ error: err.message });
-            }
-        }
-
         try{
             req.user = valid.payload.id;
             next();
@@ -77,7 +68,8 @@ class AuthMiddleware{
     
     async handleRefresh (req, res, next){
         const refreshToken = req.cookies.refresh_token;
-        if(!refreshToken){
+        console.log("REFRESH_TOKEN:", refreshToken);
+		if(!refreshToken){
             return res.status(400).json({ error: "Failed to refresh token; was not provided token." });
         }
 
@@ -89,32 +81,44 @@ class AuthMiddleware{
         
         const decode = Auth.decode(rToken);
         const id = decode.payload.id;
-        
-        try{
-            await lock.using([`lock:${id}`], 3000, async(signal) => {
-                if(signal.aborted) throw signal.error;
 
-                   const alreadyRotated = await cache.get(`rotated:${id}`);
-                    if(alreadyRotated){
-                        req.user = id;
-                        return;
-                    }
+        const alreadyRotated = await cache.get(`rotated:${id}`);
+            if(alreadyRotated){
+				console.log("already rotated");
+                req.user = id;
+                return next();
+            }
+	
+		try{
+			let rotated = false;
+            await lock.using([`lock:${id}`], 10000, async(signal) => {
+                if(signal.aborted) throw signal.error;
+					
+				console.log(signal);
+	
+				const stillRotated = await cache.get(`rotated:${id}`);
+				if(stillRotated){
+					rotated = true;
+					req.user = id;
+					return;
+				}
 
                 const storedToken = await TokenService.getRefreshToken(id);
                 if(!storedToken.rows.length){
-                    return res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
-                }
-
+                    res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
+    				return;            
+				}
+	
                 const decryptedStored = decrypt(storedToken.rows[0].token);
-                const decodedStored = Auth.decode(decryptedStored);
 
                 if(decryptedStored !== rToken){
                     await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
                     await UserService.flagUser(id);
                     res.clearCookie("access_token");
                     res.clearCookie("refresh_token");
-                    throw new Error("Unauthorized. Suspicious activity has been noticed.");
-                }
+                    res.status(401).json({message: "Unauthorized. Suspicious activity has been noticed."});
+                	return;
+				}
 
                 await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
 
@@ -137,10 +141,11 @@ class AuthMiddleware{
                     sameSite: 'strict',
                     maxAge: 604800000 // 7D
                 })
+				rotated = true;
                 req.user = id;
             });
 
-            next();
+            if(rotated) return next();
             }catch(err){
                 return res.status(500).json({ error: err.message });
             }

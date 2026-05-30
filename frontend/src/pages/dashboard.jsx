@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
 import { QuickAccess } from '../comps/dashboard/quickAccess.jsx';
 import { useCustomerTableHook, useCustomerDelete } from '../hooks/customerTable.hooks.jsx';
 import { CustomerTable } from '../comps/dashboard/customersTable.jsx'
@@ -10,9 +10,8 @@ export function Dashboard(){
     const [page, setPage] = useState(1);
     const { filteredData, paginated, isLoading, isError, error } = useCustomerTableHook({activeFilter, searchFilter, page});
     const [visible, setVisible] = useState(false); 
-    const { mutate, isPending: deletePending, isError: deleteFail } = useCustomerDelete();
+    const { mutate, isPending: deletePending, isError: deleteError } = useCustomerDelete();
     const filters = ['ALL','DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED', 'UNPAID'];
-    const statusArr = ['DRAFT','SENT', 'PENDING', 'APPROVED', 'COMPLETED', 'UNPAID'];
 
     function handleSearchChange(e){
         setSearchFilter(e.target.value);
@@ -54,12 +53,17 @@ export function Dashboard(){
                 <div className='customerTableContainer'>
                     <CustomerTable 
                         data={filteredData}
+						isLoading={isLoading}
+						isError={isError}
+						error={error}
                         page={paginated}
                         currPage={page}
                         setPage={setPage}
                         handleDelete={mutate}
-			visible={visible}
-			setVisible={setVisible}
+						deletePending={deletePending}
+						deleteError={deleteError}
+						visible={visible}
+						setVisible={setVisible}
                     />
                 </div>
             </div>

@@ -1605,6 +1605,10 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+.cqMarkupInput[type=number]{
+	-moz-appearance: none;
+}
+
 .cqMarkupInput:focus {
     outline: none;
     border-color: var(--orange);

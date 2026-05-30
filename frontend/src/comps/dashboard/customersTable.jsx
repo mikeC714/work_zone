@@ -1,11 +1,10 @@
 import { calendarConfig } from '../../../config/calender.config.js';
-import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
-import calendar from 'dayjs/plugin/calendar';
+import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react"; import calendar from 'dayjs/plugin/calendar';
 import dayjs from 'dayjs';
 
-export function CustomerTable({ data, page, currPage, setPage, handleDelete, visible, setVisible }) {
-
-    console.log(data);
+export function CustomerTable({ data, page, setPage, handleDelete, visible, setVisible }) {
+		
+	console.log(page);
 
     dayjs.extend(calendar);
 
@@ -30,7 +29,7 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete, vis
 
 
 
-    function showCustomerCard(customer, quote){
+	/*function showCustomerCard(customer, quote){
         return (
             <CustomerCard
                 firstName={customer.first_name}
@@ -42,7 +41,7 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete, vis
                 createdAt={quote.createdAt}
             />
 	)
-    }
+    }*/
     
     return(
         <div className="customerTableContainer">
@@ -96,13 +95,17 @@ export function CustomerTable({ data, page, currPage, setPage, handleDelete, vis
                 <div className='pageBtnContainer'>
                     <button
                         disabled = {page?.prevPage ? false : true}
-                        onClick={() => setPage(p => p -1)}
+                        onClick={() => {
+							console.log("PAGE MINUS 1")
+							setPage(p => p -1)}}
                     >
                         <ArrowLeft />
                     </button>
                     <button 
                         disabled = {page?.nextPage ? false : true }
-                        onClick={() => setPage(p => p +1)}
+                        onClick={() => {
+							console.log("PAGE PLUS 1")
+							setPage(p => p +1)}}
                     >
                         <ArrowRight />
                     </button>

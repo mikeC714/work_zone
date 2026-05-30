@@ -5,9 +5,9 @@ import Auth from "../auth/auth.js";
 import TokenService from "../service/db/token.service.js"
 import { encrypt } from "../utils/encrypt.js";
 
+
 class CustomerControllers{
-    
-    async getCustomerInfo(req,res){
+async getCustomerInfo(req,res){
         const user = req.user;
         try{
             const customerId = await CustomerInfo.getAllCustomerIds(user);
@@ -61,6 +61,7 @@ class CustomerControllers{
                 limit,
                 totalPages,
                 nextPage: page < Math.ceil(total / limit),
+				prevPage: page > 1
 		}
 	});
 	}catch(err){
@@ -90,7 +91,7 @@ class CustomerControllers{
         try{
             const customerIds = await CustomerService.getAllCustomerIds(user);
             const quotes = await QuoteService.getQuoteInfo(customerIds, user)
-            const customStatus = await CustomerService.customerStatus(quotes);
+            const customerStatus = await CustomerService.customerStatus(quotes);
 
             return res.status(200).json({
                 customerStatus

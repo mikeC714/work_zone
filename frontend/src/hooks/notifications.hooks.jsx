@@ -19,7 +19,7 @@ export function useNotiHook({notiPage = 1, notiLimit, filter = "", clear = false
             staleTime: 1000 * 60 * 20,
             retry: 2
         })
-    }, [notiPage, notiLimit, clear])
+    }, [queryClient, notiPage, notiLimit, clear])
 
     const notifications = data?.nonRead ?? [];
 

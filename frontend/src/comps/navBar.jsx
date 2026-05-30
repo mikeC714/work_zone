@@ -74,7 +74,7 @@ export function CqNavBar({ handleSaveQuote, handleStatusChange, statusValue }){
                     className='navLogo' 
                     onClick={() => navigate('/dashboard')}
                 >
-                    <span className='navLogoIcon'>⚡</span> VOLT
+                    <img className='navLogoIcon' src={logo}/>
                 </div>
             </div>
             <div className='cqNavRight'>
