@@ -1,10 +1,10 @@
 import Auth from "../auth/auth.js";
-import TokenService from "../service/db/token.service.js";
-import UserService from "../service/db/user.service.js";
+import { deleteRefreshToken, getRefreshToken, storeRefreshToken } from "../service/db/token.service.js";
+import { flagUser } from "../service/db/user.service.js";
 import { lock } from "../config/redlock.config.js";
 import { cache } from "../config/redis.config.js";
 import { decrypt, encrypt } from "../utils/encrypt.js";
-
+import { AuthenticationError } from "../error/error.handler.js";
 
 /**
     @AuthMiddleware
@@ -34,125 +34,92 @@ import { decrypt, encrypt } from "../utils/encrypt.js";
 */
 
 
-class AuthMiddleware{
-    constructor(){
-        this.verifyToken = this.verifyToken.bind(this);
-        this.handleRefresh = this.handleRefresh.bind(this);
-    }
+export async function verifyToken (req, res, next){
+    	try{	
+			const accessToken = req.cookies.access_token;
+        	const refreshToken = req.cookies.refresh_token;
 
-    async verifyToken (req, res, next){
-        const accessToken = req.cookies.access_token;
-        const refreshToken = req.cookies.refresh_token;
+        	if(!accessToken && !refreshToken) throw new AuthenticationError("Unauthorized user. Failed to provide valid token.");
+        
+			const valid = Auth.verify(accessToken);
+        	if(!valid && refreshToken) return await handleRefresh(req, res, next);
 
-        if(!accessToken && !refreshToken){
-            return res.status(401).json({ error: "Unauthorized user. Failed to provide valid token." });
-        }
-
-        const valid = Auth.verify(accessToken);
-        if(!valid){
-			console.log("MADE IT TO VALID CHECKER");
-			if (refreshToken) {
-				console.log("GOING TO REFRESH BRANCH");
-            	return await this.handleRefresh(req, res, next);
-        	}
-            return res.status(401).json({ error: "Failed to provide valid token." });
-        }
-        try{
             req.user = valid.payload.id;
             next();
         }catch(err){
-             if(err.name === "TokenExpiredError" && refreshToken){
-                return await this.handleRefresh(req, res, next);
+             if(err instanceof AuthenticationError && refreshToken){
+                return await handleRefresh(req, res, next);
             }   
-            return res.status(500).json({ error: err.message });
+            next(err);
         }
     }
     
-    async handleRefresh (req, res, next){
-        const refreshToken = req.cookies.refresh_token;
-        console.log("REFRESH_TOKEN:", refreshToken);
-		if(!refreshToken){
-            return res.status(400).json({ error: "Failed to refresh token; was not provided token." });
-        }
+async function handleRefresh (req, res, next){
+    	try{
+			const refreshToken = req.cookies.refresh_token;
+			if(!refreshToken) throw new AuthenticationError("Failed to refresh token, was not provided token.");
 
-        const rToken = decrypt(refreshToken);
-        const valid = Auth.verifyRefresh(rToken);
-        if(!valid){
-            return res.status(401).json({ error: "Failed to provided valid refresh token." });
-        }
+        	const rToken = decrypt(refreshToken);
+        	const valid = Auth.verifyRefresh(rToken);
+        	if(!valid) throw new AuthenticationError("Failed to provided valid refresh token.");
         
-        const decode = Auth.decode(rToken);
-        const id = decode.payload.id;
+        	const decode = Auth.decode(rToken);
+        	const id = decode.payload.id;
 
-        const alreadyRotated = await cache.get(`rotated:${id}`);
-            if(alreadyRotated){
-				console.log("already rotated");
-                req.user = id;
-                return next();
-            }
+        	const alreadyRotated = await cache.get(`rotated:${id}`);
+            	if(alreadyRotated){
+                	req.user = id;
+                	return next();
+            	}
 	
-		try{
-			let rotated = false;
-            await lock.using([`lock:${id}`], 10000, async(signal) => {
-                if(signal.aborted) throw signal.error;
-					
-				console.log(signal);
+        	return await lock.using([`lock:${id}`], 10000, async(signal) => {
+            	if(signal.aborted) throw signal.error;
 	
 				const stillRotated = await cache.get(`rotated:${id}`);
 				if(stillRotated){
-					rotated = true;
 					req.user = id;
-					return;
+					return next();
 				}
 
-                const storedToken = await TokenService.getRefreshToken(id);
-                if(!storedToken.rows.length){
-                    res.status(401).json({ error: "Unauthorized user. Failed to provide stored token." });
-    				return;            
-				}
-	
-                const decryptedStored = decrypt(storedToken.rows[0].token);
+            	const storedToken = await getRefreshToken(id);
+            	if(!storedToken) throw new AuthenticationError("Unauthorized user. Failed to provide stored token.");            
 
-                if(decryptedStored !== rToken){
-                    await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
-                    await UserService.flagUser(id);
-                    res.clearCookie("access_token");
-                    res.clearCookie("refresh_token");
-                    res.status(401).json({message: "Unauthorized. Suspicious activity has been noticed."});
-                	return;
+            	if(storedToken !== rToken){
+                	await deleteRefreshToken(id, storedToken);
+                	await flagUser(id);
+                	res.clearCookie("access_token");
+                	res.clearCookie("refresh_token");
+                	throw new AuthenticationError("Authorization has been revoked. Suspicious activity has been noticed.");
 				}
 
-                await TokenService.deleteRefreshToken(id, storedToken.rows[0].token);
+            	await deleteRefreshToken(id, storedToken);
 
-                const newAccess = Auth.sign({ id });
-                const newRefresh = Auth.signRefresh({ id });
-                const encrypted = encrypt(newRefresh);
+            	const newAccess = Auth.sign({ id });
+            	const newRefresh = Auth.signRefresh({ id });
+            	const encrypted = encrypt(newRefresh);
 
-                await TokenService.storeRefreshToken(id, encrypted);
-                await cache.set(`rotated:${id}`, newAccess, 'EX', 5);
+            	await storeRefreshToken(id, encrypted);
+            	await cache.set(`rotated:${id}`, newAccess, 'EX', 5);
 
-                res.cookie("access_token", newAccess, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 900000 // 15M
-                })
-                res.cookie("refresh_token", encrypted, {
-                    httpOnly:true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 604800000 // 7D
-                })
-				rotated = true;
-                req.user = id;
-            });
-
-            if(rotated) return next();
-            }catch(err){
-                return res.status(500).json({ error: err.message });
-            }
+            	res.cookie("access_token", newAccess, {
+                	httpOnly: true,
+                	secure: true,
+                	sameSite: 'strict',
+                	maxAge: 900000 // 15M
+            	})
+            	res.cookie("refresh_token", encrypted, {
+                	httpOnly:true,
+                	secure: true,
+                	sameSite: 'strict',
+                	maxAge: 604800000 // 7D
+            	})
+            	req.user = id;
+				return next();
+        	});
+        	}catch(err){
+            	next(err);
+        	}
     }
-}
 
 
 

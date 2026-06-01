@@ -5,7 +5,7 @@ import customerRouter from './routes/customer.routes.js';
 import emailRouter from './routes/email.route.js';
 import jobRouter from './routes/job.routes.js';
 import notiRouter  from './routes/notifications.routes.js';
-import AuthMiddleware from './middleware/auth.middleware.js';
+import { AppError, AuthenticationError } from "./error/error.handler.js";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 dotenv.config();
@@ -27,6 +27,17 @@ app.use('/api', jobRouter)
 app.use('/api', notiRouter)
 
 
+
+
+
+app.use((err, req, res, next) => {
+	let msg = "Server error";
+	let statusCode = 500;
+	if(err instanceof AppError){
+		return res.status(err.status).json({ error: err.message })
+	}
+	res.status(statusCode).json({ error: msg })
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running smooth on PORT: ${PORT}`)
