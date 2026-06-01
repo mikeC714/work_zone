@@ -1,22 +1,13 @@
 import { startOfMonth, endOfMonth } from "../utils/date.js";
 import db from "../config/postgresql.config.js";
+import { AppError } from "../error/error.handler.js";
 
-
-class JobService{
-    constructor(db){
-        this.db = db;
-    }
-
+export default {
     
-
-    async getJobInfo(quotes){
-        if(!quotes){
-            return { data: [] };
-        }
+	async getJobInfo(quotes){
         try{
             const quoteIds = quotes.map(qts => qts.id);
-
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT 
                     description, 
                     hours,
@@ -27,20 +18,16 @@ class JobService{
                 `, [quoteIds]
             );
 
-            return {
-                data: results.rows || []
-            };
+            return results.rows || []
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        	throw err;
+		}
+    },
 
     async allCompletedJobs(id){
-        if(!id){
-            throw new Error("ID of user is unprovided. Failed to fetch all COMPLETED jobs.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
@@ -50,20 +37,16 @@ class JobService{
                 `, [id, startOfMonth, endOfMonth]
             );
 
-            return {
-                data: results.rows
-            }
+            return results.rows
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        	throw err;
+		}
+    },
 
     async allUnpaidJobs(id){
-        if(!id){
-            throw new Error("ID of user is unprovided. Failed to fetch all unpaid jobs.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1 
@@ -73,20 +56,16 @@ class JobService{
                 `, [id, startOfMonth, endOfMonth]
             );
 
-            return {
-                data: results.rows
-            };
+            return results.rows;
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        	throw err;
+		}
+    },	
 
     async allActiveJobs(id){
-        if(!id){
-            throw new Error("ID of user is unprovided. Failed to fetch all active jobs.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT status, created_at
                     FROM quotes
                     WHERE user_id = $1
@@ -97,22 +76,16 @@ class JobService{
             );
             
 
-            return {
-                data: results.rows
-            }
+            return results.rows;
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        	throw err;
+		}
+    },
 
     async getMonthlyTotal(id){
-        if(!id){
-            throw new Error("ID of user is unprovided. Failed to fetch monthly revenue.");
-        }
-
-
+        if(!id) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                   `SELECT SUM(total) AS total_value
                      FROM quotes
                      WHERE user_id = $1
@@ -121,17 +94,11 @@ class JobService{
                      AND status = 'COMPLETED'`,
                     [id, startOfMonth, endOfMonth]
             );
-
-
-
-            return {
-                data: results.rows[0]?.total_value ?? 0
-            };
+            return results.rows[0]?.total_value ?? 0 
         }catch(err){
-            throw new Error(err.message);
-        }    
+        	throw err;
+		}    
     }
 
 }
 
-export default new JobService(db);

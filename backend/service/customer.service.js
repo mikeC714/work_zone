@@ -1,69 +1,41 @@
-import QuoteService from "./quote.service.js";
 import JobService from "./job.service.js";
 import db from "../config/postgresql.config.js";
+import { AppError } from "../error/error.handler.js";
 
 
-class customerInfo{
-    constructor(db){
-        this.db = db;
-    }
-
+export default{
     async getAllCustomerIds(userId){
-        if(!userId){
-            throw new Error("Invalid user. Failed to get all customer Ids.");
-        }    
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT id FROM customers WHERE user_id = $1`,
                 [userId]
             );
             return results.rows;
         }catch(err){
-            throw new Error(`Failed to fetch all customer ids:${err.message}.`)
-        }
-    }
+    		throw err;
+		}
+    },
 
     async getAllCustomerInfo(userId){
-        if(!userId){
-            throw new Error("Invalid user. Failed to fetch all customer info.");
-        }
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT * FROM customers 
                 WHERE user_id = $1
                 `,[userId]
-            );
-
-            if(!results){
-                return {
-                    data: []
-                }
-            }
-            
-            return{
-                customers: results.rows,
-            }
-            
+            ); 
+            return results.rows 
         }catch(err){
-            throw new Error(err.message)
-        }
-    }
-}
+        	throw err;
+		}
+    },
 
-class customerService{
-    constructor(db){
-        this.db = db;
-    }
     async customerDetails(customerIds, userId){
-        if(!userId){ 
-            throw new Error("Invalid user. Failed to fetch customer detials.");
-        }
-
+        if(!userId) throw new AppError("User not found.", 404);
         const cusIds = customerIds.map(customer => customer.id);
-
-        if(!cusIds || customerIds === 0) return { customerInfo: [] };
         try{
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT 
                     id,
                     first_name,
@@ -79,11 +51,11 @@ class customerService{
             );
             return results.rows;
         }catch(err){
-            throw new Error(`Failed to fetch customer info: ${err.message}`);
-        }
-    }
+        	throw err;
+		}
+    },
 
-    async customerQuoteInfo(quotes, user){
+    async customerQuoteInfo(quotes){
         if(!quotes || quotes.length === 0){
             return {
                 quotes: [], jobs: []
@@ -99,19 +71,11 @@ class customerService{
                     }
                 })
             );
-            return {
-                quotedJobs
-            };
+            return quotedJobs
         }catch(err){
-            throw new Error(`Failed to get customer quote info: ${err.message}`);
-        }
+        	throw err;
+		}
     }
 }
 
-const CustomerService = new customerService(db);
-const CustomerInfo = new customerInfo(db);
 
-export {
-    CustomerService,
-    CustomerInfo
-}

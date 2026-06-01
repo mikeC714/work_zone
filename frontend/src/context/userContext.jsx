@@ -14,9 +14,15 @@ export function UserProvider({children}){
             return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
         },
 		staleTime: 0, 
-    		retry: true,             
-    		refetchOnMount: true,
-    		refetchOnWindowFocus: true
+    	retry: true,             
+    	refetchOnMount: true,
+    	refetchOnWindowFocus: true,
+		
+		onError: (err) => {
+			if(err){
+				window.location.href("/auth")
+			}
+		}
     });
 
     const firstName = data?.data?.first_name ?? "";

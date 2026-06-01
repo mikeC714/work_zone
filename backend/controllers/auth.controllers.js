@@ -1,34 +1,31 @@
 import Auth from "../auth/auth.js";
-import UserService from "../service/db/user.service.js";
-import TokenService from "../service/db/token.service.js";
-import { encrypt, decrypt } from "../utils/encrypt.js";
+import { getUser, storeNewUser, validatePassword, getUserById, deleteUser } from "../service/db/user.service.js";
+import { storeRefreshToken, deleteRefreshToken, } from "../service/db/token.service.js";
+import { decrypt } from "../utils/encrypt.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../error/error.handler.js";
 import bcrypt from "bcrypt";
 
-class AuthController{
-    async login(req, res){
+    export const login = catchAsync(async (req, res) => {
         const { email, password } = req.body;
-
         if(!email || !password){
-            return res.status(400).json({ message: "Login failed, missing input field." });
+            throw new AppError("Invalid, Missing fields.", 400);
         }
         
-        try{
-            const results = await UserService.getUser(email);
-            const user = results.rows[0];
+            const user = await getUser(email);
             if(!user){
-                return res.status(401).json({ message: "Invalid credentials." });
-            }
+            	throw new AppError("Invalid credentials.", 401);
+			}
 
             const valid = await bcrypt.compare(password, user.password);
             if(!valid){
-                return res.status(401).json({ message: "Invalid Credentials." });
-            }
+            	throw new AppError("Invalid credentials.", 401);
+			}
 
             const token = Auth.sign({ id: user.id });
             const refreshToken = Auth.signRefresh({ id: user.id });
 
-            const encryptedRefresh = encrypt(refreshToken);
-            await TokenService.storeRefreshToken(user.id ,encryptedRefresh);
+            await storeRefreshToken(user.id , refreshToken);
 
             res.cookie("access_token", token,{
                 httpOnly: true,
@@ -44,40 +41,29 @@ class AuthController{
             })
 
             return res.status(200).json({ 
-                message: `${user.email}, successfully logged in.`,
                 user: {
                     firstName: user.first_name,
                     lastName: user.last_name
                 }
-            });
+			});
+	});
 
-        }catch(err){
-            console.error(err.message);
-            return res.status(500).json({
-                message: "Failed to login.",
-                error: err.message
-            })
-        }
-    }
-
-    async signup(req, res){
+    export const signup = catchAsync(async (req, res) => {
         const { email, firstName, lastName, password } = req.body;
         if(!firstName || !lastName || !email || !password){
-            return res.status(400).json({ message: "Missing field input." });
-        }
-
-        try{
+        	throw new AppError("Missing Field. Please try again", 400);
+		}
             const rounds = 16
             const salt = await bcrypt.genSalt(rounds);
             const safePass = await bcrypt.hash(password, salt);
 
-            const user = await UserService.storeNewUser(firstName, lastName, email, safePass);
+            const user = await storeNewUser(firstName, lastName, email, safePass);
+			if(!user) throw new AppError("Invalid Credentials.", 401);
 
             const token = Auth.sign({id: user.id });
             const refreshToken = Auth.signRefresh({id: user.id});
 
-            const encryptedRefresh = encrypt(refreshToken);
-            await TokenService.storeRefreshToken(user.id, encryptedRefresh);
+            await storeRefreshToken(user.id, refreshToken);
 
             res.cookie("access_token", token,{
                 httpOnly: true,
@@ -93,109 +79,63 @@ class AuthController{
             })
 
             return res.status(201).json({
-                message: `${user.email}, successfully created an account.`, 
                 user:{
                     firstName: user.first_name,
                     lastName: user.last_name
                 }
-                });
-
-        }catch(err){
-            console.error(err.message);
-            return res.status(500).json({
-                message: "Failed to sign up.",
-                error: err.message
-            })
-        }
-    }
+             });
+	});
     
-    async logout(req, res){
+    export const logout = catchAsync(async (req, res) => {
         const refresh = req.cookies.refresh_token;
-        if(!refresh){
-            return res.status(401).json({ message: "User is unauthorized." });
-        }
-        try{
-            const decryptedRefresh = decrypt(refresh);
-            const verified = Auth.verifyRefresh(decryptedRefresh);
-            if(!verified){
-                return res.status(401).json({
-                    message: "User unauthorized due to invalid token."
-                });
-            }
-            
-            await TokenService.deleteRefreshToken(verified.payload.id, refresh);
+        if(!refresh) throw new AppError("Failed to provide valid token.", 401);
+		
+		const decryptedRefresh = decrypt(refresh);
+        const verified = Auth.verifyRefresh(decryptedRefresh);
+		const decode = Auth.decode(decryptedRefresh);
 
-            res.clearCookie("access_token");
-            res.clearCookie("refresh_token");
+    	await deleteRefreshToken(decode.payload.id, refresh);
 
-            return res.status(200).json({ message: "Successful log out." });
+        res.clearCookie("access_token");
+        res.clearCookie("refresh_token");
 
-        }catch(err){
-            return res.status(500).json({
-                message: "Failed to logout.",
-                error: err.message
-            })
-        }
-    }
+        return res.status(200).json({ success: true });
+    });
 
-    async deleteUser(req, res){
+
+    export const deleteUser = catchAsync(async(req, res) => {
         const { password } = req.body;
-        if(!password){
-            return res.status(400).json({ message: "Failed to provide valid password. Please try again." })
-        }
-        const refresh = req.cookies.refresh_token;
-        if(!refresh){
-            return res.status(401).json({ message: "User is unauthorized." })
-        }
-        try{
-            const decryptedRefresh = await decrypt(refresh);
+        if(!password) throw new AppError("Missing field. Please try again.", 400);
+        
+		const refresh = req.cookies.refresh_token;
+        if(!refresh) throw new AppError("Failed to provide valid token.", 401);
+            
+			const decryptedRefresh = decrypt(refresh);
             const verified = Auth.verifyRefresh(decryptedRefresh);
-            if(!verified){
-                return res.status(401).json({ message: "User unauthorized do to invalid token." });
-            }
+			const decode = Auth.decode(decryptedRefresh);
 
-            const valid = await UserService.validatePassword(verified.payload.id, password);
-            if(!valid){
-                return res.status(401).json({ message: "Invalid credentials. Please try again." })
-            }
+            const valid = await validatePassword(decode.payload.id, password);
+            if(!valid) throw new AppError("Invalid credentials. Please try again.", 401);
 
-            await UserService.deleteUser(verified.payload.id, refresh);
+            await deleteUser(decode.payload.id, refresh);
             
             res.clearCookie("access_token");
             res.clearCookie("refresh_token");
 
 
-            return res.status(200).json({ message: "User deleted" });
+         return res.status(200).json({ message: "User deleted" });
+    });
 
-        }catch(err){
-            console.log(err.message)
-            return res.status(500).json({ 
-                error: err.message
-             })
-        }
-    }
-
-    async currUser(req,res){
-        const user = req.user;
+	export const currUser = catchAsync(async(req,res) => {
+        const id = req.user;
+        if(!id) throw new AppError("Failed to provide user id.", 400);
+        const user = await getUserById(id);
         if(!user){
-            return res.status(401).json({ message: "Unauthorized user." });
-        }
-        try{
-            const results = await UserService.getUserById(user);
-            if(!results){
-                return res.status(404).json({ message: "Invalid user credentials." });
-            }
+        	throw new AppError("User not found.", 404);		
+		}
 
-            return res.status(200).json({ data: results.rows[0] });
+        return res.status(200).json({ user });
+	});
 
-        }catch(err){
-            return res.status(500).json({
-                error: err.message,
-                message: "Failed to get current user."
 
-            })
-        }
-    }
-}
 
-export default new AuthController();

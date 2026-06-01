@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 
 
 export async function apiFetch(url, method = 'GET', body = null){  
@@ -10,17 +9,10 @@ const options = {
   };
   
     const res = await fetch(url, options);
-
     if (!res.ok) {      
-    
-      if(res.status === 401){
-        window.location.href = '/auth'
-        return;
-      }
-
       let message;
-
       const contentType = res.headers.get('content-type');
+
       if (contentType && contentType.includes('application/json')) {
         const errorData = await res.json();
         message = errorData.message;

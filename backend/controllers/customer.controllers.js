@@ -1,149 +1,144 @@
-import { CustomerInfo, CustomerService } from "../service/customer.service.js";
-import QuoteService from "../service/quote.service.js";
-import JobService from "../service/job.service.js";
+import { getAllCustomerIds, getAllCustomerInfo, customerQuoteInfo, customerDetails } from "../service/customer.service.js";
+import { getQuoteInfo,  } from "../service/quote.service.js";
+import { getJobInfo } from "../service/job.service.js";
 import Auth from "../auth/auth.js";
-import TokenService from "../service/db/token.service.js"
+import { storeQuoteToken } from "../service/db/token.service.js"
 import { encrypt } from "../utils/encrypt.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../error/error.handler.js";
 
-
-class CustomerControllers{
-async getCustomerInfo(req,res){
+	export const getCustomerInfo = catchAsync(async(req,res) => {
         const user = req.user;
-        try{
-            const customerId = await CustomerInfo.getAllCustomerIds(user);
-            const customerDetails = await CustomerService.customerDetails(customerId)
+        if(!user) throw new AppError("User not found", 404);
 
-            return res.status(200).json({
-                success: true,
-                customerDetails
-            })
-        }catch(error){
-            console.error(error.message);
-            return res.status(500).json({
-                success: false, 
-                error: error.message
-            })
-        }
-    }
+		const customerIds = await getAllCustomerIds(user);
+    	if(customerIds.length === 0 || !customerIds){
+			return res.status(200).json({ customerDetails: [] });
+		};
+		const cusDetails = await customerDetails(customerIds)
+		
+        return res.status(200).json({
+            cusDetails
+        })
+    });
 
-    async getAllUserCustomers(req, res){
-        const user = req.user; 
+    export const getAllUserCustomers = catchAsync(async(req, res) => {
+        const user = req.user;
+		if(!user) throw new AppError("User not found.", 404);
+
         const filter = req.query.filter
         const page  = parseInt(req.query.page)  || 1;
         const limit = parseInt(req.query.limit) || 15;
         const offset = (page - 1) * limit;
         
-
-        try{
-	    const { customers } = await CustomerInfo.getAllCustomerInfo(user);
-	    const { quoteDetails, total } = await QuoteService.getQuoteInfo(customers, user, filter, limit, offset);
-            const { data } = await JobService.getJobInfo(quoteDetails); 
-
-	    const cusData = customers.map(cus => {
-		return{
-		    ...cus,
-		    quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
+	    const { customers } = await getAllCustomerInfo(user);
+		if(!customers || customers.length === 0){
 			return{
-			    ...qts,
-			    job: data.filter(job => job.quote_id === qts.id)
+				cusData: {
+					quote:{
+						job:{}		
+					},
+				},
+				paginated:{
+					total:0,
+					page:1,
+					limit,
+					totalPages:1,
+					nextPage: false,
+					prevPage: false
+				}
 			}
-		    })
 		}
-	    });
+
+	    const { quoteDetails, total } = await getQuoteInfo(customers, user, filter, limit, offset);
+        const { data } = await getJobInfo(quoteDetails); 
+
+		const cusData = customers.map(cus => {
+			return{
+		    	...cus,
+		    	quote: quoteDetails.filter(qt => qt.customer_id === cus.id).map(qts => {
+				return{
+			    	...qts,
+			    	job: data.filter(job => job.quote_id === qts.id)
+				}
+		    	})
+			}
+	    	});
         
         const totalPages = Math.ceil(total / limit);      
         return res.status(200).json({
             success: true,
             cusData,
             paginated: {
-                total,
+    	       total,
                 page,
                 limit,
                 totalPages,
                 nextPage: page < Math.ceil(total / limit),
 				prevPage: page > 1
-		}
+			}
+		})
 	});
-	}catch(err){
-	    return res.status(500).json({error: err.message})
-	}
-    }
  
-    async getCustomerQuoteInfo(req, res){
+    export const getCustomerQuoteInfo = catchAsync(async(req, res) => {
         const user = req.user;
-        try{
-            const customerIds = await CustomerInfo.getAllCustomerIds(user);
-            const quotes = await QuoteService.getQuoteInfo(customerIds, user);
-            const customerQuoteDetails = await CustomerService.customerQuoteInfo(quotes, user)
+		if(!user) throw new AppError("User not found.", 404);
 
-            return res.status(200).json({
-                customerQuoteDetails
-            });
-        }catch(err){
-            return res.status(500).json({
-                error: `Failed to get customers quote info: ${err.message}`
-            });
-        }
-    }
+		const customerIds = await getAllCustomerIds(user);
+        if(customerIds.length === 0 || !customerIds){
+			return res.status(200).json({ customerQuoteDetails: [] })
+		}	
+		const quotes = await getQuoteInfo(customerIds, user);
+        const customerQuoteDetails = await customerQuoteInfo(quotes, user)
 
-    async getCustomerStatus(req, res){
+        return res.status(200).json({
+            customerQuoteDetails
+        });
+    })
+
+    export const getCustomerStatus = catchAsync(async(req, res) => {
         const user = req.user;
-        try{
-            const customerIds = await CustomerService.getAllCustomerIds(user);
-            const quotes = await QuoteService.getQuoteInfo(customerIds, user)
-            const customerStatus = await CustomerService.customerStatus(quotes);
+        if(!user) throw new AppError("User not found.", 404);
 
-            return res.status(200).json({
-                customerStatus
-            });
-        }catch(err){
-            return res.status(500).json({
-                error: `Failed to get customers stasus`
-            });
-        }
-    }
+		const customerIds = await getAllCustomerIds(user);
+		if(!customerIds || customerIds.length === 0){
+			return res.status(200).json({ success: true })
+		}
+        const quotes = await getQuoteInfo(customerIds, user)
+        const customerStatus = await customerStatus(quotes);
 
-    async createCustomerQuote(req, res){
+        return res.status(200).json({
+            customerStatus
+        });
+    })
+
+    export const createCustomerQuote = catchAsync(async(req, res) =>{
+		const user = req.user;
+		if(!user) throw new AppError("User not found.", 404);
         const { customer, labor, materials, quote } = req.body;
-        const user = req.user;
 
-        try{
-
-            const { customerId, quoteId } = await QuoteService.createQuote(user, customer, quote, labor, materials);
+        const { customerId, quoteId } = await createQuote(user, customer, quote, labor, materials);
             
-            const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
-            const safeEmailToken = encrypt(emailToken);
-            await TokenService.storeQuoteToken( quoteId, safeEmailToken);
+        const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
+        const safeEmailToken = encrypt(emailToken);
+        await storeQuoteToken(quoteId, safeEmailToken);
 
-            return res.status(200).json({
-                success: true,
-                token: safeEmailToken,
-                id: quoteId
-            });
+        return res.status(200).json({
+            success: true,
+            token: safeEmailToken,
+            id: quoteId
+        });
+    })
 
-        }catch(err){
-            return res.status(500).json({
-                error: `Failed to create customer's quote: ${err.message}`
-            });
-        }
-    }
+    export const deleteCustomerQuote = catchAsync(async(req,res) => {
+		const user = req.user;
+        if(!user) throw new AppError("User not found.", 404);
 
-    async deleteCustomerQuote(req,res){
-        const { quoteId } = req.body;
-        const user = req.user;
+		const { quoteId } = req.body;
+        await deleteQuote(quoteId, user);
 
-        try{
-            const deletedQuote = await QuoteService.deleteQuote(quoteId, user);
+        return res.status(200).json({ message: `Quote ${quoteId} was successfully deleted.` });
+    });
 
-            return res.status(200).json({
-                message: `Quote ${quoteId} was successfully deleted.`
-            });
-        }catch(err){
-            return res.status(500).json({
-                error: `Failed to delete customer quote: ${err.message}`
-            });
-        }
-    }
-}
 
-export default new CustomerControllers()
+

@@ -1,34 +1,29 @@
-import JobService from "../service/job.service.js";
+import { allCompletedJobs, allUnpaidJobs, allActiveJobs, getMonthlyTotal } from "../service/job.service.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../error/error.handler.js";
 
-class JobControllers{
+export const allJobData = catchAsync(async(req,res) => {
+    const user = req.user;
+    if(!user) throw new AppError("User not found.", 404);
 
-    async allJobData(req,res){
-        const user = req.user;
-        try{
-            const [
-                completedJobs,
-                unpaidJobs,
-                activeJobs,
-                monthlyTotal 
-            ] = await Promise.all([
-                JobService.allCompletedJobs(user),
-                JobService.allUnpaidJobs(user),
-                JobService.allActiveJobs(user),
-                JobService.getMonthlyTotal(user)
-            ]);
+	const [
+        completedJobs,
+        unpaidJobs,
+        activeJobs,
+        monthlyTotal 
+    ] = await Promise.all([
+        allCompletedJobs(user),
+        allUnpaidJobs(user),
+        allActiveJobs(user),
+        getMonthlyTotal(user)
+    ]);
             
+    return res.status(200).json({
+        completedJobs,
+        unpaidJobs,
+        activeJobs,
+        monthlyTotal
+    });
+});
 
-            return res.status(200).json({
-                completedJobs,
-                unpaidJobs,
-                activeJobs,
-                monthlyTotal
-            })
-        }catch(err){
-            return res.status(500).json({ error: err.message });
-        }
-    }
 
-}
-
-export default new JobControllers();

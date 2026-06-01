@@ -1,35 +1,27 @@
-import { encrypt } from "../../utils/encrypt.js";
 import bcrypt from "bcrypt";
 import db from "../../config/postgresql.config.js";
+import { AppError } from "../../error/error.handler.js";
 
-class UserService{
-    #db
-    constructor(db) {
-       this.#db = db; 
-    }
-
-    async storeNewUser(firstName, lastName, email, password){
-        if(!firstName || !lastName || !email || !password){
-            throw new Error("Missing user field.");
-        }
+export default {
+    
+	async storeNewUser(firstName, lastName, email, password){
+        if(!firstName || !lastName || !email || !password) throw new AppError("Missing field. Please try again.", 400);
         try{
-            const newUser = await this.#db.query(
+            const results = await db.query(
                 "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
                 [firstName, lastName, email, password]
             );
             
-            return newUser.rows[0]; 
+            return results.rows[0]; 
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
-    }
+    },
 
     async getUser(email){
-        if(!email){
-            throw new Error("Missing field.");
-        }
+        if(!email) throw new AppError("Invalid credentials.", 400);
         try{
-            return await this.#db.query(
+            const results = await db.query(
                 `SELECT 
                     id, 
                     first_name, 
@@ -39,52 +31,41 @@ class UserService{
                 FROM users WHERE email = $1`,
                 [email]
             )
+			return results.rows[0];
         }catch(err){
             throw new Error("Failed to get user.", err.message);
         }
-    }
+    },
 
     async getUserById(userId){
-        if(!userId){
-            throw new Error("Missing user id.");
-        }
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            return await this.#db.query(
+            const results = await db.query(
                 "SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1",
                 [userId]
             );
+			return results.rows[0];
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
-    }
+    },
 
     async deleteUser(userId){
-        if(!userId){
-            throw new Error("Invalid user.");
-        }
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            const user = await this.#db.query(
-                `SELECT id FROM users WHERE id = $1`
-                ,[userId]
-            );
-            if(user.rows.length === 0){
-                throw new Error("Invalid user.");
-            }
-            await this.#db.query(
+            await db.query(
                 `DELETE FROM users WHERE id = $1`,
-                [user.rows[0].id]
+                [userId]
             );
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
-    }
+    },
 
     async flagUser(userId){
-        if(!userId){
-            throw new Error("Failed to terminate session. User id was not provided");
-        }
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            await this.#db.query(
+            await db.query(
                 "UPDATE users SET is_flagged = $1 WHERE id = $2",
                 [true, userId]
             )
@@ -94,35 +75,25 @@ class UserService{
            SET UP MESSAGING ONCE FLAG USER IS TRIGGERED SEND EMAIL TO USER ABOUT ACCOUNT BEING FLAGGED 
            FOR SUSPICIOUS ACITVITY 
         }*/
-    }
+    },
 
     async validatePassword(userId, password){
-        if(!userId){
-            throw new Error("Invalid user.");
-        }
-        if(!password){
-            throw new Error("Failed to provide a valid password.");
-        }
+        if(!userId) throw new AppError("User not found.", 404);
+        if(!password) throw new AppError("Missing field. Please try again.", 400);
         try{
-            const pass = await this.#db.query(
+            const pass = await db.query(
                 `SELECT password FROM users WHERE id = $1`,
                 [userId]
             );
-            if(pass.rows.length ===  0){
-                throw new Error("Invalid user");
-            }
+			if(!pass.rows[0]) throw new AppError("Invalid credentials.", 401);
 
             const valid = await bcrypt.compare(password, pass.rows[0].password);
-            if(!valid){
-                throw new Error("Invalid credentials. Failed to provide a valid password.");
-            }
+            if(!valid) throw new AppError("Invalid credentials.", 401)
 
             return true
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
     }
-    
 }
 
-export default new UserService(db);

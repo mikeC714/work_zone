@@ -1,24 +1,14 @@
 import db from "../config/postgresql.config.js";
+import { AppError } from "../error/error.handler.js";
 
-class QuoteService{
-    constructor(db){
-        this.db = db;
-    }
-    
+export default {    
     async getQuoteInfo(customers, userId, filter, limit, offset){
-        if(!userId){
-            throw new Error("Invalid user, user id is not provided.");
-        }
-
-        if (!customers || customers.length === 0) {
-            return { data: [] };
-        }
+        if(!userId) throw new AppError("User not found.", 404);
         const cusIds = customers.map(c => c.id);
-
         try{
             const results = filter !== "ALL" ? 
             (
-                await this.db.query(
+                await db.query(
                 `SELECT
                     id,
                     customer_id,
@@ -36,7 +26,7 @@ class QuoteService{
                 `, [userId, filter, cusIds, limit, offset]
             )
             ):(
-                await this.db.query(
+                await db.query(
                     `SELECT
                         id,
                         customer_id, 
@@ -59,33 +49,30 @@ class QuoteService{
                 total: results.rows[0].total_count ? parseInt(results.rows[0].total_count): 0
             }
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
-
+        	throw err;
+		}
+    },
 
     async changeQuoteStatus(quoteId, status){
-        if(!quoteId){
-            throw new Error("Quote id not provided. Cannot alter quote status without it's id.");
-        }
+        if(!quoteId) throw new AppError("Quote not found.", 404);
         try{    
-            await this.db.query(
+            await db.query(
                 `UPDATE quotes 
                 SET status = $1
                 WHERE id = $2
                 `, [status, quoteId]
             )
         }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        	throw err;
+		}
+    },
 
     async createQuote(user, customer, quote, labor, materials){
-        if(!quote.length && !customer.length && !labor.length && !materials.length){
+        if(!quote.length || !customer.length || !labor.length || !materials.length){
             return;
         }
         try{
-            const customerData = await this.db.query(
+            const customerData = await db.query(
                 `INSERT INTO customers 
                     (user_id, first_name, last_name, phone, email, address)
                 VALUES($1, $2, $3, $4, $5, $6)
@@ -93,7 +80,7 @@ class QuoteService{
                 [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
             );
 
-            const quoteData = await this.db.query(
+            const quoteData = await db.query(
                 `INSERT INTO quotes
                     (user_id, customer_id, status, markup, total)
                 VALUES($1, $2, $3, $4, $5)    
@@ -101,19 +88,16 @@ class QuoteService{
                 [user, customerData?.rows[0]?.id, quote.status, quote.markup, quote.total]
             );
 
-            const [
-                laborData,
-                materialsData
-            ] = await Promise.all([
+            await Promise.all([
                     labor.map(labVals => 
-                        this.db.query(
+                        db.query(
                         `INSERT INTO labor
                             (quote_id, description, hours, hourly_rate, total)
                         VALUES($1, $2, $3, $4, $5)
                         `, [quoteData?.rows[0]?.id, labVals.description, labVals.hours, labVals.hourlyRate, labVals.total]
                     )),
                     materials.map(matVals =>
-                        this.db.query( 
+                        db.query( 
                         `INSERT INTO materials
                             (quote_id, description, quantity, unit_cost, total)
                         VALUES($1, $2, $3, $4, $5)
@@ -128,30 +112,26 @@ class QuoteService{
                 quoteId: quoteData.rows[0].id
             };
         }catch(err){
-            throw new Error(`Failed to insert quote: ${err.message}`);
-        }
-    }
-
-
+        	throw err;
+		}
+    },
     async deleteQuote(quoteId, userId){
+		if(!userId) throw new AppError("User not found.", 404);
         try{
-            return await this.db.query(
+            return await db.query(
                 `DELETE FROM quotes WHERE user_id = $1 AND id = $2`,
                 [userId, quoteId]
             );
         }catch(err){
-            throw new Error(`Failed to delete quote: ${err.message}`);
-        }
+        	throw err;
+		}
         
-    }
+    },
 
     async monitorQuotes(userId){
-        if(!userId){
-            throw new Error("Failed to provide user Id");
-        }
-
+        if(!userId) throw new AppError("User not found.", 404);
         try{
-            const { rows: quotes }  = await this.db.query(
+            const results  = await db.query(
                 `SELECT 
                     id,
                     status,
@@ -161,15 +141,17 @@ class QuoteService{
                     AND status = 'APPROVED'
                     AND created_at <= NOW() - INTERVAL '6 days'
                 `, [userId]
-            );;
+            );
+
+			const quotes = results.rows;
 
             // IF NO OVERDUE QUOTES RETURN
 
-            if(!quotes.length) return;
+            if(!quotes.length) return;	
 
             const qtIds = quotes.map(qt => qt.id); 
 
-            await this.db.query(
+            await db.query(
                 `UPDATE quotes
                     SET status = 'UNPAID'
                     WHERE id = ANY($1::uuid[])
@@ -177,9 +159,8 @@ class QuoteService{
             );
 
         }catch(err){
-            throw new Error(err.message);
-        }
+        	throw err;
+		}
     }
 }
 
-export default new QuoteService(db);

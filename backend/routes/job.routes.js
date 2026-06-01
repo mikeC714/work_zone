@@ -1,12 +1,12 @@
 import express from 'express';
-import JobControllers from "../controllers/job.controllers.js";
+import { allJobData } from "../controllers/job.controllers.js";
 import Auth from '../middleware/auth.middleware.js';
 
 const jobRouter = express.Router();
 
 jobRouter.use(Auth.verifyToken);
 
-jobRouter.get("/quick-access", JobControllers.allJobData);
+jobRouter.get("/quick-access", allJobData);
 
 /*
     TESTING SOMETHING

@@ -1,113 +1,80 @@
-import { encrypt, decrypt } from "../../utils/encrypt.js";
+import { decrypt, encrypt } from "../../utils/encrypt.js";
 import db from "../../config/postgresql.config.js";
+import { AppError } from "../../error/error.handler.js";
 
-export class TokenService{
-    #db
-    constructor(db){
-        this.#db = db;
-    }
-
-    /*
-        TOKEN METHODS ARE EXPECTING THE TOKEN TO BE ENCRYPTED ON ARRIVAL.
-        getStoredToken will return an encrypted refreshToken so if the method is being used the 
-        token will have to be decrypted if token contents are needed
-    */
-
+export default {
     async storeRefreshToken(id, token){
-        if(!token){
-            throw new Error("Expired refresh token.");
-        }
-        if(!id){
-            throw new Error("Unauthorized user.");
-        }
-        try{
-            return await this.#db.query(
-                `INSERT INTO tokens(user_id, token) 
-                VALUES($1, $2)`,
-                [id, token]
-            )
-        }catch(err){
-            throw new Error(err.message);
-        }
-    }
+        if(!token) throw new AppError("Failed to provide valid token.", 401);
+        if(!id) throw new AppError("User not found.", 404);
+		try{
+			const encrypted = encrypt(token);
+        	await db.query(
+            `	INSERT INTO tokens(user_id, token) 
+            	VALUES($1, $2)`,
+            	[id, encrypted]
+        	)
+		}catch(err){
+			throw err;
+		}
+	},
 
     async deleteRefreshToken(userId, token){
-        if(!userId){
-            throw new Error("Invalid User.");
-        }
-        try{
-            
-            const results = await this.#db.query(
+        if(!userId) throw new AppError("User not found.", 404);
+        if(!token) throw new AppError("Failed to provide valid token.", 401);
+		try{
+            await db.query(
                 "DELETE FROM tokens WHERE user_id = $1 AND token = $2",
                 [userId, token]
             );
-
-            console.log("DELETING");
-
-            return{
-                data: results.rowCount > 0 
-            }
-
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
-    }
+    },
 
     async getRefreshToken(id){
-        if(!id){
-            throw new Error("Invalid user.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
         try{
-            return await this.#db.query(
+            const results = await db.query(
                 "SELECT token FROM tokens WHERE user_id = $1",
                 [id]
             );
+			const decrypted = decrypt(results.rows[0].token);
+			return token = decrypted;
         }catch(err){
-            throw new Error("Failed to fetch user's token.",err.message)
+            throw err;
         }
-    }
+    },
 
     async storeQuoteToken(id, token){
-        if(!id){
-            throw new Error("Invalid user.");
-        }
-        if(!token){
-            throw new Error("Quote token is unprovided.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
+        if(!token) throw new AppError("Failed to provide valid token.", 401);
         try{
-            
-            await this.#db.query(
+			const encrypted = encrypt(token);
+            await db.query(
                 "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2)",
-                [id, token]
+                [id, encrypted]
             );
         }catch(err){
-            throw new Error(err.message);
+            throw err;
         }
-    }
+    },
 
     async getQuoteToken(id, quoteId){
-        if(!id){
-            throw new Error("Invalid user");
-        }
-        if(!cusEmail){
-            throw new Error("Customer email was not provided.");
-        }
+        if(!id) throw new AppError("User not found.", 404);
+        if(!quoteId) throw new AppError("Quote not found.", 404);
         try{
-            const token = await this.#db.query(
+            const results = await db.query(
                 `SELECT token FROM quote_tokens
                 WHERE user_id = $1
                 AND quote_id = $2
                 `, [id, quoteId]
             )
-            return{
-                token: token.rows
-            }
+			const decrypted = decrypt(results.rows[0].token);
+            return token = decrypted;
         }catch(err){
-            throw new Error("Failed to get quote token", err.message);
+            throw err;
         }
     }
 }
 
 
-
-export default new TokenService(db)

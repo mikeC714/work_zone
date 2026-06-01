@@ -1,16 +1,13 @@
 import jwt from "jsonwebtoken";
-import db from "../config/postgresql.config.js";
 
 class Auth{
     #expiry
     #secret
-    #db
     #refreshExpiry
     #refreshSecret
     #emailSecret
     #emailExpiry
-    constructor(db){
-        this.#db = db;
+    constructor(){
         this.#secret = process.env.JWT_SECRET;
         this.#expiry = process.env.JWT_EXPIRY || "15m"; 
         this.#refreshExpiry = process.env.JWT_REFRESH_EXPIRY || "1d";

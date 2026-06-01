@@ -47,10 +47,12 @@ class AuthMiddleware{
         if(!accessToken && !refreshToken){
             return res.status(401).json({ error: "Unauthorized user. Failed to provide valid token." });
         }
-		
+
         const valid = Auth.verify(accessToken);
         if(!valid){
+			console.log("MADE IT TO VALID CHECKER");
 			if (refreshToken) {
+				console.log("GOING TO REFRESH BRANCH");
             	return await this.handleRefresh(req, res, next);
         	}
             return res.status(401).json({ error: "Failed to provide valid token." });

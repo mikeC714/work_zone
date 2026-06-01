@@ -1,21 +1,14 @@
 import db from "../config/postgresql.config.js";
 
-class Notis {
-    constructor(db) {
-        this.db = db
-    }
-    async getNotis(user, customerDetails, limit, offset){
+export default {
+	async getNotis(user, customerDetails, limit, offset){
         try{ 
             const customerMap = new Map();
-            
             customerDetails.forEach(cus => customerMap.set(cus.id, cus));
-
             const customers = customerDetails.map(cus => cus.id);
 
-
             const notis = []
-
-            const results = await this.db.query(
+            const results = await db.query(
                 `SELECT 
                     id,
                     status,
@@ -85,4 +78,3 @@ class Notis {
     }
 }
 
-export default new Notis(db);
