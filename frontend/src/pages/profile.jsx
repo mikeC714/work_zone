@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavBar } from '../comps/navBar.jsx';
 import { useQuickAccess } from '../hooks/quickAccess.hooks.jsx';
-import { useUserContext } from '../context/userContext.jsx';
 import { useNotiHook } from '../hooks/notifications.hooks.jsx';
+import { useUserContext } from "../context/userContext.jsx";
 import { useAuth } from '../hooks/auth.hooks.jsx'
 import { HandCoins, Briefcase, BookCheck, Star, Check, Clock, PiggyBank, ChevronLeft, ChevronRight } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -10,31 +10,24 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
-const user = {
-    name: 'Jordan Mitchell',
-    title: 'Warehouse Manager',
-    department: 'Operations',
-    location: 'Baltimore, MD — Warehouse B',
-    lastLogin: 'Today at 9:14 AM',
-    email: 'jordan.mitchell@acme-corp.com',
-    phone: '+1 (443) 555-0192',
-    employeeId: 'EMP-00423',
-    role: 'Warehouse Manager',
-    joined: 'March 12, 2022',
-    stats: {
-        activeJobs: '120',
-        completedJobs: '10',
-        monthlyRevenue: '342',
-        memberSince: '3 yrs',
-    }
-};
-
-function Overview({ edit, userConfig, setUserConfig, firstName, lastName, email, createdAt, userId, isEditing }) {
+function Overview({ userConfig, setUserConfig, firstName, lastName, email, createdAt, userId, isEditing }) {
     const fullName = firstName + " " + lastName
 
     const date = createdAt?.split("T")[0];
     dayjs(date).format('MMMM D, YYYY')
-
+    
+	useEffect(() => {
+        const saved = localStorage.getItem(`userConfig: ${userId}`);
+        if(saved){
+            const { phoneNumber, location, department, role } = JSON.parse(saved);
+            setUserConfig({
+                phoneNumber,
+                location,
+                department,
+                role
+            })
+        }
+    }, [setUserConfig, userId])
 
     return (
          <div className='profileOverviewCard'>
@@ -186,8 +179,6 @@ function Notifications() {
     const notiLimit = 4;
     const { notifications, paginated, isLoading, isError, error } = useNotiHook({notiPage, notiLimit, clear});
 
-    console.log(notifications);
-
     return(
         <div className="pNotiContainer">
             <div className="pNotiBtns">
@@ -197,7 +188,7 @@ function Notifications() {
             <div className={`pNotiList ${notifications.length === 0 ? 'pNotiEmpty' : ''}`}>
                 { notifications?.length === 0 ? 
                     <p>No Notifications</p> :
-                    notifications.map((noti, i) => {
+                    notifications.map((noti) => {
                         const { icon, style, color } = notiConfig[noti.type]
                         return(
                             <div key={noti.quoteId} className={`pNotis ${style}`} style={{borderLeft:`3.2px solid ${color}`}}>
@@ -260,7 +251,6 @@ export function ProfilePage() {
    
     const viewMap = {
         overview: <Overview 
-                        edit={isEditing} 
                         userConfig={userConfig} 
                         setUserConfig={setUserConfig} 
                         userId={userId} 
@@ -276,11 +266,7 @@ export function ProfilePage() {
 
 
     function handleSave(){
-        console.log("handleSave called");
-        console.log("userId:", userId);
-        console.log("userConfig:", userConfig);
         localStorage.setItem(`userConf:${userId}`, JSON.stringify(userConfig));
-        console.log("saved!", localStorage.getItem(`userConf:${userId}`));
         setIsEditing(false);
     }
     function handleEdit(){
@@ -327,21 +313,21 @@ export function ProfilePage() {
                 <div className='profileStatsRow'>
                     <ProfileCard
                         icon={<Briefcase />}
-                        value={data?.activeJobs?.data.length}
+                        value={data?.activeJobs?.data?.length ?? 0}
                         isLoading={isLoading}
                         isError={isError}
                         label='ACTIVE JOBS'
                     /> 
                     <ProfileCard
                         icon={<BookCheck />}
-                        value={data?.completedJobs?.data.length}
+                        value={data?.completedJobs?.data?.length ?? 0}
                         isLoading={isLoading}
                         isError={isError}
                         label='COMPLETED JOBS'
                      />
                     <ProfileCard
                         icon={<HandCoins />}
-                        value={`$ ${data?.monthlyTotal?.data}`}
+                        value={`$ ${data?.monthlyTotal?.data ?? 0}`}
                         isLoading={isLoading}
                         isError={isError}
                         label='MONTHLY REVENUE'

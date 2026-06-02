@@ -1,4 +1,4 @@
-import { allCompletedJobs, allUnpaidJobs, allActiveJobs, getMonthlyTotal } from "../service/job.service.js";
+import jobService from "../service/job.service.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../error/error.handler.js";
 
@@ -12,12 +12,22 @@ export const allJobData = catchAsync(async(req,res) => {
         activeJobs,
         monthlyTotal 
     ] = await Promise.all([
-        allCompletedJobs(user),
-        allUnpaidJobs(user),
-        allActiveJobs(user),
-        getMonthlyTotal(user)
+        jobService.allCompletedJobs(user),
+        jobService.allUnpaidJobs(user),
+        jobService.allActiveJobs(user),
+        jobService.getMonthlyTotal(user)
     ]);
-            
+      
+	if(!completedJobs.length && !unpaidJobs.length && !activeJobs.length){
+		return res.status(200).json({ 
+			completedJobs: [],
+			unpaidJobs: [],
+			activeJobs: [],
+			monthlyTotal: 0
+		})
+	}
+
+
     return res.status(200).json({
         completedJobs,
         unpaidJobs,

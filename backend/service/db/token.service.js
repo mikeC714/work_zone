@@ -8,11 +8,14 @@ export default {
         if(!id) throw new AppError("User not found.", 404);
 		try{
 			const encrypted = encrypt(token);
-        	await db.query(
+         	await db.query(
             `	INSERT INTO tokens(user_id, token) 
-            	VALUES($1, $2)`,
+            	VALUES($1, $2)
+				RETURNING token
+				`,
             	[id, encrypted]
         	)
+			return encrypted;
 		}catch(err){
 			throw err;
 		}

@@ -1,37 +1,38 @@
 import Auth from "../auth/auth.js";
-import { getUser, storeNewUser, validatePassword, getUserById, deleteUser } from "../service/db/user.service.js";
-import { storeRefreshToken, deleteRefreshToken, } from "../service/db/token.service.js";
-import { decrypt } from "../utils/encrypt.js";
+import userService from "../service/db/user.service.js";
+import tokenService from "../service/db/token.service.js";
+import { decrypt, encrypt } from "../utils/encrypt.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError, AuthenticationError } from "../error/error.handler.js";
 import bcrypt from "bcrypt";
 
-    export const login = catchAsync(async (req, res) => {
+	export const login = catchAsync(async (req, res) => {
         const { email, password } = req.body;
         if(!email || !password){
             throw new AppError("Invalid, Missing fields.", 400);
         }
         
-            const user = await getUser(email);
-            if(!user) throw new AppError("Invalid credentials.");
+            const user = await userService.getUser(email);
+            if(!user) throw new AuthenticationError("Invalid credentials.");
 
             const valid = await bcrypt.compare(password, user.password);
             if(!valid) throw new AuthenticationError("Invalid credentials.");
 
             const token = Auth.sign({ id: user.id });
-            const refreshToken = Auth.signRefresh({ id: user.id });
+			const refreshToken = Auth.signRefresh({ id: user.id });
+			const safe = await tokenService.storeRefreshToken(user.id , refreshToken);    
+			
+			console.log("SAFE", safe);
 
-            await storeRefreshToken(user.id , refreshToken);
-
-            res.cookie("access_token", token,{
+			res.cookie("access_token", token,{
                 httpOnly: true,
-                secure: true,
+                secure: false,
                 sameSite: 'strict',
                 maxAge: 900000 // 15M
             })
-            res.cookie("refresh_token", encryptedRefresh, {
+            res.cookie("refresh_token", safe, {
                 httpOnly: true,
-                secure: true,
+                secure: false,
                 sameSite: "strict",
                 maxAge: 604800000 // 7D
             })
@@ -52,23 +53,22 @@ import bcrypt from "bcrypt";
         const salt = await bcrypt.genSalt(rounds);
         const safePass = await bcrypt.hash(password, salt);
 
-        const user = await storeNewUser(firstName, lastName, email, safePass);
+        const user = await userService.storeNewUser(firstName, lastName, email, safePass);
 		if(!user) throw new AppError("Invalid Credentials.", 401);
 
         const token = Auth.sign({id: user.id });
         const refreshToken = Auth.signRefresh({id: user.id});
-
-        await storeRefreshToken(user.id, refreshToken);
+       	const safe = await tokenService.storeRefreshToken(user.id, refreshToken);
 
         res.cookie("access_token", token,{
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: 'strict',
             maxAge: 900000 // 15M
         })
-        res.cookie("refresh_token", encryptedRefresh, {
+        res.cookie("refresh_token", safe, {
             httpOnly: true,
-            secure: true,
+            secure: false,
             sameSite: "strict",
             maxAge: 604800000 // 7D
         })
@@ -92,7 +92,7 @@ import bcrypt from "bcrypt";
 
 		const decode = Auth.decode(decryptedRefresh);
 
-    	await deleteRefreshToken(decode.payload.id, refresh);
+    	await tokenService.deleteRefreshToken(decode.payload.id, refresh);
 
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
@@ -101,7 +101,7 @@ import bcrypt from "bcrypt";
     });
 
 
-    export const deleteUser = catchAsync(async(req, res) => {
+    export const deleteUserAcc = catchAsync(async(req, res) => {
         const { password } = req.body;
         if(!password) throw new AppError("Missing field. Please try again.", 400);
         
@@ -114,10 +114,10 @@ import bcrypt from "bcrypt";
 
 		const decode = Auth.decode(decryptedRefresh);
 
-        const valid = await validatePassword(decode.payload.id, password);
+        const valid = await userService.validatePassword(decode.payload.id, password);
         if(!valid) throw new AppError("Invalid credentials. Please try again.", 401);
 
-        await deleteUser(decode.payload.id, refresh);
+        await deleteUserAcc(decode.payload.id, refresh);
             
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");
@@ -128,11 +128,10 @@ import bcrypt from "bcrypt";
 	export const currUser = catchAsync(async(req,res) => {
         const id = req.user;
         if(!id) throw new AppError("Failed to provide user id.", 400);
-        const user = await getUserById(id);
+        const user = await userService.getUserById(id);
         if(!user){
         	throw new AppError("User not found.", 404);		
 		}
-
         return res.status(200).json({ user });
 	});
 

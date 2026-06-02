@@ -6,8 +6,8 @@ export const redLockRedis = new Redis({
     connectTimeout: 2000,
     commandTimeout: 2200,
     disconnectTimeout: 3200,
-    retryStrategy: (times) =>  times > 3 ? null : Math.min(times * 50, 2000),
-    keepAlive: 5000
+    retryStrategy: (times) =>  times > 2 ? null : Math.min(times * 50, 2000),
+    keepAlive: 3000
 },{
     noDelay: true,
     connectionName: "redlock",

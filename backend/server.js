@@ -1,14 +1,15 @@
 import dotenv from 'dotenv';
+const envPath = new URL("./.env", import.meta.url).pathname;
+dotenv.config({ path: envPath});
 import express from 'express';
 import authRouter from "./routes/auth.routes.js";
 import customerRouter from './routes/customer.routes.js';
 import emailRouter from './routes/email.route.js';
 import jobRouter from './routes/job.routes.js';
 import notiRouter  from './routes/notifications.routes.js';
-import { AppError, AuthenticationError } from "./error/error.handler.js";
+import { AppError } from "./error/error.handler.js";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-dotenv.config();
 
 const PORT = process.env.PORT
 const app = express();
@@ -20,6 +21,11 @@ app.use(cors({
     credentials: true
 }))
 
+app.get("/404", (req, res) => {
+	return res.sendFile(path.join(__dirname, "build", "index.html"));
+})
+
+
 app.use('/api', authRouter)
 app.use('/api', customerRouter)
 app.use('/api', emailRouter)
@@ -28,15 +34,12 @@ app.use('/api', notiRouter)
 
 
 
-
-
 app.use((err, req, res, next) => {
-	let msg = "Server error";
-	let statusCode = 500;
+	let status = 500;
 	if(err instanceof AppError){
 		return res.status(err.status).json({ error: err.message })
 	}
-	res.status(statusCode).json({ error: msg })
+	res.status(status).json({ error: err.message })
 })
 
 app.listen(PORT, () => {

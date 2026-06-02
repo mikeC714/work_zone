@@ -9,14 +9,14 @@ class Auth{
     #emailExpiry
     constructor(){
         this.#secret = process.env.JWT_SECRET;
-        this.#expiry = process.env.JWT_EXPIRY || "15m"; 
+        this.#expiry = process.env.JWT_EXPIRY || "5m"; 
         this.#refreshExpiry = process.env.JWT_REFRESH_EXPIRY || "1d";
         this.#refreshSecret = process.env.JWT_REFRESH_SECRET;
         this.#emailSecret = process.env.JWT_EMAIL_SECRET
         this.#emailExpiry = "2d"
     }
     
-    sign(payload){
+    sign = (payload) => {
         try{
             return jwt.sign({ payload: payload }, this.#secret, { expiresIn: this.#expiry });
         }catch(err){
@@ -24,7 +24,7 @@ class Auth{
         }        
     }
 
-    signRefresh(payload){
+    signRefresh = (payload) => {
         try{
             return jwt.sign({ payload: payload }, this.#refreshSecret, { expiresIn: this.#refreshExpiry });
         }catch(err){
@@ -32,7 +32,7 @@ class Auth{
         }
     }
 
-    signEmail(payload){
+    signEmail = (payload) => {
         try{
             return jwt.sign({ payload: payload }, this.#emailSecret, { expiresIn: this.#emailExpiry});
         }catch(err){
@@ -40,7 +40,7 @@ class Auth{
         }
     }
         
-    verifyEmail(token){
+    verifyEmail = (token) => {
         try{
             return jwt.verify(token, this.#emailSecret);
         }catch(err){
@@ -48,7 +48,7 @@ class Auth{
         }
     }
 
-    verifyRefresh(token){
+    verifyRefresh = (token) => {
         try{
             return jwt.verify(token, this.#refreshSecret);
         }catch(err){
@@ -57,7 +57,7 @@ class Auth{
         }
     }
 
-    verify(token){
+    verify = (token) => {
         try{
             return jwt.verify(token, this.#secret);
         }catch(err){
@@ -66,7 +66,7 @@ class Auth{
     }
 
 
-    decode(token){
+    decode = (token) => {
         try{
             return jwt.decode(token);
         }catch(err){
@@ -75,4 +75,4 @@ class Auth{
     }
 }
 
-export default new Auth(db);
+export default new Auth();

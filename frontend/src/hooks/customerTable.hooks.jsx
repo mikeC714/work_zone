@@ -11,7 +11,7 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
         queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 10,
-        retry: 3
+
     })
 
 
@@ -20,7 +20,6 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
             queryKey: ['customers', activeFilter, page + 1, limit],
             queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page + 1}&limit=${limit}`),
             staleTime: 1000 * 60 * 10,
-            retry: 3
         })
     }, [queryClient, activeFilter, page, limit])
 

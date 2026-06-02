@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from '../hooks/auth.hooks.jsx';
 import { AuthForm } from '../comps/authForm.jsx';
+import logo from "../imgs/logo.svg";
 
 export function Authentication() {
     const [isAuth, setAuth] = useState(true);
@@ -20,8 +21,8 @@ export function Authentication() {
             <div className="authLeft">
 
                 <div className="authLogo">
-                    <span className="authLogoIcon">⚡</span>
-                    <span>VOLT</span>
+                    <img className="authLogoIcon" src={logo} />
+                    <span>WORK ZONE</span>
                 </div>
 
                 <div className="authTopSection">

@@ -1,10 +1,12 @@
 import Auth from "../auth/auth.js";
-import { deleteRefreshToken, getRefreshToken, storeRefreshToken } from "../service/db/token.service.js";
-import { flagUser } from "../service/db/user.service.js";
-import { lock } from "../config/redlock.config.js";
+import tokenService from "../service/db/token.service.js";
+import userService from "../service/db/user.service.js";
+import { Mutex } from "async-mutex";
 import { cache } from "../config/redis.config.js";
-import { decrypt, encrypt } from "../utils/encrypt.js";
+import { decrypt } from "../utils/encrypt.js";
 import { AuthenticationError } from "../error/error.handler.js";
+
+const mutex = new Mutex();
 
 /**
     @AuthMiddleware
@@ -34,95 +36,105 @@ import { AuthenticationError } from "../error/error.handler.js";
 */
 
 
-export async function verifyToken (req, res, next){
-    	try{	
-			const accessToken = req.cookies.access_token;
-        	const refreshToken = req.cookies.refresh_token;
+	export async function verifyToken (req, res, next){
+		const accessToken = req.cookies.access_token;
+		const refreshToken = req.cookies.refresh_token;
+	
+		try{
+			if(!accessToken && !refreshToken) throw new AuthenticationError("Unauthorized user. Failed to provide valid token.");	
+			if(!accessToken && refreshToken) {console.log("HIT"); return await handleRefresh(req, res, next, refreshToken);}
+			
+			const decode = Auth.verify(accessToken);
 
-        	if(!accessToken && !refreshToken) throw new AuthenticationError("Unauthorized user. Failed to provide valid token.");
-        
-			const valid = Auth.verify(accessToken);
-        	if(!valid && refreshToken) return await handleRefresh(req, res, next);
-
-            req.user = valid.payload.id;
+            req.user = decode.payload.id;
             next();
         }catch(err){
-             if(err instanceof AuthenticationError && refreshToken){
-                return await handleRefresh(req, res, next);
-            }   
+			if(err.name === "TokenExpiredError" && refreshToken) return await handleRefresh(req, res, next, refreshToken);
             next(err);
         }
     }
     
-async function handleRefresh (req, res, next){
-    	try{
-			const refreshToken = req.cookies.refresh_token;
-			if(!refreshToken) throw new AuthenticationError("Failed to refresh token, was not provided token.");
-
+	async function handleRefresh (req, res, next, refreshToken){
+		try{
         	const rToken = decrypt(refreshToken);
-        	const valid = Auth.verifyRefresh(rToken);
-        	if(!valid) throw new AuthenticationError("Failed to provided valid refresh token.");
-        
-        	const decode = Auth.decode(rToken);
+        	const decode = Auth.verifyRefresh(rToken);
         	const id = decode.payload.id;
 
-        	const alreadyRotated = await cache.get(`rotated:${id}`);
-            	if(alreadyRotated){
-                	req.user = id;
-                	return next();
-            	}
+			const release = await mutex.acquire();
+			console.log("lock");	
+			try{
+   					console.log("ENTERING CRITICAL SECTION", id);
+					const alreadyRotated = await cache.get(`rotated:${id}`);
+					if(alreadyRotated){
+    					const tokens = JSON.parse(alreadyRotated);
+    					res.cookie("access_token", tokens.access, {
+                			httpOnly: true,
+                			secure: false,
+                			sameSite: 'strict',
+                			maxAge: 900000 // 15M
+						});
+    					res.cookie("refresh_token", tokens.refresh, {
+                			httpOnly:true,
+                			secure: false,
+                			sameSite: 'strict',
+                			maxAge: 604800000 // 7D
+						});
+						console.log("STILL ROTATED");
+						req.user = id;
+						return next();
+					}
+					console.log("DELETE START");
+            		await tokenService.deleteRefreshToken(id, refreshToken);
+					console.log("DELETED");			
 	
-        	return await lock.using([`lock:${id}`], 10000, async(signal) => {
-            	if(signal.aborted) throw signal.error;
-	
-				const stillRotated = await cache.get(`rotated:${id}`);
-				if(stillRotated){
-					req.user = id;
-					return next();
+            		const newAccess = Auth.sign({ id });
+            		const newRefresh = Auth.signRefresh({ id });
+					console.log("GENERATING NEW TOKENS");
+					
+					console.log("BEGIN STORING");
+					const stored = await tokenService.storeRefreshToken(id, newRefresh);
+					console.log("DONE STORING", stored);
+
+					console.log("CACHE START")
+					const cacheVal = await cache.set(
+						`rotated:${id}`, 
+						JSON.stringify(
+							{
+								access:	newAccess,
+								refresh: newRefresh
+							}), 
+						'EX', 10);
+            		console.log("CACHE SET", cacheVal);	
+
+
+				res.cookie("access_token", newAccess, {
+                		httpOnly: true,
+                		secure: false,
+                		sameSite: 'strict',
+                		maxAge: 900000 // 15M
+            		})
+            		res.cookie("refresh_token", newRefresh, {
+                		httpOnly:true,
+                		secure: false,
+                		sameSite: 'strict',
+                		maxAge: 604800000 // 7D
+            		})
+			
+            		req.user = id;
+					console.log("NEW COOKIES SET:", res.getHeaders()['set-cookie']);
+					console.log("FINISHED");
+        			return next();
+				}catch(e){
+					throw e;
+				}finally{
+   					console.log("LEAVING CRITICAL SECTION", id);
+					release();
 				}
-
-            	const storedToken = await getRefreshToken(id);
-            	if(!storedToken) throw new AuthenticationError("Unauthorized user. Failed to provide stored token.");            
-
-            	if(storedToken !== rToken){
-                	await deleteRefreshToken(id, storedToken);
-                	await flagUser(id);
-                	res.clearCookie("access_token");
-                	res.clearCookie("refresh_token");
-                	throw new AuthenticationError("Authorization has been revoked. Suspicious activity has been noticed.");
-				}
-
-            	await deleteRefreshToken(id, storedToken);
-
-            	const newAccess = Auth.sign({ id });
-            	const newRefresh = Auth.signRefresh({ id });
-            	const encrypted = encrypt(newRefresh);
-
-            	await storeRefreshToken(id, encrypted);
-            	await cache.set(`rotated:${id}`, newAccess, 'EX', 5);
-
-            	res.cookie("access_token", newAccess, {
-                	httpOnly: true,
-                	secure: true,
-                	sameSite: 'strict',
-                	maxAge: 900000 // 15M
-            	})
-            	res.cookie("refresh_token", encrypted, {
-                	httpOnly:true,
-                	secure: true,
-                	sameSite: 'strict',
-                	maxAge: 604800000 // 7D
-            	})
-            	req.user = id;
-				return next();
-        	});
         	}catch(err){
             	next(err);
         	}
-    }
+		}
 
 
 
 
-
-export default new AuthMiddleware();

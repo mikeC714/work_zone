@@ -59,6 +59,8 @@ Link{
     font-weight: 700;
     letter-spacing: 1px;
     color: var(--text);
+	height: 60px;
+	width:60px;
 }
 
 .authLogoIcon {

@@ -3,7 +3,6 @@ import db from "../../config/postgresql.config.js";
 import { AppError } from "../../error/error.handler.js";
 
 export default {
-    
 	async storeNewUser(firstName, lastName, email, password){
         if(!firstName || !lastName || !email || !password) throw new AppError("Missing field. Please try again.", 400);
         try{
@@ -33,8 +32,8 @@ export default {
             )
 			return results.rows[0];
         }catch(err){
-            throw new Error("Failed to get user.", err.message);
-        }
+        	throw err;
+		}
     },
 
     async getUserById(userId){

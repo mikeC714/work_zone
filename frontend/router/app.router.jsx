@@ -4,11 +4,13 @@ import { CreateQuote } from '../src/pages/createQuote.jsx';
 import { ProfilePage } from '../src/pages/profile.jsx'
 import { NotificationsPage } from '../src/pages/notification.jsx';
 import { Authentication } from '../src/pages/auth.jsx';
+import { NotFound } from "../src/pages/notFound.jsx";
 
 export function AppRouter(){
    return( 
         <Routes>
             <Route path="/" element={<Navigate to="/auth" />} />
+	   		<Route path="/404" element={<NotFound />} />
             <Route path="/auth" element={<Authentication />} /> 
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/create-quote' element={<CreateQuote />} />

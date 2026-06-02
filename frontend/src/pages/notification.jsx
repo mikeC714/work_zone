@@ -53,7 +53,6 @@ export function NotificationsPage(){
                         <div className='notiActionBtns'>
                             <button>Mark All Seen </button>
                             <button onClick={() => {
-                                console.log("CLEARING");
                                 setClear(true)
                                 }}>clear</button>
                         </div>

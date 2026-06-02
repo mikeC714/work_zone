@@ -1,8 +1,8 @@
-import { getAllCustomerIds, getAllCustomerInfo, customerQuoteInfo, customerDetails } from "../service/customer.service.js";
-import { getQuoteInfo,  } from "../service/quote.service.js";
-import { getJobInfo } from "../service/job.service.js";
+import customerService from "../service/customer.service.js";
+import quoteService from "../service/quote.service.js";
+import jobService from "../service/job.service.js";
 import Auth from "../auth/auth.js";
-import { storeQuoteToken } from "../service/db/token.service.js"
+import tokenService from "../service/db/token.service.js";
 import { encrypt } from "../utils/encrypt.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../error/error.handler.js";
@@ -11,11 +11,11 @@ import { AppError } from "../error/error.handler.js";
         const user = req.user;
         if(!user) throw new AppError("User not found", 404);
 
-		const customerIds = await getAllCustomerIds(user);
+		const customerIds = await customerService.getAllCustomerIds(user);
     	if(customerIds.length === 0 || !customerIds){
 			return res.status(200).json({ customerDetails: [] });
 		};
-		const cusDetails = await customerDetails(customerIds)
+		const cusDetails = await customerService.customerDetails(customerIds)
 		
         return res.status(200).json({
             cusDetails
@@ -31,7 +31,7 @@ import { AppError } from "../error/error.handler.js";
         const limit = parseInt(req.query.limit) || 15;
         const offset = (page - 1) * limit;
         
-	    const { customers } = await getAllCustomerInfo(user);
+	    const { customers } = await customerService.getAllCustomerInfo(user);
 		if(!customers || customers.length === 0){
 			return{
 				cusData: {
@@ -50,9 +50,8 @@ import { AppError } from "../error/error.handler.js";
 			}
 		}
 
-	    const { quoteDetails, total } = await getQuoteInfo(customers, user, filter, limit, offset);
-        const { data } = await getJobInfo(quoteDetails); 
-
+	    const { quoteDetails, total } = await quoteService.getQuoteInfo(customers, user, filter, limit, offset);
+        const { data } = await jobService.getJobInfo(quoteDetails); 
 		const cusData = customers.map(cus => {
 			return{
 		    	...cus,
@@ -84,12 +83,12 @@ import { AppError } from "../error/error.handler.js";
         const user = req.user;
 		if(!user) throw new AppError("User not found.", 404);
 
-		const customerIds = await getAllCustomerIds(user);
+		const customerIds = await customerService.getAllCustomerIds(user);
         if(customerIds.length === 0 || !customerIds){
 			return res.status(200).json({ customerQuoteDetails: [] })
 		}	
-		const quotes = await getQuoteInfo(customerIds, user);
-        const customerQuoteDetails = await customerQuoteInfo(quotes, user)
+		const quotes = await quoteService.getQuoteInfo(customerIds, user);
+        const customerQuoteDetails = await customerService.customerQuoteInfo(quotes, user)
 
         return res.status(200).json({
             customerQuoteDetails
@@ -100,12 +99,12 @@ import { AppError } from "../error/error.handler.js";
         const user = req.user;
         if(!user) throw new AppError("User not found.", 404);
 
-		const customerIds = await getAllCustomerIds(user);
+		const customerIds = await customerService.getAllCustomerIds(user);
 		if(!customerIds || customerIds.length === 0){
 			return res.status(200).json({ success: true })
 		}
-        const quotes = await getQuoteInfo(customerIds, user)
-        const customerStatus = await customerStatus(quotes);
+        const quotes = await quoteService.getQuoteInfo(customerIds, user)
+        const customerStatus = await customerService.customerStatus(quotes);
 
         return res.status(200).json({
             customerStatus
@@ -117,15 +116,15 @@ import { AppError } from "../error/error.handler.js";
 		if(!user) throw new AppError("User not found.", 404);
         const { customer, labor, materials, quote } = req.body;
 
-        const { customerId, quoteId } = await createQuote(user, customer, quote, labor, materials);
+        const { customerId, quoteId } = await quoteService.createQuote(user, customer, quote, labor, materials);
             
-        const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
-        const safeEmailToken = encrypt(emailToken);
-        await storeQuoteToken(quoteId, safeEmailToken);
+        // const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
+        // const safeEmailToken = encrypt(emailToken);
+        // await tokenService.storeQuoteToken(quoteId, safeEmailToken);
 
         return res.status(200).json({
             success: true,
-            token: safeEmailToken,
+            // token: safeEmailToken,
             id: quoteId
         });
     })
@@ -135,7 +134,7 @@ import { AppError } from "../error/error.handler.js";
         if(!user) throw new AppError("User not found.", 404);
 
 		const { quoteId } = req.body;
-        await deleteQuote(quoteId, user);
+        await quoteService.deleteQuote(quoteId, user);
 
         return res.status(200).json({ message: `Quote ${quoteId} was successfully deleted.` });
     });

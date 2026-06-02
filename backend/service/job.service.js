@@ -2,8 +2,7 @@ import { startOfMonth, endOfMonth } from "../utils/date.js";
 import db from "../config/postgresql.config.js";
 import { AppError } from "../error/error.handler.js";
 
-export default {
-    
+export default {    
 	async getJobInfo(quotes){
         try{
             const quoteIds = quotes.map(qts => qts.id);
@@ -17,7 +16,7 @@ export default {
                 WHERE quote_id = ANY ($1)
                 `, [quoteIds]
             );
-
+			
             return results.rows || []
         }catch(err){
         	throw err;
@@ -74,7 +73,6 @@ export default {
                     AND created_at < $3
                 `,[id, startOfMonth, endOfMonth] 
             );
-            
 
             return results.rows;
         }catch(err){
@@ -94,6 +92,8 @@ export default {
                      AND status = 'COMPLETED'`,
                     [id, startOfMonth, endOfMonth]
             );
+			
+
             return results.rows[0]?.total_value ?? 0 
         }catch(err){
         	throw err;

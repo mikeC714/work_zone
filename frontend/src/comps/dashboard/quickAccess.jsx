@@ -2,13 +2,15 @@ import { useQuickAccess} from "../../hooks/quickAccess.hooks.jsx";
 
 export function QuickAccess(){
     const { data, isLoading, isError } = useQuickAccess();
-    
+   	
+	console.log(data);
+
     return (
         <div className='statCardsGrid'>
             <div className='statCardWrapper'>
                 <StatCard
                     title="ACTIVE JOBS"
-                    value={data?.activeJobs?.data.length ?? 0}
+                    value={data?.activeJobs?.data?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -17,7 +19,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="MONTHLY REVENUE"
-                    value={`$ ${data?.monthlyTotal?.data}`}
+                    value={`$ ${data?.monthlyTotal?.data ?? 0}`}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -26,7 +28,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="UNPAID QUOTES"
-                    value={data?.unpaidJobs?.data.length ?? 0}
+                    value={data?.unpaidJobs?.data?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -35,7 +37,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                <StatCard
                     title="COMPLETED JOBS"
-                    value={data?.completedJobs?.data.length ?? 0}
+                    value={data?.completedJobs?.data?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
