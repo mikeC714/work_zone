@@ -1,4 +1,4 @@
-import {  useMutation, useQueryClient} from "@tanstack/react-query";
+import {  useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js";
 
@@ -11,10 +11,9 @@ export function useCreateQuote(){
               console.log(err.message)
             },
             onSuccess:() => {
-              queryClient.invalidateQueries({
-                queryKey:['quickAccess', 'customers']
-              })
-            } 
+              queryClient.invalidateQueries({ queryKey:['quickAccess'] })
+				queryClient.invalidateQueries({ queryKey:['customers'] })
+            }
     });
 
 }

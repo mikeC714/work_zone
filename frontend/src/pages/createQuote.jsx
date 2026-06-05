@@ -45,8 +45,8 @@ export function CreateQuote(){
 		for(const [_, val] of Object.entries(customerInfo)){
 			if(!val.trim()) throw new Error("Missing Customer Input. Please fill all input fields.");
 		}
-		if(!materials.description.trim() || !materials.quantity.trim() || !materials.unitCost.trim()) throw new Error("Missing Field. Please fill all input fields.");
-		if(!labor.description.trim() || !labor.hours.trim() || !labor.hourlyRate.trim()) throw new Error("Missing Feild. Please fill all input fields.");
+		// if(!materials.description.trim() || !materials.quantity.trim() || !materials.unitCost.trim()) throw new Error("Missing Field. Please fill all input fields.");
+		// if(!labor.description.trim() || !labor.hours.trim() || !labor.hourlyRate.trim()) throw new Error("Missing Feild. Please fill all input fields.");
 
         mutate({
             customer: customerInfo,
@@ -183,21 +183,25 @@ export function CreateQuote(){
     
     const markUpPerc = (userMarkup / 100 * subTotal).toLocaleString();
 
-    const markUpDiff = limitNum(markUpPerc, 20)
-
-
+    const markUpDiff = limitNum(markUpPerc, 10)
     return (
         <div className='createQuotePage'>
-
             {isSendingEmail && (
                 <div className='overlay'>
-                    <Loader />
+                    // <Loader className='cqLoader'/>
+				<div className='cqCheckContainer'>
+					<Check className='cqCheck'/> 
+				</div>		
+
                 </div>
             )}
             {emailSent && (
                 <div className='overlay'>
-                    <p className='sendQuoteSuccess'>Quote Sent!</p>
-                </div>
+                	<div className='cqSuccessContainer'> 
+
+						<p className='sendQuoteSuccess'>Quote Sent!</p>
+               		</div>
+				</div>
             )}
             {isEmailErr && (
                 <div className='overlay'>
@@ -270,4 +274,3 @@ export function CreateQuote(){
 }
 
 
-// NEEDS ON SUBMIT BUTTON THAT UTITLIZES THE MUTATION QUERY TO POST A NEW CUSTOMER

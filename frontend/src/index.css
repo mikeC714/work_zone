@@ -1175,7 +1175,57 @@ Link{
     background: var(--bg-right);
     display: flex;
     flex-direction: column;
+	position: relative;
 }
+
+.createQuotePage > .overlay {
+	height: 100%;
+	width: 100%;
+	background: rgba(0,0,0,0.5);
+	position: absolute;
+	left: 50;
+	right: 50;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 10;
+} 
+
+.cqLoader {
+	height: 40px;
+	width: 40px;
+	animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+	0%{
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.cqSuccessContainer{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	border: none;
+}
+
+.cqCheck{
+	border-radius: 50%;
+	height: 60px;
+	width: 60px;
+	padding: 7px;
+	background-color: rgba(193,225,193,0.6);
+	color: rgba(3, 192, 60, 1);
+	animation: popup 2s linear;
+}
+
+
+
 
 /* Nav */
 .createQuoteNav {
@@ -1586,7 +1636,8 @@ input::-webkit-inner-spin-button {
 .cqMarkupRow {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+	overflow-x: hidden;
 }
 
 .cqMarkupInput {
@@ -1599,6 +1650,7 @@ input::-webkit-inner-spin-button {
     padding: 5px 8px;
     width: 52px;
     text-align: center;
+	position: static;
 }
 
 .cqMarkupInput::-webkit-outer-spin-button,
@@ -1608,7 +1660,7 @@ input::-webkit-inner-spin-button {
 }
 
 .cqMarkupInput[type=number]{
-	-moz-appearance: none;
+	-moz-appearance: textfield;
 }
 
 .cqMarkupInput:focus {
@@ -1617,8 +1669,14 @@ input::-webkit-inner-spin-button {
 }
 
 .cqMarkupPct {
+	position: static;
+	padding-right: 10px;
     font-size: 13px;
     color: var(--text-muted);
+}
+
+.cqMarkupDifference{
+	position: static;
 }
 
 .cqTotalRow {

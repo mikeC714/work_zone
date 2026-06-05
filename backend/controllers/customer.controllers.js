@@ -30,7 +30,7 @@ import { AppError } from "../error/error.handler.js";
         const page  = parseInt(req.query.page)  || 1;
         const limit = parseInt(req.query.limit) || 15;
         const offset = (page - 1) * limit;
-       
+      
 
 	    const customers = await customerService.getAllCustomerInfo(user);
 		if(!customers || customers.length === 0){
@@ -65,9 +65,6 @@ import { AppError } from "../error/error.handler.js";
 			}
 	    	});
        
-		console.log("JOBSERVICE:", data);
-		console.log("QUOTE DETAILS:", quoteDetails);
-
         const totalPages = Math.ceil(total / limit);      
         return res.status(200).json({
             success: true,
