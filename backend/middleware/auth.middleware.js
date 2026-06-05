@@ -101,7 +101,7 @@ const mutex = new Mutex();
 						JSON.stringify(
 							{
 								access:	newAccess,
-								refresh: newRefresh
+								refresh: stored
 							}), 
 						'EX', 10);
             		console.log("CACHE SET", cacheVal);	
@@ -113,7 +113,7 @@ const mutex = new Mutex();
                 		sameSite: 'strict',
                 		maxAge: 900000 // 15M
             		})
-            		res.cookie("refresh_token", newRefresh, {
+            		res.cookie("refresh_token", stored, {
                 		httpOnly:true,
                 		secure: false,
                 		sameSite: 'strict',

@@ -43,10 +43,9 @@ export default {
                     `, [userId, cusIds, limit, offset]
                 ) 
             )
-
             return {
-                quoteDetails: results.rows,
-                total: results.rows[0].total_count ? parseInt(results.rows[0].total_count): 0
+                quoteDetails: results?.rows,
+                total: results?.rows[0].total_count ? parseInt(results.rows[0].total_count): 0
             }
         }catch(err){
         	throw err;
@@ -68,9 +67,9 @@ export default {
     },
 
     async createQuote(user, customer, quote, labor, materials){
-        if(!quote.length || !customer.length || !labor.length || !materials.length){
-            return;
-        }
+        // if(!quote.length || !customer.length || !labor.length || !materials.length){
+        //     return;
+        // }
         try{
             const customerData = await db.query(
                 `INSERT INTO customers 
@@ -79,7 +78,6 @@ export default {
                 RETURNING id`, 
                 [user, customer.firstName, customer.lastName, customer.phone, customer.email, customer.address]
             );
-
             const quoteData = await db.query(
                 `INSERT INTO quotes
                     (user_id, customer_id, status, markup, total)
@@ -104,13 +102,12 @@ export default {
                         `, [quoteData?.rows[0]?.id, matVals.description, matVals.quantity, matVals.unitCost, matVals.total]
                     ))
             ]);
-            
-            // NOTHING NEEDS TO BE RETURNED SINCE THIS IS ONLY INSERTING DATA
+			
+			return{
+				quoteId: quoteData.rows[0].id,
+				customerId: customerData.rows[0].id
+			}
 
-            return {
-                customerId: customerData.rows[0].id,
-                quoteId: quoteData.rows[0].id
-            };
         }catch(err){
         	throw err;
 		}

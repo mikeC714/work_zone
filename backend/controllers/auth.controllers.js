@@ -22,8 +22,6 @@ import bcrypt from "bcrypt";
 			const refreshToken = Auth.signRefresh({ id: user.id });
 			const safe = await tokenService.storeRefreshToken(user.id , refreshToken);    
 			
-			console.log("SAFE", safe);
-
 			res.cookie("access_token", token,{
                 httpOnly: true,
                 secure: false,

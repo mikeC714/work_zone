@@ -2,12 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useUserContext } from '../context/userContext.jsx';
 import { useAuth } from '../hooks/auth.hooks.jsx'
-import { Bell, LogOut, User } from 'lucide-react';
+import { Bell, LogOut} from 'lucide-react';
 import logo from "../imgs/logo.svg";
 
 export function NavBar(){
     const { logoutMutation } = useAuth();
-    const { nameInitials, isLoading } = useUserContext();
+    const { nameInitials } = useUserContext();
     const navigate = useNavigate();
 
     return(
@@ -49,7 +49,7 @@ export function NavBar(){
                         onClick={() => navigate('/profile')}    
                     >
                         <h3>
-                            { isLoading ? <User /> : nameInitials}
+                            { nameInitials }
                         </h3>
                     </div>
                 </NavHoverPopUp>

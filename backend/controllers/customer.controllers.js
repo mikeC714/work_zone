@@ -1,6 +1,6 @@
-import customerService from "../service/customer.service.js";
 import quoteService from "../service/quote.service.js";
 import jobService from "../service/job.service.js";
+import customerService from "../service/customer.service.js";
 import Auth from "../auth/auth.js";
 import tokenService from "../service/db/token.service.js";
 import { encrypt } from "../utils/encrypt.js";
@@ -30,8 +30,9 @@ import { AppError } from "../error/error.handler.js";
         const page  = parseInt(req.query.page)  || 1;
         const limit = parseInt(req.query.limit) || 15;
         const offset = (page - 1) * limit;
-        
-	    const { customers } = await customerService.getAllCustomerInfo(user);
+       
+
+	    const customers = await customerService.getAllCustomerInfo(user);
 		if(!customers || customers.length === 0){
 			return{
 				cusData: {
@@ -51,7 +52,7 @@ import { AppError } from "../error/error.handler.js";
 		}
 
 	    const { quoteDetails, total } = await quoteService.getQuoteInfo(customers, user, filter, limit, offset);
-        const { data } = await jobService.getJobInfo(quoteDetails); 
+        const  data = await jobService.getJobInfo(quoteDetails); 
 		const cusData = customers.map(cus => {
 			return{
 		    	...cus,
@@ -63,7 +64,10 @@ import { AppError } from "../error/error.handler.js";
 		    	})
 			}
 	    	});
-        
+       
+		console.log("JOBSERVICE:", data);
+		console.log("QUOTE DETAILS:", quoteDetails);
+
         const totalPages = Math.ceil(total / limit);      
         return res.status(200).json({
             success: true,
@@ -115,9 +119,9 @@ import { AppError } from "../error/error.handler.js";
 		const user = req.user;
 		if(!user) throw new AppError("User not found.", 404);
         const { customer, labor, materials, quote } = req.body;
+		
+        const { quoteId, customerId } = await quoteService.createQuote(user, customer, quote, labor, materials);
 
-        const { customerId, quoteId } = await quoteService.createQuote(user, customer, quote, labor, materials);
-            
         // const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
         // const safeEmailToken = encrypt(emailToken);
         // await tokenService.storeQuoteToken(quoteId, safeEmailToken);
@@ -125,7 +129,7 @@ import { AppError } from "../error/error.handler.js";
         return res.status(200).json({
             success: true,
             // token: safeEmailToken,
-            id: quoteId
+			id: quoteId
         });
     })
 

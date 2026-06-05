@@ -5,23 +5,21 @@ import { Loader } from "lucide-react";
 import config from "../config.js"
 
 export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 10}){
-    const queryClient = useQueryClient();
-
+	const queryClient = useQueryClient();
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 10,
-
     })
 
+	useEffect(() => {
+		queryClient.prefetchQuery({
+			queryKey: ['customers', activeFilter, page, limit],
+			queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page+1}&limit=${limit}`),
+			staleTime: 1000 * 60 * 10,
+		})
+	}, [queryClient, activeFilter, page, limit])
 
-    useEffect(() => {
-        queryClient.prefetchQuery({
-            queryKey: ['customers', activeFilter, page + 1, limit],
-            queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page + 1}&limit=${limit}`),
-            staleTime: 1000 * 60 * 10,
-        })
-    }, [queryClient, activeFilter, page, limit])
 
     const filteredData = useMemo(() => {
         let result = data?.cusData ?? [];
@@ -40,10 +38,8 @@ export function useCustomerTableHook({activeFilter= '', searchFilter = '', page 
             )
         }
     );
-}
-        return result;
-    }, [data, searchFilter]);
-
+}       return result;
+}, [data, searchFilter]);
 		
 	if(isLoading) return <Loader />
 
@@ -67,7 +63,6 @@ export function useCustomerDelete(){
             queryClient.invalidateQueries({ queryKey: ['quickAccess'] })
         },
         onError: (err) => console.log(err.message)
-    })
+	})
 }
-
 

@@ -10,7 +10,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="ACTIVE JOBS"
-                    value={data?.activeJobs?.data?.length ?? 0}
+                    value={data?.activeJobs?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -19,7 +19,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="MONTHLY REVENUE"
-                    value={`$ ${data?.monthlyTotal?.data ?? 0}`}
+                    value={`$ ${data?.monthlyTotal ?? 0}`}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -28,7 +28,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                 <StatCard
                     title="UNPAID QUOTES"
-                    value={data?.unpaidJobs?.data?.length ?? 0}
+                    value={data?.unpaidJobs?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
@@ -37,7 +37,7 @@ export function QuickAccess(){
             <div className='statCardWrapper'>
                <StatCard
                     title="COMPLETED JOBS"
-                    value={data?.completedJobs?.data?.length ?? 0}
+                    value={data?.completedJobs?.length ?? 0}
                     isLoading={isLoading}
                     isError={isError}
                     subtitle="THIS MONTH"
