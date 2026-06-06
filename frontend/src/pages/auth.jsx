@@ -11,20 +11,16 @@ export function Authentication() {
         e.preventDefault();
         const formData = new FormData(e.target);
         const credentials = Object.fromEntries(formData);
-        console.log(credentials);
         isAuth ? loginMutation.mutate(credentials) : signupMutation.mutate(credentials);
     }
 
     return (
         <div className="authPage">
-
             <div className="authLeft">
-
                 <div className="authLogo">
                     <img className="authLogoIcon" src={logo} />
                     <span>WORK ZONE</span>
                 </div>
-
                 <div className="authTopSection">
                     <div className="authTabs">
                         <button className={`authTab ${isAuth ? 'active' : ''}`} onClick={() => setAuth(true)}>
@@ -34,13 +30,11 @@ export function Authentication() {
                             Sign Up
                         </button>
                     </div>
-
                     <div className="authHeader">
                         <h1>{isAuth ? 'Welcome Back' : 'Create Account'}</h1>
                         <p>{isAuth ? 'Sign in to manage your jobs and quotes' : 'Sign up to start managing your business'}</p>
                     </div>
                 </div>
-
                 <AuthForm
                     key={isAuth}
                     isAuth={isAuth}
@@ -50,9 +44,7 @@ export function Authentication() {
                 />
 
             </div>
-
             <div className="authRight">
-
                 <div className="mockWindow">
                     <div className="mockWindowBar">
                         <span className="mockDot mockDotRed" />

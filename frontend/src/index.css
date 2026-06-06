@@ -1212,6 +1212,8 @@ Link{
 	align-items: center;
 	gap: 12px;
 	border: none;
+	animation: slide 900ms ease;
+	transition: transform 0.5s;
 }
 
 .cqCheck{
@@ -1221,8 +1223,20 @@ Link{
 	padding: 7px;
 	background-color: rgba(193,225,193,0.6);
 	color: rgba(3, 192, 60, 1);
-	animation: popup 2s linear;
+
 }
+
+@keyframes slide {
+	from{
+		opacity: 0;
+		transform: translateY(2rem);
+	}
+	to{
+		opacity: 1;
+		transform:translateY(0rem);
+	}
+}
+
 
 
 
@@ -2178,6 +2192,8 @@ input::-webkit-inner-spin-button {
     padding: 1em;
     flex-direction: column;
     height: 10em;
+	position: relative;
+	margin-bottom: 20px;
 }
 
 .notiHeadContent{
@@ -2224,11 +2240,9 @@ input::-webkit-inner-spin-button {
     padding: 52px;
     gap: 18px;
     height: 6em;
-    flex-wrap: wrap;
-    position: relative;
 }
 
-.notiFilterContainer > button{
+.notiFilterBtn{
     padding:8px 16px;
     border-radius: 14px;
     border: 1px solid var(--border);
@@ -2238,10 +2252,19 @@ input::-webkit-inner-spin-button {
     background: transparent;
     cursor: pointer;
     transition: color .15s, border-color .15s, background .15s;
+	color: white;
+	width: fit-content;
+	height: fit-content;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.notiFilterContainer > button:hover{
+.notiFilterBtn:hover{
     color: white;
+}
+
+.notiFilterBtn.active {
+	border-color: var(--orange);
+	background-color: var(--orange);
 }
 
 .notiList{
@@ -2255,6 +2278,20 @@ input::-webkit-inner-spin-button {
     min-width: 80%;
     padding-top: 2em;
     gap: 1.7em;
+}
+
+.notiListContainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+}
+
+.noNotiMsg {
+	grid-column: 2;
+	grid-row: 2;
+	align-self: center;
+	justify-self: center;
 }
 
 .notiContent{
@@ -2318,6 +2355,28 @@ input::-webkit-inner-spin-button {
     border-radius: 20px;
 }
 
+.notiPaginationContainer {
+	position: absolute;
+	right: 100px;
+	bottom: 0;
+}
+.notiPaginationBtn{
+    color: black;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    opacity: .8;
+    cursor: pointer;
+    transition: opacity 1s ease, background 1s ease;
+}
+
+.notiPaginationBtn:hover {
+    opacity: .5;
+    background: rgba(255, 255, 255, 0.2);
+}
 
 /* Small mobile (≤ 480px) */
 @media (max-width: 480px) {

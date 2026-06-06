@@ -6,9 +6,13 @@ import { CqNavBar } from '../comps/navBar.jsx'
 import { Send, Loader, Check } from 'lucide-react';
 
 export function CreateQuote(){
-    const {mutate, isPending, isError, isSuccess} = useCreateQuote();
-    const {mutate:sendEmail, isSendingEmail, isEmailErr, emailSent} = useEmailHook();
-    const idRef = useRef(0);
+	const idRef = useRef(0);
+	const [success, setSuccess] = useState(false);
+	const [cqErr, setCqErr] = useState(false);
+	const [emailErr, setEmailErr] = useState(false);
+	const [emailSent, setEmailSent] = useState(false);
+	const {mutate:sendEmail, isSendingEmail} = useEmailHook({ setEmailErr, setEmailSent });
+	const {mutate, isPending} = useCreateQuote({ setSuccess, setCqErr });
     const [userMarkup, setUserMarkup] = useState("");
     const [materials, setMaterials] = useState([
         {
@@ -34,7 +38,6 @@ export function CreateQuote(){
         address: "",
     });
     const [status, setStatus] = useState('DRAFT');
-   
 
     function handleStatusChange(e){
         setStatus(e.target.value);
@@ -45,9 +48,6 @@ export function CreateQuote(){
 		for(const [_, val] of Object.entries(customerInfo)){
 			if(!val.trim()) throw new Error("Missing Customer Input. Please fill all input fields.");
 		}
-		// if(!materials.description.trim() || !materials.quantity.trim() || !materials.unitCost.trim()) throw new Error("Missing Field. Please fill all input fields.");
-		// if(!labor.description.trim() || !labor.hours.trim() || !labor.hourlyRate.trim()) throw new Error("Missing Feild. Please fill all input fields.");
-
         mutate({
             customer: customerInfo,
             quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
@@ -91,14 +91,7 @@ export function CreateQuote(){
             unitCost: Number(m.unitCost)
         })),
       })
-        if(isSuccess){ 
-            return(
-                <div className="cqPageOverlay">
-                    <p className="cqSuccessMsg">Successfully Created Quote.</p>
-                </div>
-            )
-        } 
-    }
+    } 
 
   function handleCustomerForm(e) {
     const { name, value } = e.target
@@ -188,34 +181,46 @@ export function CreateQuote(){
         <div className='createQuotePage'>
             {isSendingEmail && (
                 <div className='overlay'>
-                    // <Loader className='cqLoader'/>
-				<div className='cqCheckContainer'>
-					<Check className='cqCheck'/> 
-				</div>		
-
+                    <Loader className='cqLoader'/>
                 </div>
             )}
             {emailSent && (
                 <div className='overlay'>
                 	<div className='cqSuccessContainer'> 
-
-						<p className='sendQuoteSuccess'>Quote Sent!</p>
+						<Check className='cqCheck'/> 
+						<p className='cqSuccess'>Quote Sent!</p>
                		</div>
 				</div>
             )}
-            {isEmailErr && (
+            {emailErr && (
                 <div className='overlay'>
                     <p>Failed to send quote.</p>
                 </div>
             )}
-
+			{isPending && (
+				<div className='overlay'>
+					<Loader className='cqLoader'/>
+				</div>
+			)}
+			{success && (
+				<div className='overlay'>
+					<div className='cqSuccessContainer'>
+						<Check className='sendQuoteSuccess' />
+						<p className='cqSuccess'></p>
+					</div>
+				</div>
+			)}
+		{cqErr && (
+			<div className='overlay'>
+				<p>Failed to create quote.</p>
+			</div>
+		)}
             <CqNavBar 
                 handleSaveQuote={handleSaveQuote}
                 handleStatusChange={handleStatusChange}
                 statusValue={status}
             />
             <div className='createQuoteContent'>
-
                 <div className='cqLeft'>
                     <CreateQuoteForm
                         handleCustomerForm={handleCustomerForm}
@@ -230,15 +235,12 @@ export function CreateQuote(){
                         removeMatBtn={removeMatBtn}
                     />
                 </div>
-
                 <div className='cqRight'>
                     <p className='cqSummaryTitle'>SUMMARY</p>
-
                     <div className='cqSummaryRow'>
                         <span className='cqSummaryLabel'>Subtotal</span>
                         <span className='cqSummaryValue'>${subTotal.toLocaleString()}</span>
                     </div>
-
                     <div className='cqSummaryRow'>
                         <span className='cqSummaryLabel'>Markup</span>
                         <div className='cqMarkupRow'>
@@ -253,12 +255,10 @@ export function CreateQuote(){
                             <span className='cqMarkupDifference'>${markUpDiff}</span>
                         </div>
                     </div>
-
                     <div className='cqTotalRow'>
                         <span className='cqTotalLabel'>Total</span>
                         <span className='cqTotalValue'>${total.toFixed(2)}</span>
                     </div>
-
                     <button 
                         className='cqSendToCustomerBtn'
                         onClick={() => {

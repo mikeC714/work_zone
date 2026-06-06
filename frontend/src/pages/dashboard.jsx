@@ -22,12 +22,9 @@ export function Dashboard(){
         <div className='dashboardPage'>
             <NavBar />
             <div className='dashboardBody'>
-
-            
                 <div className='quickAccessContainer'>
                     <QuickAccess />
                 </div>
-
                 <div className='filterRow'>
                     <div className='statusBtnsContainer'>
                         {filters.map(btns => (

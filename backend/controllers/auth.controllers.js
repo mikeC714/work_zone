@@ -4,54 +4,61 @@ import tokenService from "../service/db/token.service.js";
 import { decrypt, encrypt } from "../utils/encrypt.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError, AuthenticationError } from "../error/error.handler.js";
+import { validateEmail } from "../utils/emailValidator.js";
 import bcrypt from "bcrypt";
-
+	
 	export const login = catchAsync(async (req, res) => {
         const { email, password } = req.body;
         if(!email || !password){
             throw new AppError("Invalid, Missing fields.", 400);
         }
+
+		const validEmail = validateEmail(email);
+		if(!validEmail) throw new AppError("Invalid email please provide a valid domain.", 400);
         
-            const user = await userService.getUser(email);
-            if(!user) throw new AuthenticationError("Invalid credentials.");
+        const user = await userService.getUser(email);
+        if(!user) throw new AuthenticationError("Invalid credentials.");
 
-            const valid = await bcrypt.compare(password, user.password);
-            if(!valid) throw new AuthenticationError("Invalid credentials.");
+        const valid = await bcrypt.compare(password, user.password);
+        if(!valid) throw new AuthenticationError("Invalid credentials.");
 
-            const token = Auth.sign({ id: user.id });
-			const refreshToken = Auth.signRefresh({ id: user.id });
-			const safe = await tokenService.storeRefreshToken(user.id , refreshToken);    
+        const token = Auth.sign({ id: user.id });
+		const refreshToken = Auth.signRefresh({ id: user.id });
+		const safe = await tokenService.storeRefreshToken(user.id , refreshToken);    
 			
-			res.cookie("access_token", token,{
-                httpOnly: true,
-                secure: false,
-                sameSite: 'strict',
-                maxAge: 900000 // 15M
-            })
-            res.cookie("refresh_token", safe, {
-                httpOnly: true,
-                secure: false,
-                sameSite: "strict",
-                maxAge: 604800000 // 7D
-            })
+		res.cookie("access_token", token,{
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 900000 // 15M
+        })
+        res.cookie("refresh_token", safe, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 604800000 // 7D
+        })
 
-            return res.status(200).json({ 
-                user: {
-                    firstName: user.first_name,
-                    lastName: user.last_name
-                }
-			});
+        return res.status(200).json({ 
+            user: {
+                firstName: user.first_name,
+                lastName: user.last_name
+            }
+		});
 	});
 
     export const signup = catchAsync(async (req, res) => {
         const { email, firstName, lastName, password } = req.body;
         if(!firstName || !lastName || !email || !password) throw new AppError("Missing Field. Please try again", 400);
             
-		const rounds = 16
-        const salt = await bcrypt.genSalt(rounds);
-        const safePass = await bcrypt.hash(password, salt);
+		const validEmail = validateEmail(email);
+		if(!validEmail) throw new AppError("Invalid email please provide a valid domain.", 400);
 
-        const user = await userService.storeNewUser(firstName, lastName, email, safePass);
+		const rounds = 16
+		const salt = await bcrypt.genSalt(rounds);
+		const safePass = await bcrypt.hash(password, salt);
+       
+		const user = await userService.storeNewUser(firstName, lastName, email, safePass);
 		if(!user) throw new AppError("Invalid Credentials.", 401);
 
         const token = Auth.sign({id: user.id });

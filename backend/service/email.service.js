@@ -5,18 +5,13 @@ const resend = new Resend(process.env.RESEND_KEY)
 
 
 
-class EmailService{
-    constructor(db){
-        this.db = db;
-    }
     // Email sent with a link
     // The endpoint will store the JWT token within the param 
     // Once the endpoint is triggered the token is then split to get it's payload
     // The payload contents (user.id, and customer email) will then be used to query to change the status of the customers quote
     // The link will the redirect the user to a blank page thanking them for acceptance of the quote
     // 
-
-    async send(user, quoteData, link){
+	export async function sendEmail(user, quoteData, link){
         if(!user){
             throw new Error("Invalid user.");
         }
@@ -41,6 +36,4 @@ class EmailService{
             throw new Error(err.message);
         }
     }
-}
 
-export default new EmailService(db);

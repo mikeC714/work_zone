@@ -27,7 +27,6 @@ export const allJobData = catchAsync(async(req,res) => {
 		})
 	}
 
-
     return res.status(200).json({
         completedJobs,
         unpaidJobs,

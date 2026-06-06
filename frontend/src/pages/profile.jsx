@@ -313,21 +313,21 @@ export function ProfilePage() {
                 <div className='profileStatsRow'>
                     <ProfileCard
                         icon={<Briefcase />}
-                        value={data?.activeJobs?.data?.length ?? 0}
+                        value={data?.activeJobs?.length ?? 0}
                         isLoading={isLoading}
                         isError={isError}
                         label='ACTIVE JOBS'
                     /> 
                     <ProfileCard
                         icon={<BookCheck />}
-                        value={data?.completedJobs?.data?.length ?? 0}
+                        value={data?.completedJobs?.length ?? 0}
                         isLoading={isLoading}
                         isError={isError}
                         label='COMPLETED JOBS'
                      />
                     <ProfileCard
                         icon={<HandCoins />}
-                        value={`$ ${data?.monthlyTotal?.data ?? 0}`}
+                        value={`$ ${data?.monthlyTotal ?? 0}`}
                         isLoading={isLoading}
                         isError={isError}
                         label='MONTHLY REVENUE'

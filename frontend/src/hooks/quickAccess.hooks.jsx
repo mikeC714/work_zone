@@ -7,7 +7,6 @@ export function useQuickAccess(){
         queryKey: ["quickAccess"],
         queryFn: async () => await apiFetch(`http://${config.SERVER}/api/quick-access`, "GET"),
         staleTime: 1000 * 60 * 20,
-		refetchOnWindowFocus: true
     })
     if(isError){
         throw new Error(error.message);

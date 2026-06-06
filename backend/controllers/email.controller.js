@@ -1,10 +1,11 @@
 import Auth from "../auth/auth.js";
-import EmailService from "../service/email.service.js";
-import UserService from "../service/db/user.service.js";
-import { encrypt, decrypt } from "../utils/encrypt.js";
-import QuoteService from "../service/quote.service.js";
+import { sendEmail } from "../service/email.service.js";
+import userService from "../service/db/user.service.js";
+import quoteService from "../service/quote.service.js";
+import { AppError, AuthenticationError } from "../error/error.handler.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import path from "path";
 
-class EmailControllers{
     //  sendEmail({
     //                 id: data.id,
     //                 token: data.token,
@@ -15,58 +16,30 @@ class EmailControllers{
     //             });
     //         }
     // { id: user, quoteId, customerId }
-    async handleSending(req, res){
+	export const handleSending = catchAsync(async(req, res) => { 
         const user = req.user;
-        const data = req.body;
+		const data = req.body;
+		console.log(data)
 
-        if(!data){
-            return res.status(400).json({ message: "Missing data feild. Cannot " })
-        }
-        console.log(data)
+        Auth.verifyEmail(data.token);
+        const link = `http://${process.env.PORT}/quote/acceptance?token=${data.token}`;
+		
+        const userInfo = await userService.getUserById(user);
+        const status = 'SENT'; 
+        await quoteService.changeQuoteStatus(user, data.id, status) ;
+        await sendEmail(userInfo, data, link);
 
-        const decrypted = decrypt(data.token);
-        const valid = Auth.verifyEmail(decrypted);
-        if(!valid){
-            return res.status(400).json({ message: "Token provided is invalid." });
-        }
+        return res.status(200).json({ success: true });
+    })
 
-        try{
-            const link = `http://${process.env.PORT}/quote/accept?token=${data.token}`
-
-            const userCred = await UserService.getUserById(user);
-            console.log("USER:",userCred.rows[0])
-            const status = 
-            await QuoteService.changeQuoteStatus(data.id) ;
-            await EmailService.send(userCred.rows[0], data, link);
-
-            return res.status(200).json({ success: true, message: "Successfully sent quote." });
-        }catch(err){
-            return res.send(err.message);
-            // return res.send("Failed to send email. Please try again.")
-        }
-    }
-
-    async handleAcceptance(req, res){
+    export const handleAcceptance = catchAsync(async(req, res) => {
         const token = req.query.token;
-        if(!token){
-           return res.status(400).json({ message: "Invalid token, token may have expired." });
-        }
+        if(!token) throw new AuthenticationError("Failed to provide valid email token.");
 
-        const decrypted = decrypt(token);
-        const valid = Auth.verifyEmail(decrypted);
-        if(!valid){
-            return res.status(400).json({ message: "Token provided is invalid." });
-        }
-
-        try{
-            const status = "Approved";
-            await QuoteService.changeQuoteStatus(valid.payload.quoteId, status);
-            return res.sendFile(path.join(__dirname, 'public/thank-you.html'));
-        }catch(err){
-            throw new Error("Failed to accept quote.");
-            return res.sendFile(path.join(__dirname, 'public/failed.html'))
-        }
-    }
-}
-
-export default new EmailControllers();
+        const valid = Auth.verifyEmail(token);
+        const status = "APPROVED";
+        await quoteService.changeQuoteStatus(valid.payload.quoteId, status);
+        
+		return res.sendFile(path.join(__dirname, '../../frontend/dist/', 'index.html'));
+	})
+    

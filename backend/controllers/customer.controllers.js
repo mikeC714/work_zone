@@ -119,14 +119,13 @@ import { AppError } from "../error/error.handler.js";
 		
         const { quoteId, customerId } = await quoteService.createQuote(user, customer, quote, labor, materials);
 
-        // const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
-        // const safeEmailToken = encrypt(emailToken);
-        // await tokenService.storeQuoteToken(quoteId, safeEmailToken);
+        const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
+        await tokenService.storeQuoteToken(quoteId, emailToken);
 
         return res.status(200).json({
             success: true,
-            // token: safeEmailToken,
-			id: quoteId
+			id: quoteId,
+			token: emailToken
         });
     })
 
