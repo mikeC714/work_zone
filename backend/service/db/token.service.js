@@ -53,10 +53,12 @@ export default {
         if(!token) throw new AppError("Failed to provide valid token.", 401);
         try{
 			const encrypted = encrypt(token);
-            await db.query(
-                "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2)",
+            const results = await db.query(
+                "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2) RETURNING expires_at",
                 [id, encrypted]
             );
+
+		return results.rows[0].expires_at;
         }catch(err){
             throw err;
         }

@@ -36,14 +36,15 @@ export default {
 		}
     },
 
-    async getUserById(userId){
-        if(!userId) throw new AppError("User not found.", 404);
+    async getUserById(user){
+        if(!user) throw new AppError("User not found.", 404);
+		console.log(user);
         try{
             const results = await db.query(
                 "SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1",
-                [userId]
+                [user]
             );
-			return results.rows;
+			return results.rows[0];
         }catch(err){
             throw err;
         }

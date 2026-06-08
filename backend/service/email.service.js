@@ -1,38 +1,31 @@
 import { Resend } from 'resend';
-import { renderToStaticMarkup } from 'react-dom/server';	
-import EmailTemplate from "../../frontend/src/pages/emailTemplate.jsx";
 import { AppError } from '../error/error.handler.js';
-import db from "../config/postgresql.config.js";
+import { pdf } from "../public/pdfTemplate.js";
+import { quoteEmailTemplate } from "../public/emailTemplate.js";
 
 const resend = new Resend(process.env.RESEND_KEY)
 
+	export async function sendEmail({ userInfo, data, link, expiry }){
+		const senderName = `${userInfo.first_name} ${userInfo.last_name} `;
+		try{
+        	if(!data) throw new AppError("Failed to provide quote data. Cannot send empty quote.", 400);
+			const pdfBuffer = await pdf({ quoteInfo: data, user: userInfo });
 
-
-    // Email sent with a link
-    // The endpoint will store the JWT token within the param 
-    // Once the endpoint is triggered the token is then split to get it's payload
-    // The payload contents (user.id, and customer email) will then be used to query to change the status of the customers quote
-    // The link will the redirect the user to a blank page thanking them for acceptance of the quote
-    //
-
-
-
-	export async function sendEmail(user, quoteData, link){
-        if(!quoteData) throw new AppError("Failed to provide quote data. Cannot send empty quote.", 400);
-		const html = renderToStaticMarkup(<EmailTemplate quoteInfo={quoteData} userInfo={user} link={link} />)
-        try{
-			const { data, error } = await resend.emails.send({
-                from: user.email,
-                to: quoteData.customer.email,
+			const { error } = await resend.emails.send({
+                from: `${senderName}  <noreply@field-hq.com>`,
+                to: data.customer.email,
                 subject: 'Quote',
-               	html 
+				html: quoteEmailTemplate({ userInfo, data, link, senderName, expiry }) ,
+				attachments: [
+					{
+						filename: `quote.pdf`,
+						content: pdfBuffer.toString("base64")
+					}
+				]
             });
-            if(error){
-                throw new Error(error.message);
-            }
-            console.log(data);
-        }catch(err){
-            throw err;
-        }
-    }
+            if(error) throw error;
+		}catch(err){
+			throw err;
+		}
+	};
 

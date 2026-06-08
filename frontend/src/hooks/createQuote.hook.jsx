@@ -11,14 +11,14 @@ export function useCreateQuote({ setSuccess, setCqErr }){
             	setCqErr(true);
 				setTimeout(() => {
 					setCqErr(false);
-				}, 1100)
+				}, 10000)
             },
             onSuccess:() => {
 				setSuccess(true);
 				setTimeout(() => {
 					setSuccess(false);
-					window.location.reload;
-				}, 1100);
+					window.location.reload();
+				}, 20000);
               	queryClient.invalidateQueries({ queryKey:['quickAccess'] });
 				queryClient.invalidateQueries({ queryKey:['customers'] });
 			}

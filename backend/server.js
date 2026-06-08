@@ -37,9 +37,9 @@ app.use('/api', notiRouter)
 app.use((err, req, res, next) => {
 	let status = 500;
 	if(err instanceof AppError){
-		return res.status(err.status).json({ error: err.message })
+		return res.status(err.statusCode).json({ error: err.message })
 	}
-	res.status(err.statusCode || status).json({ error: err.message })
+	return res.status(err.statusCode || status).json({ error: err.message })
 })
 
 app.listen(PORT, () => {

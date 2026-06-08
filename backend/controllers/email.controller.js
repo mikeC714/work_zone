@@ -2,32 +2,23 @@ import Auth from "../auth/auth.js";
 import { sendEmail } from "../service/email.service.js";
 import userService from "../service/db/user.service.js";
 import quoteService from "../service/quote.service.js";
-import { AppError, AuthenticationError } from "../error/error.handler.js";
+import { AuthenticationError } from "../error/error.handler.js";
 import { catchAsync } from "../utils/catchAsync.js";
-import path from "path";
 
-    //  sendEmail({
-    //                 id: data.id,
-    //                 token: data.token,
-    //                 customer: customerInfo,
-    //                 quote: { markup: Number(userMarkup), total: Number(total.toFixed(2)) },
-    //                 labor: labor.map(l => ({ ...l, hours: Number(l.hours), hourlyRate: Number(l.hourlyRate) })),
-    //                 materials: materials.map(m => ({ ...m, quantity: Number(m.quantity), unitCost: Number(m.unitCost) }))
-    //             });
-    //         }
-    // { id: user, quoteId, customerId }
 	export const handleSending = catchAsync(async(req, res) => { 
         const user = req.user;
 		const data = req.body;
-		console.log(data)
+		const { token } = data;
+		const { emailToken } = token;
 
-        Auth.verifyEmail(data.token);
-        const link = `http://${process.env.PORT}/quote/acceptance?token=${data.token}`;
+        Auth.verifyEmail(emailToken);
+        const link = `http://${process.env.PORT}/quote/acceptance?token=${token.emailToken}`;
 		
+		const status = 'SENT';
+
         const userInfo = await userService.getUserById(user);
-        const status = 'SENT'; 
-        await quoteService.changeQuoteStatus(user, data.id, status) ;
-        await sendEmail(userInfo, data, link);
+        await quoteService.changeQuoteStatus(data.id, status) ;
+        await sendEmail({ userInfo, data, link, expiry: token.expiry });
 
         return res.status(200).json({ success: true });
     })
@@ -40,6 +31,6 @@ import path from "path";
         const status = "APPROVED";
         await quoteService.changeQuoteStatus(valid.payload.quoteId, status);
         
-		return res.sendFile(path.join(__dirname, '../../frontend/dist/', 'index.html'));
+		// return res.sendFile(path.join(__dirname, '../../frontend/dist/', 'index.html'));
 	})
     
