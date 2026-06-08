@@ -184,7 +184,7 @@ export function CreateQuote(){
                     <Loader className='cqLoader'/>
                 </div>
             )}
-            {emailSent && success(
+            {emailSent && success && (
                 <div className='overlay'>
                 	<div className='cqSuccessContainer'> 
 						<Check className='cqCheck'/> 
@@ -202,7 +202,7 @@ export function CreateQuote(){
 					<Loader className='cqLoader'/>
 				</div>
 			)}
-			{success && (
+			{success && !emailSent && (
 				<div className='overlay'>
 					<div className='cqSuccessContainer'>
 						<Check className='sendQuoteSuccess' />

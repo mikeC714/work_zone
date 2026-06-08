@@ -11,11 +11,11 @@ export function useEmailHook({ setEmailErr, setSentEmail }){
 			setTimeout(() => {
 				setSentEmail(false);
 				window.location.reload();
-			}, 22000)
+			}, 3000)
 		}),
 		onError: (() => {
 			setEmailErr(true);
-			setTimeout(() => setEmailErr(false), 10000);
+			setTimeout(() => setEmailErr(false), 5000);
 		})
     });
     return{
