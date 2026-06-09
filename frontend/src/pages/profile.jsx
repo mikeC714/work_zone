@@ -17,7 +17,7 @@ function Overview({ userConfig, setUserConfig, firstName, lastName, email, creat
     dayjs(date).format('MMMM D, YYYY')
     
 	useEffect(() => {
-        const saved = localStorage.getItem(`userConfig: ${userId}`);
+        const saved = localStorage.getItem(`userConfig`);
         if(saved){
             const { phoneNumber, location, department, role } = JSON.parse(saved);
             setUserConfig({
@@ -236,7 +236,7 @@ export function ProfilePage() {
 
     useEffect(() => {
         if (!userId) return;
-        const saved = localStorage.getItem(`userConf:${userId}`);
+        const saved = localStorage.getItem(`userConfig`);
         setUserConfig(saved ? JSON.parse(saved) : {
           phoneNumber: "",
           location: "",

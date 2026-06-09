@@ -8,13 +8,20 @@ const UserContext = createContext();
 
 
 export function UserProvider({children}){
-    
     const { data, isLoading } = useQuery({
         queryKey: ["user"],
         queryFn: async() => {
-            return await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
-        },
-    	retry: false,
+            const res = await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
+			localStorage.setItem("user", JSON.stringify(res.user));
+			return res;
+		},
+		initialData: () => {
+			const cached = localStorage.getItem("user");
+			return cached ? { user: JSON.parse(cached) } : undefined;
+		},
+    	retry: true,
+		refetchOnMount: true,
+		staleTime: 0,
     });
 
     const firstName = data?.user?.first_name ?? "";
@@ -22,18 +29,17 @@ export function UserProvider({children}){
     const email = data?.user?.email;
     const created_at = data?.user?.created_at;
     const userId = data?.user?.id;
-	const nameInitials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : <User />;
-    
+   
 
     const value = useMemo(() => ({
+		nameInitials: firstName && lastName ? `${firstName[0]}${lastName[0]}` : <User />,
         email,
         firstName,
         lastName,
         userId,
-        created_at,
-        nameInitials, 
+        created_at, 
         isLoading 
-    }), [email, firstName, lastName, created_at, nameInitials, userId, isLoading])
+    }), [email, firstName, lastName, created_at, userId, isLoading])
 
     
     return(
