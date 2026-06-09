@@ -1,4 +1,4 @@
-export const quoteEmailTemplate = ({ userInfo, data, link, senderName, expiry }) => (
+export const quoteEmailTemplate = ({ userInfo, customer, link, senderName, expiry }) => (
 	`
 		<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 20px;">
 
@@ -8,7 +8,7 @@ export const quoteEmailTemplate = ({ userInfo, data, link, senderName, expiry })
   </div>
 
   <div style="background-color: #ffffff; border: 1px solid #e5e5e0; border-top: none; padding: 40px; border-radius: 0 0 8px 8px;">
-    <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 500; color: #1a1a1a;">Hi ${data.customer.firstName}, you've got a quote 📄</h2>
+    <h2 style="margin: 0 0 12px; font-size: 22px; font-weight: 500; color: #1a1a1a;">Hi ${customer.firstName}, you've got a quote 📄</h2>
     <p style="margin: 0 0 28px; font-size: 15px; color: #666660; line-height: 1.7;">${senderName} has prepared a quote for your project. The full quote is attached to this email as a PDF — give it a look and follow the steps below when you're ready.</p>
 
     <p style="margin: 0 0 16px; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #999993;">How to accept</p>

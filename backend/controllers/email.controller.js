@@ -1,4 +1,5 @@
 import Auth from "../auth/auth.js";
+import tokenService from "../service/db/token.service.js";
 import { sendEmail } from "../service/email.service.js";
 import userService from "../service/db/user.service.js";
 import quoteService from "../service/quote.service.js";
@@ -7,20 +8,18 @@ import { catchAsync } from "../utils/catchAsync.js";
 
 	export const handleSending = catchAsync(async(req, res) => { 
         const user = req.user;
-		const data = req.body;
-		const { token } = data;
-		const { emailToken } = token;
+        const { customer, labor, materials, quote } = req.body;
 
-        Auth.verifyEmail(emailToken);
-        const link = `http://${process.env.PORT}/quote/acceptance?token=${token.emailToken}`;
-		
-		const status = 'SENT';
+		const { quoteId, customerId } = await quoteService.createQuote(user, customer, quote, labor, materials);
+
+		const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
+		const expiry = await tokenService.storeQuoteToken(quoteId, emailToken);
+		const link = `http://${process.env.PORT}/quote/acceptance?token=${emailToken}`;
 
         const userInfo = await userService.getUserById(user);
-        await quoteService.changeQuoteStatus(data.id, status) ;
-        await sendEmail({ userInfo, data, link, expiry: token.expiry });
-
-        return res.status(200).json({ success: true });
+        await sendEmail({ userInfo, quoteInfo: quote, materials, labor, customer, link, expiry });
+        
+		return res.status(200).json({ success: true });
     })
 
     export const handleAcceptance = catchAsync(async(req, res) => {

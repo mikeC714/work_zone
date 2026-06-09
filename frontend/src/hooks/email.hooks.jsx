@@ -2,24 +2,17 @@ import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../utils/apiFetch.jsx';
 import config from '../config.js';
 
-export function useEmailHook({ setEmailErr, setSentEmail }){
-    const {mutate, isPending: isSendingEmail } = useMutation({
+export function useEmailHook(){
+    return useMutation({
         mutationFn: async (quote) => await apiFetch(`http://${config.SERVER}/api/quote/send`, "POST", quote),
         retry: false,
 		onSuccess:(() => {
-			setSentEmail(true);
 			setTimeout(() => {
-				setSentEmail(false);
 				window.location.reload();
 			}, 3000)
 		}),
 		onError: (() => {
-			setEmailErr(true);
-			setTimeout(() => setEmailErr(false), 5000);
+			setTimeout(() => window.location.reload(), 5000);
 		})
     });
-    return{
-        mutate,
-        isSendingEmail
-    }
 }

@@ -1,7 +1,7 @@
 import Auth from "../auth/auth.js";
 import userService from "../service/db/user.service.js";
 import tokenService from "../service/db/token.service.js";
-import { decrypt, encrypt } from "../utils/encrypt.js";
+import { decrypt } from "../utils/encrypt.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError, AuthenticationError } from "../error/error.handler.js";
 import { validateEmail } from "../utils/emailValidator.js";

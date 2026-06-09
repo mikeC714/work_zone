@@ -3,7 +3,6 @@ import jobService from "../service/job.service.js";
 import customerService from "../service/customer.service.js";
 import Auth from "../auth/auth.js";
 import tokenService from "../service/db/token.service.js";
-import { encrypt } from "../utils/encrypt.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../error/error.handler.js";
 
@@ -120,15 +119,11 @@ import { AppError } from "../error/error.handler.js";
         const { quoteId, customerId } = await quoteService.createQuote(user, customer, quote, labor, materials);
 
         const emailToken = Auth.signEmail({ id: user, quoteId, customerId })
-        const expiry = await tokenService.storeQuoteToken(quoteId, emailToken);
+        await tokenService.storeQuoteToken(quoteId, emailToken);
 
         return res.status(200).json({
             success: true,
 			id: quoteId,
-			token: {
-				emailToken,
-				expiry
-			}
         });
     })
 

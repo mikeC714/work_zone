@@ -2,21 +2,17 @@ import {  useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../../utils/apiFetch.jsx";
 import config from "../config.js";
 
-export function useCreateQuote({ setSuccess, setCqErr }){
+export function useCreateQuote(){
   const queryClient = useQueryClient();
   
     return useMutation({
         mutationFn: async (data) => await apiFetch(`http://${config.SERVER}/api/create-quote`, 'POST', data),
             onError: () => {
-            	setCqErr(true);
 				setTimeout(() => {
-					setCqErr(false);
 				}, 5000)
             },
             onSuccess:() => {
-				setSuccess(true);
 				setTimeout(() => {
-					setSuccess(false);
 					window.location.reload();
 				}, 3000);
               	queryClient.invalidateQueries({ queryKey:['quickAccess'] });

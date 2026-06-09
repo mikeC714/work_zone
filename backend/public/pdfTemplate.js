@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-export async function pdf ({ quoteInfo, user }) {
+export async function pdf ({ quoteInfo, materials, labor, user, customer, expiry }) {
 	const browser = await puppeteer.launch({
 		headless: "new",
 		args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -27,12 +27,12 @@ try{
 			<div style="display:flex; justify-content:space-between; margin-bottom:28px;">
 	  		<div>
 				<p style="margin:0 0 4px; font-size:11px; font-weight:bold; color:#1a3a6b; text-transform:uppercase; letter-spacing:0.5px;">Bill To</p>
-				<p style="margin:0; font-size:18px; color:#333;">${quoteInfo.customer.first_name} ${quoteInfo.customer.last_name}</p>
-				<p style="margin:4px 0 0; font-size:13px; color:#666;">${quoteInfo.customer.address}</p>
+				<p style="margin:0; font-size:18px; color:#333;">${customer.firstName} ${customer.lastName}</p>
+				<p style="margin:4px 0 0; font-size:13px; color:#666;">${customer.address}</p>
 	  		</div>
 	  		<div style="text-align:right; font-size:13px;">
 				<p style="margin:6px 0;"><strong style="color:#1a3a6b;">Quote date</strong>&nbsp;&nbsp;${quoteInfo.created_at}</p>
-				<p style="margin:0;"><strong style="color:#1a3a6b;">Due date</strong>&nbsp;&nbsp;${quoteInfo.expires_at}</p>
+				<p style="margin:0;"><strong style="color:#1a3a6b;">Due date</strong>&nbsp;&nbsp;${expiry}</p>
 	  		</div>
 		</div>
 
@@ -46,8 +46,8 @@ try{
 		</tr>
 	  </thead>
 	  <tbody>
-		${quoteInfo.materials.map((item, i) => `
-		<tr style="border-bottom:${i === quoteInfo.materials.length - 1 ? '2px solid #1a3a6b' : '1px solid #eee'};">
+		${materials.map((item, i) => `
+		<tr style="border-bottom:${i === materials.length - 1 ? '2px solid #1a3a6b' : '1px solid #eee'};">
 		  <td style="padding:12px;">${item.qty}</td>
 		  <td style="padding:12px;">${item.description}</td>
 		  <td style="padding:12px; text-align:right;">${item.unitPrice}</td>

@@ -7,14 +7,10 @@ import { Send, Loader, Check } from 'lucide-react';
 
 export function CreateQuote(){
 	const idRef = useRef(0);
-	const [success, setSuccess] = useState(false);
-	const [cqErr, setCqErr] = useState(false);
-	const [emailErr, setEmailErr] = useState(false);
-	const [emailSent, setEmailSent] = useState(false);
-	const {mutate:sendEmail, isSendingEmail} = useEmailHook({ setEmailErr, setEmailSent });
-	const {mutate, isPending} = useCreateQuote({ setSuccess, setCqErr });
+	const {mutate:sendEmail, isSuccess: emailSuccess, isPending: isSendingEmail, isError: emailErr} = useEmailHook();
+	const {mutate, isSuccess, isPending, isError} = useCreateQuote();
     const [userMarkup, setUserMarkup] = useState("");
-    const [materials, setMaterials] = useState([
+	const [materials, setMaterials] = useState([
         {
             description: "",
             quantity: "",
@@ -39,40 +35,31 @@ export function CreateQuote(){
     });
     const [status, setStatus] = useState('DRAFT');
 
-    function handleStatusChange(e){
-        setStatus(e.target.value);
-    }
-
+	function handleStatusChange(e){
+		setStatus(e.target.value);
+	}
 
     async function handleSendQuote() {
 		for(const [_, val] of Object.entries(customerInfo)){
 			if(!val.trim()) throw new Error("Missing Customer Input. Please fill all input fields.");
 		}
-        mutate({
-            customer: customerInfo,
-            quote: { status: status, markup: Number(userMarkup), total: Number(total.toFixed(2)) },
-            labor: labor.map(l => ({
-                ...l,
-                hours: Number(l.hours),
-                hourlyRate: Number(l.hourlyRate)
-            })),
-            materials: materials.map(m => ({
-                ...m,
-                quantity: Number(m.quantity),
-                unitCost: Number(m.unitCost)
-            }))
-        }, {
-            onSuccess: (data) => {
-                sendEmail({
-                    id: data.id,
-                    token: data.token,
-                    customer: customerInfo,
-                    quote: { markup: Number(userMarkup), total: Number(total.toFixed(2)) },
-                    labor: labor.map(l => ({ ...l, hours: Number(l.hours), hourlyRate: Number(l.hourlyRate) })),
-                    materials: materials.map(m => ({ ...m, quantity: Number(m.quantity), unitCost: Number(m.unitCost) }))
-                });
-            }
-        });
+			sendEmail({
+				customer: customerInfo,
+				quote: { 
+					status: "SENT", 
+					markup: Number(userMarkup), 
+					total: Number(total.toFixed(2)),
+					subTotal: Number(total - (total * (userMarkup / 100)))
+				},
+				labor: labor.map(l => ({
+					...l, hours: Number(l.hours), 
+					hourlyRate: Number(l.hourlyRate) 
+				})),
+				materials: materials.map(m => ({ 
+					...m, 
+					quantity: Number(m.quantity), 
+					unitCost: Number(m.unitCost) }))
+			});
     }
 
 
@@ -179,30 +166,25 @@ export function CreateQuote(){
     const markUpDiff = limitNum(markUpPerc, 10)
     return (
         <div className='createQuotePage'>
+			{emailSuccess && (
+				<div className='overlay'>
+					<div className='cqSuccessContainer'> 
+						<Check className='cqCheck'/> 
+						<p className='cqSuccess'>Quote Sent!</p>
+					</div>
+				</div>
+			)}
             {isSendingEmail && (
                 <div className='overlay'>
                     <Loader className='cqLoader'/>
                 </div>
-            )}
-            {emailSent && success && (
-                <div className='overlay'>
-                	<div className='cqSuccessContainer'> 
-						<Check className='cqCheck'/> 
-						<p className='cqSuccess'>Quote Sent!</p>
-               		</div>
-				</div>
             )}
             {emailErr && (
                 <div className='overlay'>
                     <p>Failed to send quote.</p>
                 </div>
             )}
-			{isPending && (
-				<div className='overlay'>
-					<Loader className='cqLoader'/>
-				</div>
-			)}
-			{success && !emailSent && (
+			{isSuccess &&(
 				<div className='overlay'>
 					<div className='cqSuccessContainer'>
 						<Check className='sendQuoteSuccess' />
@@ -210,7 +192,12 @@ export function CreateQuote(){
 					</div>
 				</div>
 			)}
-		{cqErr && (
+			{isPending && (
+				<div className='overlay'>
+					<Loader className='cqLoader'/>
+				</div>
+			)}
+		{isError && (
 			<div className='overlay'>
 				<p>Failed to create quote.</p>
 			</div>

@@ -21,7 +21,7 @@ export default {
                 WHERE user_id = $1
                 AND status = $2
                 AND customer_id = ANY ($3::uuid[])
-                ORDER BY created_at DESC
+                ORDER BY created_at ASC
                 LIMIT $4 OFFSET $5
                 `, [userId, filter, cusIds, limit, offset]
             )
@@ -38,7 +38,7 @@ export default {
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY ($2::uuid[])
-                    ORDER BY created_at DESC
+                    ORDER BY created_at ASC
                     LIMIT $3 OFFSET $4
                     `, [userId, cusIds, limit, offset]
                 ) 
@@ -140,7 +140,7 @@ export default {
                     FROM quotes
                     WHERE user_id = $1
                     AND status = 'APPROVED'
-                    AND created_at <= NOW() - INTERVAL '6 days'
+                    AND created_at <= NOW() + INTERVAL '6 days'
                 `, [userId]
             );
 
