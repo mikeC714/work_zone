@@ -10,12 +10,11 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
-function Overview({ userConfig, setUserConfig, firstName, lastName, email, createdAt, userId, isEditing }) {
-    const fullName = firstName + " " + lastName
-
-    const date = createdAt?.split("T")[0];
+function Overview({ userConfig, setUserConfig, email, userId, isEditing }) {
+	const user = JSON.parse(localStorage.getItem("user"));
+    const date = user.created_at.split("T")[0];
     dayjs(date).format('MMMM D, YYYY')
-    
+
 	useEffect(() => {
         const saved = localStorage.getItem(`userConfig`);
         if(saved){
@@ -36,7 +35,7 @@ function Overview({ userConfig, setUserConfig, firstName, lastName, email, creat
                  <div className='profileInfoGrid'>
                      <div className='profileInfoField'>
                          <span className='profileFieldLabel'>Full Name</span>
-                         <span className='profileFieldValue'>{fullName}</span>
+                         <span className='profileFieldValue'>{user.first_name} {user.last_name}</span>
                      </div>
                      <div className='profileInfoField'>
                          <span className='profileFieldLabel'>Email Address</span>
@@ -231,9 +230,11 @@ export function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [currView, setCurrView] = useState('overview');
     const { data, isLoading, isError } = useQuickAccess();
-    const { firstName, lastName, created_at, nameInitials, userId, email } = useUserContext()
+    const {  created_at, nameInitials, userId, email } = useUserContext()
     const [userConfig, setUserConfig] = useState({})
 
+
+	const user = JSON.parse(localStorage.getItem("user"));
     useEffect(() => {
         if (!userId) return;
         const saved = localStorage.getItem(`userConfig`);
@@ -247,7 +248,6 @@ export function ProfilePage() {
     }, [userId]);
 
 
-    const fullName = firstName + " " + lastName
     const date = created_at?.split("T")[0];
    
     const viewMap = {
@@ -255,9 +255,6 @@ export function ProfilePage() {
                         userConfig={userConfig} 
                         setUserConfig={setUserConfig} 
                         userId={userId} 
-                        firstName={firstName} 
-                        lastName={lastName} 
-                        createdAt={created_at} 
                         email={email}
                         isEditing={isEditing}
                     />,
@@ -274,9 +271,6 @@ export function ProfilePage() {
         setIsEditing(true);
     }
 
-
-    // localStorage.setItem() find a solution to be able to differentiate the users want to use user_id 
-
     return (
         <div className='profilePage'>
             <NavBar />
@@ -286,7 +280,7 @@ export function ProfilePage() {
                         <div className='profileAvatar'>{nameInitials}</div>
                         <div className='profileHeaderInfo'>
                             <div className='profileNameRow'>
-                                <h2 className='profileName'>{fullName}</h2>
+                                <h2 className='profileName'>{user.first_name} {user.last_name}</h2>
                                 <span className='profileActiveBadge'>● ACTIVE</span>
                             </div>
                             <p className='profileSubtitle'>
