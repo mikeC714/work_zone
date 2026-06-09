@@ -177,16 +177,20 @@ function Notifications() {
     const [clear, setClear] = useState(false);
     const [notiPage, setNotiPage] = useState(1);
     const notiLimit = 4;
-    const { notifications, paginated, isLoading, isError, error } = useNotiHook({notiPage, notiLimit, clear});
+    const { notifications, paginated, isLoading, isError } = useNotiHook({notiPage, notiLimit, clear});
 
     return(
         <div className="pNotiContainer">
             <div className="pNotiBtns">
-                <button>Read All</button>
-                <button>Clear</button>
+                <button
+					disabled = {notifications?.length === 0 ? true : false}
+					onClick={() => setClear(true)}
+				>
+					Clear
+				</button>
             </div>
             <div className={`pNotiList ${notifications.length === 0 ? 'pNotiEmpty' : ''}`}>
-                { notifications?.length === 0 ? 
+                {notifications?.length === 0 ? 
                     <p>No Notifications</p> :
                     notifications.map((noti) => {
                         const { icon, style, color } = notiConfig[noti.type]
@@ -215,7 +219,7 @@ function Notifications() {
                         <ChevronLeft />
                     </button>
                     <button 
-                        disabled = {paginated?.nextPage ? false : true }
+                        disabled = {paginated?.nextPage ? false : true}
                         onClick={() => setNotiPage(p => p +1)}
                     >
                         <ChevronRight />
@@ -264,7 +268,7 @@ export function ProfilePage() {
 
 
     function handleSave(){
-        localStorage.setItem(`userConf:${userId}`, JSON.stringify(userConfig));
+        localStorage.setItem(`userConfig`, JSON.stringify(userConfig));
         setIsEditing(false);
     }
     function handleEdit(){

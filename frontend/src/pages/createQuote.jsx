@@ -187,8 +187,8 @@ export function CreateQuote(){
 			{isSuccess &&(
 				<div className='overlay'>
 					<div className='cqSuccessContainer'>
-						<Check className='sendQuoteSuccess' />
-						<p className='cqSuccess'></p>
+						<Check className='cqCheck' />
+						<p className='cqSuccess'>Quote Saved!</p>
 					</div>
 				</div>
 			)}

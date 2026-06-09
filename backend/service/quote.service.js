@@ -140,7 +140,7 @@ export default {
                     FROM quotes
                     WHERE user_id = $1
                     AND status = 'APPROVED'
-                    AND created_at <= NOW() + INTERVAL '6 days'
+                    AND created_at <= NOW() - INTERVAL '6 days'
                 `, [userId]
             );
 

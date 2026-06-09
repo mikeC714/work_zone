@@ -7,7 +7,7 @@ export default {
             customerDetails.forEach(cus => customerMap.set(cus.id, cus));
             const customers = customerDetails.map(cus => cus.id);
 
-            const notis = []
+            let notis = []
             const results = await db.query(
                 `SELECT 
                     id,
@@ -19,22 +19,19 @@ export default {
                     FROM quotes
                     WHERE user_id = $1
                     AND customer_id = ANY($2::uuid[])
-                    AND status IN ('APPROVED', 'PENDING', 'UNPAID')
-                    ORDER BY created_at DESC
-                    LIMIT $3 OFFSET $4
-                `,[user, customers, limit, offset]
+                    AND seen = $3
+					AND status IN ('APPROVED', 'PENDING', 'UNPAID')
+                    ORDER BY created_at ASC
+                    LIMIT $4 OFFSET $5
+                `,[user, customers, false, limit, offset]
             )
 
             if(results.rows.length === 0) return { notis: [] };
 
             const quotes = results.rows;
 
-            console.log(quotes.length)
-
             quotes.forEach(qt => {
                 const customer = customerMap.get(qt.customer_id);
-
-                if(!customer) return  notis = [];
 
                 if(qt.status === 'APPROVED'){
                     notis.push({
@@ -42,7 +39,6 @@ export default {
                         message: `${customer.first_name}, ${customer.last_name} has been approved.`,
                         quoteId: qt.id,
                         total:qt.total,
-                        read: false
                     })
                 }
 
@@ -52,7 +48,6 @@ export default {
                         message: `${customer.first_name} hasn't accepted thier quote.`,
                         quoteId: qt.id,
                         total:qt.total,
-                        read: false
                     })
                 }
 
@@ -62,19 +57,35 @@ export default {
                         message: `${customer.first_name} hasn't paid their quote.`,
                         quoteId: qt.id,
                         total:qt.total,
-                        read: false
                     })
                 }
             })
 
             return {
+				quotes,
                 notis,
                 total: results.rows[0].total_count ? parseInt(results.rows[0].total_count) : 0
             };
 
         }catch(err){
-            throw new Error(`Failed to fetch notis: ${err.message}`);
+            throw err;
         }
-    }
+    },
+
+	async softClearNotis(user, quotes){
+		const qtIds = quotes.map(qt => qt.id);
+		console.log("SOFT CLEAR FIRED")
+		try{
+			await db.query(
+				`UPDATE quotes
+				SET seen = $1
+				WHERE id = ANY($2::uuid[])
+				AND user_id = $3
+				`, [true, qtIds, user]
+			)
+		}catch(err){
+			throw err
+		}
+	}
 }
 

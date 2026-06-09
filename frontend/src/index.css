@@ -1247,7 +1247,7 @@ Link{
     align-items: center;
     justify-content: space-between;
     height: 4.2em;
-    padding: 0 2%;
+    padding: 0 2.4%;
     border-bottom: 1px solid var(--border);
     background: var(--bg-left);
     background-color: #8080801a;
@@ -1558,7 +1558,7 @@ input::-webkit-inner-spin-button {
     justify-content: space-evenly;
     align-items: center;
     position: relative;
-    gap: 20px;
+    gap: 10px;
 }
 
 
@@ -2213,17 +2213,24 @@ input::-webkit-inner-spin-button {
 .notiActionBtns{
     width: 14em;
     display: flex;
-    justify-content: space-evenly;
     align-items: center;   
 }
 
 .notiActionBtns > button{
-    background: none;
-    color: var(--orange);
+    background: var(--orange);
+    border: none;
+	color: white;
     font: var(--font);
     font-size: 13px;
-    border: none;
-    cursor: pointer;
+    height: 40px; 
+	width: 80px;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: opacity 1s ease;
+}
+
+.notiActionBtns > button:hover{
+	opacity: .8
 }
 
 .notiContent{

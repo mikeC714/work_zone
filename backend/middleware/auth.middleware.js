@@ -24,15 +24,13 @@ const mutex = new Mutex();
     ** THE BIGGEST PAIN IN THE ASS. TRULY HUMBLING THOUGH SHOWING HOW STUPID I STILL AM
     * Called by verifyToken if access_token is expired but refresh_token is active
     * Token is decrypted and validated
-    * Since the main issue when rotating tokens is concurrency a lock (redlock/redis) is put into play
+    * Since the main issue when rotating tokens is concurrency a lock (mutex) is put into play
     * lock is initialized using the users id from token payload
     * A validation is ran based on the cached data receieved from the winner condition
     * If token is cached req.user is set to id and return is called stopping other concurrent requests attempting to rotate refresh token
     * Reuse abuse is monitored using the winner conditoins refresh token comparing the value to the currently stored token if they don't match user account is flagged and session is ended
     * Refresh token is deleted successfully rotating and generating new credentials 
     * sets winner condition with expiration of 5s
-
-
 */
 
 
@@ -42,7 +40,7 @@ const mutex = new Mutex();
 	
 		try{
 			if(!accessToken && !refreshToken) throw new AuthenticationError("Unauthorized user. Failed to provide valid token.");	
-			if(!accessToken && refreshToken) {console.log("HIT"); return await handleRefresh(req, res, next, refreshToken);}
+			if(!accessToken && refreshToken) return await handleRefresh(req, res, next, refreshToken);
 			
 			const decode = Auth.verify(accessToken);
 
@@ -61,9 +59,7 @@ const mutex = new Mutex();
         	const id = decode.payload.id;
 
 			const release = await mutex.acquire();
-			console.log("lock");	
 			try{
-   					console.log("ENTERING CRITICAL SECTION", id);
 					const alreadyRotated = await cache.get(`rotated:${id}`);
 					if(alreadyRotated){
     					const tokens = JSON.parse(alreadyRotated);
@@ -79,24 +75,17 @@ const mutex = new Mutex();
                 			sameSite: 'strict',
                 			maxAge: 604800000 // 7D
 						});
-						console.log("STILL ROTATED");
 						req.user = id;
 						return next();
 					}
-					console.log("DELETE START");
             		await tokenService.deleteRefreshToken(id, refreshToken);
-					console.log("DELETED");			
 	
             		const newAccess = Auth.sign({ id });
             		const newRefresh = Auth.signRefresh({ id });
-					console.log("GENERATING NEW TOKENS");
-					
-					console.log("BEGIN STORING");
+				
 					const stored = await tokenService.storeRefreshToken(id, newRefresh);
-					console.log("DONE STORING", stored);
 
-					console.log("CACHE START")
-					const cacheVal = await cache.set(
+					await cache.set(
 						`rotated:${id}`, 
 						JSON.stringify(
 							{
@@ -104,7 +93,6 @@ const mutex = new Mutex();
 								refresh: stored
 							}), 
 						'EX', 10);
-            		console.log("CACHE SET", cacheVal);	
 
 
 				res.cookie("access_token", newAccess, {
@@ -121,13 +109,10 @@ const mutex = new Mutex();
             		})
 			
             		req.user = id;
-					console.log("NEW COOKIES SET:", res.getHeaders()['set-cookie']);
-					console.log("FINISHED");
         			return next();
 				}catch(e){
 					throw e;
 				}finally{
-   					console.log("LEAVING CRITICAL SECTION", id);
 					release();
 				}
         	}catch(err){

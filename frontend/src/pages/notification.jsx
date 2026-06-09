@@ -32,7 +32,7 @@ export function NotificationsPage(){
     const [clear, setClear] = useState(false);
     const [notiPage, setNotiPage] = useState(1); 
     const notiLimit = 12;
-    const { notifications, isLoading, isError, error } = useNotiHook({notiPage, notiLimit, activeFilter, clear});
+    const { notifications, paginated, isLoading, isError } = useNotiHook({notiPage, notiLimit, activeFilter, clear});
     const notiFilter = ['ALL', 'APPROVED', 'FOLLOW UP', 'UNPAID'];
 
     return(
@@ -41,12 +41,10 @@ export function NotificationsPage(){
             <div className="notiContainer">
                 <header className="notiHead">
                     <div className='notiHeadContent'>
-                        <h2>Notifications</h2>
                         <div className='notiActionBtns'>
-                            <button>Mark All Seen </button>
                             <button onClick={() => {
                                 setClear(true)
-                                }}>clear</button>
+                                }}>CLEAR</button>
                         </div>
                     </div>
                     <div className="notiFilterContainer">
@@ -61,8 +59,20 @@ export function NotificationsPage(){
                         ))}
                     </div>
 					<div className='notiPaginationContainer'>
-						<button className='notiPaginationBtn'><ChevronLeft /></button>
-						<button className='notiPaginationBtn'><ChevronRight /></button>
+						<button
+							onClick={() => setNotiPage(p => p - 1)}		
+							disabled={paginated?.prevPage ? false : true}
+							className='notiPaginationBtn'
+							>
+								<ChevronLeft />
+							</button>
+						<button
+							onClick={() =>  setNotiPage(p => p +1)}	
+							disabled={paginated?.nextPage ? false : true}
+							className='notiPaginationBtn'
+							>
+								<ChevronRight />
+							</button>
 					</div>
                 </header>
         	    <div className='notiListContainer'>    

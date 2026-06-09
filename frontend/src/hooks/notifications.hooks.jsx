@@ -9,7 +9,7 @@ export function useNotiHook({notiPage = 1, notiLimit, filter = "", clear = false
         queryKey: ['notifications', notiPage, notiLimit, clear],
         queryFn: async() => await apiFetch(`http://${config.SERVER}/api/notifications?notiPage=${notiPage}&notiLimit=${notiLimit}&filter=${filter}&clear=${clear}`),
         staleTime: 1000 * 60 * 20,
-        retry: 2
+        retry: false,
     })
 
     useEffect(() => {
@@ -17,14 +17,13 @@ export function useNotiHook({notiPage = 1, notiLimit, filter = "", clear = false
             queryKey: ['notifications', notiPage + 1, notiLimit, clear],
             queryFn: async() => await apiFetch(`http://${config.SERVER}/api/notifications?notiPage=${notiPage + 1}&notiLimit=${notiLimit}&clear=${clear}`),
             staleTime: 1000 * 60 * 20,
-            retry: 2
+            retry: 1
         })
+		if(clear === "true") queryClient.invalidateQueries({queryKey : ["notifications"]});
     }, [queryClient, notiPage, notiLimit, clear])
 
-    const notifications = data?.nonRead ?? [];
-
     return { 
-        notifications,
+		notifications: data?.notis ?? [],
         paginated: data?.paginated,
         isLoading, 
         isError, 

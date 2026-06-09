@@ -124,6 +124,7 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                                 value={lab.description} 
                                 onChange={(e) => handleLaborForm(e, labIndex)} 
                             />
+						<div className='cqSmallContainer'>
                             <input className='cqInput cqColSmall'
                                 name='hours' 
                                 type="number"
@@ -139,6 +140,7 @@ export function CreateQuoteForm({ handleCustomerForm, handleMaterialForm, handle
                                 onChange={(e) => handleLaborForm(e, labIndex)} 
                             />
                             <p className='cqColSmall'>${lab.total}</p>
+						</div>
                             <button onClick={() => removeLaborBtn(lab.id)}><X size={'16px'}/></button>
                         </form>
                     )}

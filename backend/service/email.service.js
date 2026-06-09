@@ -8,9 +8,13 @@ const resend = new Resend(process.env.RESEND_KEY)
 	export async function sendEmail({ userInfo, quoteInfo, materials, labor, customer, link, expiry }){
 		const senderName = `${userInfo.first_name} ${userInfo.last_name} `;
 		console.log(expiry);
+		console.log("Sending email");
 		try{
         	if(!quoteInfo) throw new AppError("Failed to provide quote info. Cannot send empty quote.", 400);
 			const pdfBuffer = await pdf({ quoteInfo, materials, labor, user: userInfo, customer, expiry });
+			console.log(pdfBuffer);	
+			console.log("PDF buffer size:", pdfBuffer.length);
+			
 
 			const { error } = await resend.emails.send({
                 from: `${senderName}  <noreply@field-hq.com>`,
@@ -20,10 +24,12 @@ const resend = new Resend(process.env.RESEND_KEY)
 				attachments: [
 					{
 						filename: `quote.pdf`,
-						content: pdfBuffer.toString("base64")
+						content: pdfBuffer.toString("base64"),
+						contentType:"application/pdf"
 					}
 				]
             });
+			console.log(error);
             if(error) throw error;
 		}catch(err){
 			throw err;
