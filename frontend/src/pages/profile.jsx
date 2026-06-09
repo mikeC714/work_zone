@@ -140,6 +140,7 @@ function Account(){
                     placeholder='password'
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)}
+					style={{textAlign: "center"}}
                 />
                {deleteMutation.isError && <p>{deleteMutation.error.message}</p>}
                 <button 

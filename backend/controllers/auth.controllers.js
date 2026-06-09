@@ -108,21 +108,19 @@ import bcrypt from "bcrypt";
 
     export const deleteUserAcc = catchAsync(async(req, res) => {
         const { password } = req.body;
+		const user = req.user;
         if(!password) throw new AppError("Missing field. Please try again.", 400);
         
 		const refresh = req.cookies.refresh_token;
         if(!refresh) throw new AuthenticationError("Failed to provide valid token.");
             
 		const decryptedRefresh = decrypt(refresh);
-        const verified = Auth.verifyRefresh(decryptedRefresh);
-		if(!verified) throw new AuthenticationError("Failed to provide valid token.");
+        Auth.verifyRefresh(decryptedRefresh);
 
-		const decode = Auth.decode(decryptedRefresh);
-
-        const valid = await userService.validatePassword(decode.payload.id, password);
+        const valid = await userService.validatePassword(user, password);
         if(!valid) throw new AppError("Invalid credentials. Please try again.", 401);
 
-        await deleteUserAcc(decode.payload.id, refresh);
+        await userService.deleteUser(user);
             
         res.clearCookie("access_token");
         res.clearCookie("refresh_token");

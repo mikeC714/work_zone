@@ -54,11 +54,11 @@ export default {
         try{
 			const encrypted = encrypt(token);
             const results = await db.query(
-                "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2) RETURNING expires_at",
+                "INSERT INTO quote_tokens (quote_id, token) VALUES($1, $2) RETURNING expires_at::date",
                 [id, encrypted]
             );
 
-		return results.rows[0].expires_at;
+		return results.rows[0].expires_at.toISOString().split('T')[0];
         }catch(err){
             throw err;
         }

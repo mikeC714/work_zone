@@ -7,6 +7,7 @@ const resend = new Resend(process.env.RESEND_KEY)
 
 	export async function sendEmail({ userInfo, quoteInfo, materials, labor, customer, link, expiry }){
 		const senderName = `${userInfo.first_name} ${userInfo.last_name} `;
+		console.log(expiry);
 		try{
         	if(!quoteInfo) throw new AppError("Failed to provide quote info. Cannot send empty quote.", 400);
 			const pdfBuffer = await pdf({ quoteInfo, materials, labor, user: userInfo, customer, expiry });
