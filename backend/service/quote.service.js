@@ -86,7 +86,7 @@ export default {
                 `INSERT INTO quotes
                     (user_id, customer_id, status, markup, total)
                 VALUES($1, $2, $3, $4, $5)    
-                RETURNING id`, 
+                RETURNING id, created_at`, 
                 [user, customerData?.rows[0]?.id, quote.status, quote.markup, quote.total]
             );
 
@@ -108,7 +108,7 @@ export default {
             ]);
 			
 			return{
-				quoteId: quoteData.rows[0].id,
+				quote: quoteData.rows[0].id,
 				customerId: customerData.rows[0].id
 			}
 

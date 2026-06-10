@@ -16,9 +16,10 @@ import { catchAsync } from "../utils/catchAsync.js";
 		const expiry = await tokenService.storeQuoteToken(quoteId, emailToken);
 		const link = `http://${process.env.PORT}/quote/acceptance?token=${emailToken}`;
 
+
         const userInfo = await userService.getUserById(user);
         await sendEmail({ userInfo, quoteInfo: quote, materials, labor, customer, link, expiry });
-        
+
 		return res.status(200).json({ success: true });
     })
 
