@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import db from "../../config/postgresql.config.js";
 import { AppError } from "../../error/error.handler.js";
+import { encrypt } from "../../utils/encrypt.js";
 
 export default {
 	async storeNewUser(firstName, lastName, email, password){
@@ -94,6 +95,21 @@ export default {
         }catch(err){
             throw err;
         }
-    }
+    },
+
+	async updatePassword(userId, password){
+		if(!userId) throw new AppError("User not found.", 404);
+		try{
+			const safe = encrypt(password);
+			await db.query(
+				`UPDATE users
+				SET password = $1
+				WHERE id = $2
+				`, [safe, userId]	
+			);
+		}catch(err){
+		 throw err;
+		}
+	}
 }
 

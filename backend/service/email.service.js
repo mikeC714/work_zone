@@ -2,10 +2,10 @@ import { Resend } from 'resend';
 import { AppError } from '../error/error.handler.js';
 import { pdf } from "../public/pdfTemplate.js";
 import { quoteEmailTemplate } from "../public/emailTemplate.js";
-
+import { passwordResetEmailTemplate } from '../public/passwordResetTemplate.js';
 const resend = new Resend(process.env.RESEND_KEY)
 
-	export async function sendEmail({ userInfo, quoteInfo, materials, labor, customer, link, expiry }){
+	export async function sendQuoteEmail({ userInfo, quoteInfo, materials, labor, customer, link, expiry }){
 		const senderName = `${userInfo.first_name} ${userInfo.last_name} `;
 		console.log(expiry);
 		console.log("Sending email");
@@ -35,4 +35,19 @@ const resend = new Resend(process.env.RESEND_KEY)
 			throw err;
 		}
 	};
+
+	export async function sendPassReset(email, token){
+		const link = `${process.env.FRONTEND_URL}/reset-pass?token=${token}`;
+		try{
+			const { error } = await resend.emails.send({
+				from:`<noreply@feild-hq.com>`,
+				to: email,
+				subject: 'Password Reset',
+				html:  passwordResetEmailTemplate({ link }),
+			});
+			if(error) throw error;
+		}catch(err){
+			throw err
+		}
+	}
 

@@ -138,5 +138,16 @@ import bcrypt from "bcrypt";
         return res.status(200).json({ user });
 	});
 
+	export const passwordReset = catchAsync(async(req,res) => {
+		const { newPassword, token } = req.body;
+		if(!token) throw new AuthenticationError("Failed to provide valid token.");
+		if(!newPassword) throw new AppError("Missing field. Please fill all provided fields.", 404);
+		
+		const decode = Auth.verifyEmail(token);
+		await userService.updatePassword(decode.id, newPassword);	
+
+		return res.status(200).json({ message: "Reset was successful" })
+	})
+    
 
 

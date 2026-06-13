@@ -32,9 +32,9 @@ class Auth{
         }
     }
 
-    signEmail = (payload) => {
+    signEmail = (payload, expiresIn) => {
         try{
-            return jwt.sign({ payload: payload }, this.#emailSecret, { expiresIn: this.#emailExpiry});
+            return jwt.sign({ payload: payload }, this.#emailSecret, { expiresIn: expiresIn});
         }catch(err){
             throw err;
         }
@@ -56,8 +56,8 @@ class Auth{
             throw err;
         }
     }
-
-    verify = (token) => {
+ 
+	verify = (token) => {
         try{
             return jwt.verify(token, this.#secret);
         }catch(err){

@@ -104,3 +104,61 @@ export function Authentication() {
         </div>
     );
 }
+
+export function ForgotPassword(){
+	const [email, setEmail] = useState('');
+	const { sendResetPassword } = useAuth();
+	
+	function handleSubmit(e){
+		e.preventDefault();
+		sendResetPassword.mutate(email);
+	}
+
+	return(
+		 <div>
+			{sendResetPassword.isSuccess && (
+				<p>Reset link was sent successfully via email.</p>
+			)}
+			{sendResetPassword.isError && (
+				<p>Something went wrong. Please try again.</p>
+			)}
+			<form onSubmit={handleSubmit}>
+				<input type="password" onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" />
+				<button type="submit" disabled={sendResetPassword.isPending}>
+					{sendResetPassword.isPending ? 'sending...' : 'Send Link'}
+				</button>
+			</form>
+		</div>	
+	)
+}
+
+
+export function ResetPassword(){
+	const [password, setPassword] = useState("");
+	const { resetPassword } = useAuth();
+
+	function handleSubmit(e){
+		e.preventDefault();
+		resetPassword(password);
+	};
+
+	return(
+		<div>
+			{resetPassword.isSuccess && (
+				<p>Password reset successfully.</p>
+			)}
+			{resetPassword.isError && (
+				<p>Something went wrong. Please try again.</p>
+			)}
+			<form onSubmit={handleSubmit}>
+				<input type="password" onChange={(e) => setPassword(e.target.value)} placeholder="New password" />
+				<button type="submit" disabled={resetPassword.isPending}>
+					{resetPassword.isPending ? 'Resetting...' : 'Reset Password'}
+				</button>
+			</form>
+		</div>
+	)
+}
+
+
+

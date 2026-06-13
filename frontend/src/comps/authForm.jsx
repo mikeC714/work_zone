@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 export function AuthForm({ isAuth, onSubmit, isPending, onSwitch }) {
     const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +29,7 @@ export function AuthForm({ isAuth, onSubmit, isPending, onSwitch }) {
             <div className="authInputGroup">
                 <div className="authLabelRow">
                     <label>Password</label>
-                    {isAuth && <a href="#" className="authForgot">Forgot?</a>}
+                    {isAuth &&  <Link to="/forgot-password" className="authForgot">Forgot?</Link>}
                 </div>
                 <div className="authInputWrapper">
                     <Lock size={15} className="authInputIcon" />

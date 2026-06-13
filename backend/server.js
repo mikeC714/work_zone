@@ -4,18 +4,21 @@ dotenv.config({ path: envPath});
 import express from 'express';
 import authRouter from "./routes/auth.routes.js";
 import customerRouter from './routes/customer.routes.js';
-import emailRouter from './routes/email.route.js';
+import quoteRouter from './routes/quote.route.js';
 import jobRouter from './routes/job.routes.js';
 import notiRouter  from './routes/notifications.routes.js';
 import { AppError } from "./error/error.handler.js";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import path from "path";
+import helmet from "helmet";
 
 const PORT = process.env.PORT
 const app = express();
 
 app.use(express.json())
 app.use(cookieParser())
+app.use(helmet());
 app.use(cors({
     origin: 'http://localhost:5174',
     credentials: true
@@ -28,7 +31,7 @@ app.get("/404", (req, res) => {
 
 app.use('/api', authRouter)
 app.use('/api', customerRouter)
-app.use('/api', emailRouter)
+app.use('/api', quoteRouter)
 app.use('/api', jobRouter)
 app.use('/api', notiRouter)
 
