@@ -11,8 +11,7 @@ class Auth{
         this.#expiry = process.env.JWT_EXPIRY || "5m"; 
         this.#refreshExpiry = process.env.JWT_REFRESH_EXPIRY || "1d";
         this.#refreshSecret = process.env.JWT_REFRESH_SECRET;
-        this.#emailSecret = process.env.JWT_EMAIL_SECRET
-        this.#emailExpiry = "2d"
+        this.#emailSecret = process.env.JWT_EMAIL_SECRET;
     }
     
     sign = (payload) => {
