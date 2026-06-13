@@ -116,28 +116,32 @@ export function ForgotPassword(){
 
 	return(
 		 <div className="forgotPage">
-			{sendResetPassword.isSuccess && (
-				<p>Reset link was sent successfully via email.</p>
-			)}
-			{sendResetPassword.isError && (
-				<p>Something went wrong. Please try again.</p>
-			)}
-			<div className="authLogo">
-                    <img className="authLogoIcon" src={logo} />
-                    <span>FIELD HQ</span>
-            </div>
-			<div className="forgotForm">
-				<div className="forgotFormTxt">
-					<h2>Forgot your password?</h2>
-					<p>That's fine happens to the best of us.</p>
-					<p>Just enter the email used for you account and follows the given instructions within the email.</p>
-				</div>
-				<form  className="forgotEmailForm" onSubmit={handleSubmit}>
-					<input type="email" onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" />
-					<button type="submit" disabled={sendResetPassword.isPending}>
-						{sendResetPassword.isPending ? 'sending...' : 'Send Link'}
-					</button>
-				</form>
+				{sendResetPassword.isSuccess && (
+					<p>Reset link was sent successfully via email.</p>
+				)}
+				{sendResetPassword.isError && (
+					<p>Something went wrong. Please try again.</p>
+				)}
+				<header className="forgotHeader">
+					<div className="authLogo">
+						<img className="authLogoIcon" src={logo} />
+						<span>FIELD HQ</span>
+					</div>
+				</header>
+				<div className="forgotFormContainer">
+					<div className="forgotForm">
+						<div className="forgotFormTxt">
+							<h2>Forgot your password?</h2>
+							<p>That's fine happens to the best of us.</p>
+							<p>Just enter the email used for you account and follows the given instructions within the email.</p>
+						</div>
+						<form  className="forgotEmailForm" onSubmit={handleSubmit}>
+							<input type="email" onChange={(e) => setEmail(e.target.value)} placeholder="Email Address" />
+							<button type="submit" disabled={sendResetPassword.isPending}>
+								{sendResetPassword.isPending ? 'sending...' : 'Send Link'}
+							</button>
+						</form>
+					</div>
 			</div>
 		</div>	
 	)

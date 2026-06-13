@@ -25,7 +25,7 @@ import { catchAsync } from "../utils/catchAsync.js";
 
     export const handleAcceptance = catchAsync(async(req, res) => {
         const token = req.query.token;
-        if(!token) throw new AuthenticationError("Failed to provide valid email token.");
+        if(!token) return res.redirect(302, `${process.env.FRONTEND_URL}/not-found`);
 
         const valid = Auth.verifyEmail(token);
         const status = "APPROVED";
@@ -37,12 +37,11 @@ import { catchAsync } from "../utils/catchAsync.js";
 	export const sendPasswordReset = catchAsync(async(req, res) => {
 		const { email } = req.body;
 		if(!email) throw new AppError("Failed to provide email.", 400);
-		
 		const user = await userService.getUser(email);
 		if(!user) throw new AuthenticationError("Invalid credentials.");
 
 		const token = Auth.signEmail({ id: user.id }, "5m");
-		await sendPassReset(email, token);
+		await sendPassReset(user.email, token);
 
 		return res.status(200).json({ 
 			success: true,

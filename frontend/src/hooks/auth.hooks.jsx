@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiFetch } from '../../utils/apiFetch.jsx';
+import { apiFetch, apiFetchNoCreds } from '../../utils/apiFetch.jsx';
 import config from "../config.js"
 
 export function useAuth() {
@@ -49,13 +49,21 @@ export function useAuth() {
     })
   
 	const resetPassword = useMutation({
-		mutationFn: (password) => apiFetch(`http://${config.SERVER}/api/auth/reset-password`, 'PUT', { token, password }),
+		mutationFn: (password) => apiFetchNoCreds(`http://${config.SERVER}/api/auth/reset-password`, 'PUT', { token, password }),
 		onSuccess:() => navigate("/auth"),
 		onError:(err) => { throw err; }
 	})
 
 	const sendResetPassword = useMutation({
-		mutationFn: (email) => apiFetch(`http://${config.SERVER}/api/auth/forgot-password`, 'POST', email),
+		mutationFn: async (email) => {
+			const res = await fetch(`http://${config.SERVER}/api/auth/forgot-password`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email })
+			});
+			if (!res.ok) throw new Error('Request failed');
+			return res.json();
+		},
 		onSuccess: () => {
 			setTimeout(() => {
 				navigate("/auth");

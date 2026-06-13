@@ -16,6 +16,8 @@ import helmet from "helmet";
 const PORT = process.env.PORT
 const app = express();
 
+
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(helmet());
@@ -23,10 +25,6 @@ app.use(cors({
     origin: 'http://localhost:5174',
     credentials: true
 }))
-
-app.get("/404", (req, res) => {
-	return res.sendFile(path.join(__dirname, "build", "index.html"));
-})
 
 
 app.use('/api', authRouter)

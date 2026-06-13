@@ -510,32 +510,48 @@ Link{
 
 /* Page */
 .forgotPage {
-  min-height: 100vh;
-  background-color: #111111;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  font-family: 'Inter', Arial, sans-serif;
+  	min-height: 100vh;
+  	background-color: #111111;
+  	display: flex;
+  	flex-direction: column;
+  	padding: 24px;
+  	font-family: 'Inter', Arial, sans-serif;
+	position: relative;
 }
 
+.forgotHeader{
+	display:flex;
+	margin-left: 40px;
+	margin-top: 17px; 
+}
+
+.forgotHeader > span{
+	font-weight: 700;
+
+}
+
+.forgotFormContainer{
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
 /* Center the form in remaining space */
 .forgotForm {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Card */
-.forgotForm {
-  background: none;
-  border: none;
-  padding: 0;
-  width: 100%;
-  max-width: 420px;
-  margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+	background: none;
+	border: 2px solid var(--border);
+	border-radius: 22px;
+	padding: 4em;
+	height: 400px;
+	width: fit-content;
+	margin: auto;
+	text-align:center;
+	position: relative;
 }
 
 /* Text block */
@@ -572,6 +588,8 @@ Link{
   border: 1px solid rgba(249, 115, 22, 0.3);
   color: #F97316;
   align-self: center;
+  position: absolute;
+  text-align: center
 }
 
 /* Form */
@@ -587,7 +605,7 @@ Link{
   font-size: 14px;
   color: #FFFFFF;
   background-color: #1A1A1A;
-  border: 1px solid #2A2A2A;
+  border: 1px solid var(--border);
   border-radius: 8px;
   outline: none;
   box-sizing: border-box;
@@ -599,7 +617,7 @@ Link{
 }
 
 .forgotEmailForm input:focus {
-  border-color: #F97316;
+  border-color: var(--orange);
 }
 
 .forgotEmailForm button {
@@ -608,15 +626,15 @@ Link{
   font-size: 14px;
   font-weight: 600;
   color: #FFFFFF;
-  background-color: #F97316;
+  background-color: var(--orange);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: opacity 0.2s ease;
 }
 
 .forgotEmailForm button:hover:not(:disabled) {
-  background-color: #EA6C00;
+  opacity: .7;
 }
 
 .forgotEmailForm button:disabled {
@@ -624,12 +642,6 @@ Link{
   color: #555555;
   cursor: not-allowed;
 }
-
-
-
-
-
-
 
 /* ── DASHBOARD ── */
 
