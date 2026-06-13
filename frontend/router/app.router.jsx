@@ -9,8 +9,9 @@ import { NotFound } from "../src/pages/notFound.jsx";
 export function AppRouter(){
    return( 
         <Routes>
+		   <Route path="*" element={<Navigate to="/404" replace />} />
             <Route path="/" element={<Navigate to="/auth" />} />
-	   		<Route path="*" element={<NotFound />} />
+	   		<Route path="/404" element={<NotFound />} />
             <Route path="/auth" element={<Authentication />} /> 
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/create-quote' element={<CreateQuote />} />

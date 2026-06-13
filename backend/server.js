@@ -10,7 +10,6 @@ import notiRouter  from './routes/notifications.routes.js';
 import { AppError } from "./error/error.handler.js";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import path from "path";
 import helmet from "helmet";
 
 const PORT = process.env.PORT
@@ -34,7 +33,9 @@ app.use('/api', jobRouter)
 app.use('/api', notiRouter)
 
 
-
+app.use((req, res) => {
+	res.redirect(302, `${process.env.FRONTEND_URL}/404`);
+})
 app.use((err, req, res, next) => {
 	let status = 500;
 	if(err instanceof AppError){

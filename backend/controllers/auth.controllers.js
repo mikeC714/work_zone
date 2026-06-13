@@ -131,16 +131,14 @@ import bcrypt from "bcrypt";
 	export const currUser = catchAsync(async(req,res) => {
         const id = req.user;
         if(!id) throw new AppError("Failed to provide user id.", 400);
-        const user = await userService.getUserById(id);
-        if(!user){
-        	throw new AppError("User not found.", 404);		
-		}
+        const user = await userService.getUserById(id);  
+        if(!user) throw new AppError("User not found.", 404);		
         return res.status(200).json({ user });
 	});
 
 	export const passwordReset = catchAsync(async(req,res) => {
 		const { newPassword, token } = req.body;
-		if(!token) throw new AuthenticationError("Failed to provide valid token.");
+		if(!token) res.redirect(302, "/404");
 		if(!newPassword) throw new AppError("Missing field. Please fill all provided fields.", 404);
 		
 		const decode = Auth.verifyEmail(token);

@@ -1,6 +1,5 @@
 import notiService from '../service/notifications.service.js';
 import customerService from '../service/customer.service.js';
-import quoteService from "../service/quote.service.js";
 import { catchAsync } from "../utils/catchAsync.js";
 
 export const allNotifications = catchAsync(async(req,res) => {

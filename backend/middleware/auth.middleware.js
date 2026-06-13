@@ -39,7 +39,6 @@ const mutex = new Mutex();
 		const refreshToken = req.cookies.refresh_token;
 	
 		try{
-			console.log("FIRED")
 			if(!accessToken && !refreshToken) throw new AuthenticationError("Unauthorized user. Failed to provide valid token.");	
 			if(!accessToken && refreshToken) return await handleRefresh(req, res, next, refreshToken);
 			

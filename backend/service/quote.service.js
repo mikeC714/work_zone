@@ -54,7 +54,6 @@ export default {
 
     async changeQuoteStatus(quoteId, status){
         if(!quoteId) throw new AppError("Quote not found.", 404);
-		console.log("CHANGE QUOTE STATUS", status);
         try{    
             await db.query(
                 `UPDATE quotes 
@@ -63,9 +62,6 @@ export default {
                 `, [status, quoteId]
             )
         }catch(err){
-			console.trace(err);
-			console.log(err.message);
-			console.log(err);
         	throw err;
 		}
     },

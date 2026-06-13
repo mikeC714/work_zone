@@ -6,7 +6,6 @@ class Auth{
     #refreshExpiry
     #refreshSecret
     #emailSecret
-    #emailExpiry
     constructor(){
         this.#secret = process.env.JWT_SECRET;
         this.#expiry = process.env.JWT_EXPIRY || "5m"; 
@@ -52,7 +51,6 @@ class Auth{
         try{
             return jwt.verify(token, this.#refreshSecret);
         }catch(err){
-            console.log(err.message)
             throw err;
         }
     }
