@@ -63,6 +63,10 @@ Link{
 	width:60px;
 }
 
+.authLogo > span{
+	text-align: center;
+}
+
 .authLogoIcon {
     font-size: 20px;
 }
@@ -501,6 +505,131 @@ Link{
     border: 1px solid var(--border);
     color: var(--text-muted);
 }
+
+/* FORGOT PASSWORD PAGE */
+
+/* Page */
+.forgotPage {
+  min-height: 100vh;
+  background-color: #111111;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+
+/* Center the form in remaining space */
+.forgotForm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Card */
+.forgotForm {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+}
+
+/* Text block */
+.forgotFormTxt {
+  margin-bottom: 28px;
+}
+
+.forgotFormTxt h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 10px;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.forgotFormTxt p {
+  font-size: 14px;
+  color: #888888;
+  line-height: 1.65;
+  margin: 0 0 4px;
+}
+
+/* Success / Error messages */
+.forgotPage > p {
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  background-color: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #F97316;
+  align-self: center;
+}
+
+/* Form */
+.forgotEmailForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forgotEmailForm input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #FFFFFF;
+  background-color: #1A1A1A;
+  border: 1px solid #2A2A2A;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.forgotEmailForm input::placeholder {
+  color: #555555;
+}
+
+.forgotEmailForm input:focus {
+  border-color: #F97316;
+}
+
+.forgotEmailForm button {
+  width: 100%;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #F97316;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.forgotEmailForm button:hover:not(:disabled) {
+  background-color: #EA6C00;
+}
+
+.forgotEmailForm button:disabled {
+  background-color: #7C3D12;
+  color: #555555;
+  cursor: not-allowed;
+}
+
+
+
+
+
+
 
 /* ── DASHBOARD ── */
 
