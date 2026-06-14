@@ -39,7 +39,6 @@ export default {
 
     async getUserById(user){
         if(!user) throw new AppError("User not found.", 404);
-		console.log(user);
         try{
             const results = await db.query(
                 "SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1",

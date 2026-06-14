@@ -74,7 +74,6 @@ export default {
 
 	async softClearNotis(user, quotes){
 		const qtIds = quotes.map(qt => qt.id);
-		console.log("SOFT CLEAR FIRED")
 		try{
 			await db.query(
 				`UPDATE quotes
