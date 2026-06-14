@@ -11,7 +11,7 @@ export function UserProvider({children}){
     const { data, isLoading } = useQuery({
         queryKey: ["user"],
         queryFn: async() => {
-            const res = await apiFetch(`http://${config.SERVER}/api/auth/me`, "GET")
+            const res = await apiFetch(`${config.SERVER}/api/auth/me`, "GET")
 			localStorage.setItem("user", JSON.stringify(res.user));
 			return res;
 		},
