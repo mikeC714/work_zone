@@ -7,7 +7,7 @@ import config from "../config.js"
 export function useCustomerTableHook({activeFilter= '', searchFilter = '', page = 1, limit = 10}){
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['customers', activeFilter, page, limit], 
-        queryFn: async() => await apiFetch(`http://${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
+        queryFn: async() => await apiFetch(`${config.SERVER}/api/all-customers?filter=${activeFilter}&page=${page}&limit=${limit}`),
         staleTime: 1000 * 60 * 10,
     })
     const filteredData = useMemo(() => {
@@ -43,7 +43,7 @@ export function useCustomerDelete(){
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (quoteID) => apiFetch(`http://${config.SERVER}/api/delete-quote`, 'DELETE', quoteID),
+        mutationFn: (quoteID) => apiFetch(`${config.SERVER}/api/delete-quote`, 'DELETE', quoteID),
         onSuccess:() => {
             queryClient.invalidateQueries({ queryKey: ['customers'] })
             queryClient.invalidateQueries({ queryKey: ['quickAccess'] })

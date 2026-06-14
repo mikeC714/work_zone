@@ -10,7 +10,7 @@ export function useAuth() {
 	const token = searchParams.get('token');
     
 	const loginMutation = useMutation({
-        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/login`, 'POST', credentials),
+        mutationFn: (credentials) => apiFetch(`${config.SERVER}/api/auth/login`, 'POST', credentials),
         onSuccess: ({ user }) => {
             queryClient.setQueryData(["user"], user);
             navigate("/dashboard")
@@ -21,7 +21,7 @@ export function useAuth() {
     });
 
     const signupMutation = useMutation({
-        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/signup`, 'POST', credentials),
+        mutationFn: (credentials) => apiFetch(`${config.SERVER}/api/auth/signup`, 'POST', credentials),
         onSuccess: ({ user }) => {
             queryClient.setQueryData(["user"], user);
             navigate("/dashboard")
@@ -32,7 +32,7 @@ export function useAuth() {
     });
 
     const logoutMutation = useMutation({
-        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/logout`, 'POST', credentials),
+        mutationFn: (credentials) => apiFetch(`${config.SERVER}/api/auth/logout`, 'POST', credentials),
         onSuccess: () => {
             navigate("/auth");
         },
@@ -42,21 +42,21 @@ export function useAuth() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (credentials) => apiFetch(`http://${config.SERVER}/api/auth/delete`, `DELETE`, credentials),
+        mutationFn: (credentials) => apiFetch(`${config.SERVER}/api/auth/delete`, `DELETE`, credentials),
         onSuccess: () => navigate("/auth"),
         onError: (error) => console.error(error.message)
         
     })
   
 	const resetPassword = useMutation({
-		mutationFn: (password) => apiFetchNoCreds(`http://${config.SERVER}/api/auth/reset-password`, 'PUT', { token, password }),
+		mutationFn: (password) => apiFetchNoCreds(`${config.SERVER}/api/auth/reset-password`, 'PUT', { token, password }),
 		onSuccess:() => navigate("/auth"),
 		onError:(err) => { throw err; }
 	})
 
 	const sendResetPassword = useMutation({
 		mutationFn: async (email) => {
-			const res = await fetch(`http://${config.SERVER}/api/auth/forgot-password`, {
+			const res = await fetch(`${config.SERVER}/api/auth/forgot-password`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email })

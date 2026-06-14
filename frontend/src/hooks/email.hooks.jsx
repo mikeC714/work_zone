@@ -4,7 +4,7 @@ import config from '../config.js';
 
 export function useEmailHook(){
     return useMutation({
-        mutationFn: async (quote) => await apiFetch(`http://${config.SERVER}/api/quote/send`, "POST", quote),
+        mutationFn: async (quote) => await apiFetch(`${config.SERVER}/api/quote/send`, "POST", quote),
         retry: false,
 		onSuccess:(() => {
 			setTimeout(() => {
